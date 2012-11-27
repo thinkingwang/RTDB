@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace VariableObj {
+namespace Variable {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace VariableObj {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("VariableObj.Resource1", typeof(Resource1).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Variable.Resource1", typeof(Resource1).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -79,16 +79,70 @@ namespace VariableObj {
         }
         
         /// <summary>
-        ///   查找类似 父节点为空 的本地化字符串。
+        ///   查找类似 analogElement is null 的本地化字符串。
         /// </summary>
-        internal static string VariableGroup_AddGroup_parentNodeIsNull {
+        internal static string VariableBase_AddVar_analogElement_is_null {
             get {
-                return ResourceManager.GetString("VariableGroup_AddGroup_parentNodeIsNull", resourceCulture);
+                return ResourceManager.GetString("VariableBase_AddVar_analogElement_is_null", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   查找类似 parentGroup is null 的本地化字符串。
+        ///   查找类似 digitalElement is null 的本地化字符串。
+        /// </summary>
+        internal static string VariableBase_AddVar_digitalElement_is_null {
+            get {
+                return ResourceManager.GetString("VariableBase_AddVar_digitalElement_is_null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 stringElement is null 的本地化字符串。
+        /// </summary>
+        internal static string VariableBase_AddVar_stringElement_is_null {
+            get {
+                return ResourceManager.GetString("VariableBase_AddVar_stringElement_is_null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 varObj is null 的本地化字符串。
+        /// </summary>
+        internal static string VariableBase_EditVar_varObj_is_null {
+            get {
+                return ResourceManager.GetString("VariableBase_EditVar_varObj_is_null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 变量字典 的本地化字符串。
+        /// </summary>
+        internal static string VariableGroup__rootGroup_variableDictionary {
+            get {
+                return ResourceManager.GetString("VariableGroup__rootGroup_variableDictionary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 添加到组的变量为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableGroup_AddVariable_variable_is_null {
+            get {
+                return ResourceManager.GetString("VariableGroup_AddVariable_variable_is_null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 当前组已存在相同变量名的变量 的本地化字符串。
+        /// </summary>
+        internal static string VariableGroup_addVariable_variableName_is_Exist {
+            get {
+                return ResourceManager.GetString("VariableGroup_addVariable_variableName_is_Exist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 父祖为空 的本地化字符串。
         /// </summary>
         internal static string VariableGroup_IsExistGroupName_parentGroup_is_null {
             get {
@@ -97,7 +151,25 @@ namespace VariableObj {
         }
         
         /// <summary>
-        ///   查找类似 editGroup is null 的本地化字符串。
+        ///   查找类似 需要修改的变量组新名称为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableGroup_ReGroupName_groupName_Is_Null {
+            get {
+                return ResourceManager.GetString("VariableGroup_ReGroupName_groupName_Is_Null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 删除组为根组，不能删除 的本地化字符串。
+        /// </summary>
+        internal static string VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup {
+            get {
+                return ResourceManager.GetString("VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 需要修改组名称的组为空 的本地化字符串。
         /// </summary>
         internal static string VariableGroup_ReplaceGroupName_editGroup_is_null {
             get {

@@ -1,8 +1,6 @@
-﻿using VariableObj;
+﻿using Variable;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 
 namespace VariableGroupUnitTest
 {
@@ -70,9 +68,22 @@ namespace VariableGroupUnitTest
         ///VariableGroup 构造函数 的测试
         ///</summary>
         [TestMethod()]
+        [DeploymentItem("VariableObj.dll")]
         public void VariableGroupConstructorTest()
         {
-            VariableGroup target = new VariableGroup();
+            string groupName = string.Empty; // TODO: 初始化为适当的值
+            VariableGroup_Accessor target = new VariableGroup_Accessor(groupName);
+            Assert.Inconclusive("TODO: 实现用来验证目标的代码");
+        }
+
+        /// <summary>
+        ///VariableGroup 构造函数 的测试
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("VariableObj.dll")]
+        public void VariableGroupConstructorTest1()
+        {
+            VariableGroup_Accessor target = new VariableGroup_Accessor();
             Assert.Inconclusive("TODO: 实现用来验证目标的代码");
         }
 
@@ -82,112 +93,78 @@ namespace VariableGroupUnitTest
         [TestMethod()]
         public void AddGroupTest()
         {
-            VariableGroup target = new VariableGroup(); // TODO: 初始化为适当的值
-            string groupName = string.Empty; // TODO: 初始化为适当的值
-            VariableGroup parentGroup = null; // TODO: 初始化为适当的值
-            VariableGroup.AddGroup(groupName, parentGroup);
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            string groupName = "yui"; // TODO: 初始化为适当的值
+            target.AddGroup(groupName);
             Assert.Inconclusive("无法验证不返回值的方法。");
         }
 
         /// <summary>
-        ///DeleteGroup 的测试
+        ///AddVariable 的测试
         ///</summary>
         [TestMethod()]
-        public void DeleteGroupTest()
+        public void AddVariableTest()
         {
-            VariableGroup target = new VariableGroup(); // TODO: 初始化为适当的值
-            VariableGroup delelteGroupObj = null; // TODO: 初始化为适当的值
-            VariableGroup.DeleteGroup(delelteGroupObj);
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            VariableBase variable = new VariableBase(); // TODO: 初始化为适当的值
+            variable.GroupID = "123";
+            target.AddVariable(variable);
             Assert.Inconclusive("无法验证不返回值的方法。");
         }
 
         /// <summary>
-        ///EditGroupName 的测试
+        ///ClearVariable 的测试
         ///</summary>
         [TestMethod()]
-        public void EditGroupNameTest()
+        public void ClearVariableTest()
         {
-            VariableGroup target = new VariableGroup(); // TODO: 初始化为适当的值
-            VariableGroup editGroup = null; // TODO: 初始化为适当的值
-            string groupName = string.Empty; // TODO: 初始化为适当的值
-            VariableGroup.EditGroupName(editGroup, groupName);
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            target.ClearVariable();
             Assert.Inconclusive("无法验证不返回值的方法。");
         }
 
         /// <summary>
-        ///GetVars 的测试
+        ///GetFullPath 的测试
         ///</summary>
         [TestMethod()]
-        public void GetVarsTest()
+        public void GetFullPathTest()
         {
-            VariableGroup target = new VariableGroup(); // TODO: 初始化为适当的值
-            string id = string.Empty; // TODO: 初始化为适当的值
-            List<VariableBaseObj> expected = null; // TODO: 初始化为适当的值
-            List<VariableBaseObj> actual;
-            actual = VariableGroup.GetVars(id);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("验证此测试方法的正确性。");
-        }
-
-
-        /// <summary>
-        ///VariableGroup 构造函数 的测试
-        ///</summary>
-        [TestMethod()]
-        public void VariableGroupConstructorTest1()
-        {
-            VariableGroup target = new VariableGroup();
-            Assert.Inconclusive("TODO: 实现用来验证目标的代码");
-        }
-
-        /// <summary>
-        ///AddGroup 的测试
-        ///</summary>
-        [TestMethod()]
-        public void AddGroupTest1()
-        {
-            string groupName = string.Empty; // TODO: 初始化为适当的值
-            TreeNode parentGroup = null; // TODO: 初始化为适当的值
-            TreeNode expected = null; // TODO: 初始化为适当的值
-            TreeNode actual;
-            actual = VariableGroup.AddGroup(groupName, parentGroup);
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            bool isHideRoot = false; // TODO: 初始化为适当的值
+            string expected = string.Empty; // TODO: 初始化为适当的值
+            string actual;
+            actual = target.GetFullPath(isHideRoot);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("验证此测试方法的正确性。");
         }
 
         /// <summary>
-        ///DeleteGroup 的测试
+        ///GetGroup 的测试
         ///</summary>
         [TestMethod()]
-        public void DeleteGroupTest1()
+        public void GetGroupTest()
         {
-            TreeNode delelteGroupObj = null; // TODO: 初始化为适当的值
-            VariableGroup.DeleteGroup(delelteGroupObj);
-            Assert.Inconclusive("无法验证不返回值的方法。");
+            string fullPath = string.Empty; // TODO: 初始化为适当的值
+            bool isHideRoot = false; // TODO: 初始化为适当的值
+            VariableGroup expected = new VariableGroup(); // TODO: 初始化为适当的值
+            VariableGroup actual;
+            actual = VariableGroup.GetGroup(fullPath, isHideRoot);
+            Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("验证此测试方法的正确性。");
         }
 
         /// <summary>
-        ///EditGroupName 的测试
+        ///IsContainVariable 的测试
         ///</summary>
         [TestMethod()]
-        public void EditGroupNameTest1()
+        [DeploymentItem("VariableObj.dll")]
+        public void IsContainVariableTest()
         {
-            TreeNode editGroup = null; // TODO: 初始化为适当的值
-            string groupName = string.Empty; // TODO: 初始化为适当的值
-            VariableGroup.EditGroupName(editGroup, groupName);
-            Assert.Inconclusive("无法验证不返回值的方法。");
-        }
-
-        /// <summary>
-        ///GetVars 的测试
-        ///</summary>
-        [TestMethod()]
-        public void GetVarsTest1()
-        {
-            string id = string.Empty; // TODO: 初始化为适当的值
-            List<VariableBaseObj> expected = null; // TODO: 初始化为适当的值
-            List<VariableBaseObj> actual;
-            actual = VariableGroup.GetVars(id);
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            VariableBase variable = null; // TODO: 初始化为适当的值
+            bool expected = false; // TODO: 初始化为适当的值
+            bool actual;
+            actual = target.IsContainVariable(variable);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("验证此测试方法的正确性。");
         }
@@ -199,55 +176,125 @@ namespace VariableGroupUnitTest
         [DeploymentItem("VariableObj.dll")]
         public void IsExistGroupNameTest()
         {
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
             string groupNameId = string.Empty; // TODO: 初始化为适当的值
-            TreeNode parentGroup = null; // TODO: 初始化为适当的值
             bool expected = false; // TODO: 初始化为适当的值
             bool actual;
-            actual = VariableGroup_Accessor.IsExistGroupName(groupNameId, parentGroup);
+            actual = target.IsExistGroupName(groupNameId);
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("验证此测试方法的正确性。");
         }
 
         /// <summary>
-        ///ReplaceGroupName 的测试
+        ///RemoveGroup 的测试
         ///</summary>
         [TestMethod()]
-        [DeploymentItem("VariableObj.dll")]
-        public void ReplaceGroupNameTest()
+        public void RemoveGroupTest()
         {
-            TreeNode editGroup = null; // TODO: 初始化为适当的值
-            string oldGroupName = string.Empty; // TODO: 初始化为适当的值
-            string newGroupName = string.Empty; // TODO: 初始化为适当的值
-            VariableGroup_Accessor.ReplaceGroupName(editGroup, oldGroupName, newGroupName);
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            target.RemoveGroup();
             Assert.Inconclusive("无法验证不返回值的方法。");
         }
 
         /// <summary>
-        ///GroupId 的测试
+        ///RemoveVariable 的测试
         ///</summary>
         [TestMethod()]
-        public void GroupIdTest()
+        public void RemoveVariableTest()
         {
-            VariableGroup target = new VariableGroup(); // TODO: 初始化为适当的值
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            string variableName = string.Empty; // TODO: 初始化为适当的值
+            target.RemoveVariable(variableName);
+            Assert.Inconclusive("无法验证不返回值的方法。");
+        }
+
+        /// <summary>
+        ///RenameGroup 的测试
+        ///</summary>
+        [TestMethod()]
+        public void RenameGroupTest()
+        {
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            string groupName = string.Empty; // TODO: 初始化为适当的值
+            target.RenameGroup(groupName);
+            Assert.Inconclusive("无法验证不返回值的方法。");
+        }
+
+        /// <summary>
+        ///ChildGroups 的测试
+        ///</summary>
+        [TestMethod()]
+        public void ChildGroupsTest()
+        {
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            VariableGroup[] actual;
+            actual = target.ChildGroups;
+            Assert.Inconclusive("验证此测试方法的正确性。");
+        }
+
+        /// <summary>
+        ///ChildVariables 的测试
+        ///</summary>
+        [TestMethod()]
+        public void ChildVariablesTest()
+        {
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            VariableBase[] actual;
+            actual = target.ChildVariables;
+            Assert.Inconclusive("验证此测试方法的正确性。");
+        }
+
+        /// <summary>
+        ///GroupName 的测试
+        ///</summary>
+        [TestMethod()]
+        public void GroupNameTest()
+        {
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
             string expected = string.Empty; // TODO: 初始化为适当的值
             string actual;
-            target.GroupId = expected;
-            actual = target.GroupId;
+            target.GroupName = expected;
+            actual = target.GroupName;
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("验证此测试方法的正确性。");
         }
 
         /// <summary>
-        ///RootGroupName 的测试
+        ///GroupsCount 的测试
         ///</summary>
         [TestMethod()]
-        public void RootGroupNameTest()
+        public void GroupsCountTest()
         {
-            string expected = string.Empty; // TODO: 初始化为适当的值
-            string actual;
-            VariableGroup.RootGroupName = expected;
-            actual = VariableGroup.RootGroupName;
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            int actual;
+            actual = target.GroupsCount;
+            Assert.Inconclusive("验证此测试方法的正确性。");
+        }
+
+        /// <summary>
+        ///RootGroup 的测试
+        ///</summary>
+        [TestMethod()]
+        [DeploymentItem("VariableObj.dll")]
+        public void RootGroupTest()
+        {
+            VariableGroup expected = null; // TODO: 初始化为适当的值
+            VariableGroup actual;
+            VariableGroup_Accessor.RootGroup = expected;
+            actual = VariableGroup_Accessor.RootGroup;
             Assert.AreEqual(expected, actual);
+            Assert.Inconclusive("验证此测试方法的正确性。");
+        }
+
+        /// <summary>
+        ///VariablesCount 的测试
+        ///</summary>
+        [TestMethod()]
+        public void VariablesCountTest()
+        {
+            VariableGroup_Accessor target = new VariableGroup_Accessor(); // TODO: 初始化为适当的值
+            int actual;
+            actual = target.VariablesCount;
             Assert.Inconclusive("验证此测试方法的正确性。");
         }
     }

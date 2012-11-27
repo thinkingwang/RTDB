@@ -8,7 +8,7 @@
     <ProjectGuid>{DB27AE46-CD86-42F3-A253-85BA06EBAE8B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VariableObj</RootNamespace>
+    <RootNamespace>Variable</RootNamespace>
     <AssemblyName>VariableObj</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -41,7 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="VariableBaseObj.cs" />
+    <Compile Include="VariableBase.cs" />
     <Compile Include="VariableGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resource1.Designer.cs">

@@ -2,199 +2,309 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows.Forms;
 
-namespace VariableObj
+namespace Variable
 {
-   
-    public class VariableGroup : TreeNode
+    public class VariableGroup
     {
-        /// <summary>
-        /// 变量组集合
-        /// </summary>
-        public static TreeNode RootGroup = new TreeNode("Variable");
+        #region 私有方法
+
+        private VariableGroup _parent;
+        private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
+        private readonly List<VariableBase> _childVariables = new List<VariableBase>();
+
+        #endregion
 
         #region 属性
+
         /// <summary>
-        /// 组的ID号，与变量关联
+        /// 根组
         /// </summary>
-        public string GroupId
+        public static VariableGroup RootGroup { get; private set; }
+
+        /// <summary>
+        /// 变量组名称
+        /// </summary>
+        public string GroupName { get; set; }
+
+        /// <summary>
+        /// 子组集合
+        /// </summary>
+        public VariableGroup[] ChildGroups
         {
-            get
-            {
-                return ToolTipText;
-            }
-            set
-            {
-                ToolTipText = value;
-            }
+            get { return _childGroups.ToArray(); }
         }
 
         /// <summary>
-        /// 变量组根节点名称
+        /// 当前组的子组数量
         /// </summary>
-        public static string RootGroupName
+        public int GroupsCount
         {
-            get
-            {
-                return RootGroup.Text;
-            }
-            set
-            {
-                RootGroup.Text = value;
-            }
+            get { return _childGroups.Count; }
         }
+
+        /// <summary>
+        /// 组变量集合
+        /// </summary>
+        public VariableBase[] ChildVariables
+        {
+            get { return _childVariables.ToArray(); }
+        }
+
+        /// <summary>
+        /// 当前组的变量数量
+        /// </summary>
+        public int VariablesCount
+        {
+            get { return _childVariables.Count; }
+        }
+
+        #endregion
+
+        #region 构造函数
+
+        /// <summary>
+        /// 组默认构造函数
+        /// </summary>
+        public VariableGroup()
+        {
+
+        }
+
+        /// <summary>
+        /// 组构造函数
+        /// </summary>
+        /// <param name="groupName">组名称</param>
+        public VariableGroup(string groupName)
+        {
+            GroupName = groupName;
+        }
+
+        static VariableGroup()
+        {
+            Debug.Assert(Resource1.VariableGroup__rootGroup_variableDictionary != null, 
+                "Resource1.VariableGroup__rootGroup_variableDictionary != null");
+
+            RootGroup = new VariableGroup(Resource1.VariableGroup__rootGroup_variableDictionary);
+        }
+
         #endregion
 
         #region 公有方法
 
+        #region 组公共方法
+
         /// <summary>
-        /// 添加组
+        /// 向当前组添加子组
         /// </summary>
-        /// <param name="groupName">组名称</param>
-        /// <param name="parentGroup">组的上一级组</param>
-        /// <exception cref="Exception"></exception>
-        /// <returns>返回新建组节点</returns>
-        public static TreeNode AddGroup(string groupName, TreeNode parentGroup)
+        /// <param name="groupName">子组名称</param>
+        public void AddGroup(string groupName)
         {
             if (string.IsNullOrEmpty(groupName))
             {
-                Debug.Assert(Resource1.CVariableGroup_AddGroup_GroupNameIsNull != null, "Resource1.CVariableGroup_AddGroup_GroupNameIsNull != null");
+                Debug.Assert(Resource1.CVariableGroup_AddGroup_GroupNameIsNull != null,
+                             "Resource1.CVariableGroup_AddGroup_GroupNameIsNull != null");
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupNameIsNull);
             }
 
-            if(parentGroup == null)
-            {
-                throw new Exception(Resource1.VariableGroup_AddGroup_parentNodeIsNull);
-            }
+            var newGroup = new VariableGroup {GroupName = groupName, _parent = this};
 
-            VariableGroup newGroup = new VariableGroup();
-            newGroup.GroupId = (parentGroup.Text == RootGroupName) ? (groupName) : (parentGroup.ToolTipText + "." + groupName);
-            newGroup.Text = groupName;
-
-            //赋值变量组ID
-            if (IsExistGroupName(newGroup.Text, parentGroup))
+            if (IsExistGroupName(groupName))
             {
-                Debug.Assert(Resource1.CVariableGroup_AddGroup_GroupeNameIsExist != null, "Resource1.CVariableGroup_AddGroup_GroupeNameIsExist != null");
+                Debug.Assert(Resource1.CVariableGroup_AddGroup_GroupeNameIsExist != null,
+                             "Resource1.CVariableGroup_AddGroup_GroupeNameIsExist != null");
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupeNameIsExist);
             }
 
-            if (parentGroup.Text == RootGroupName)
+            if (_parent == null)
             {
-                //根节点
-                RootGroup.Nodes.Add(newGroup);
+                //根组
+                RootGroup._childGroups.Add(newGroup);
             }
             else
             {
-                parentGroup.Nodes.Add(newGroup);
+                _childGroups.Add(newGroup);
             }
-            return newGroup;
+
         }
 
         /// <summary>
         /// 删除指定组
         /// </summary>
-        /// <param name="delelteGroupObj">需要删除的组对象</param>
-        public static void DeleteGroup(TreeNode delelteGroupObj)
+        public void RemoveGroup()
         {
-            if (delelteGroupObj == null)
-            {
-                return;
-            }
             //删除该组下面的子组
-            while (delelteGroupObj.Nodes.Count > 0)
+            while (_childGroups.Count > 0)
             {
-                DeleteGroup(delelteGroupObj.Nodes[0]);
+                _childGroups[0].RemoveGroup();
             }
 
             //删除该组下的变量
-            VariableBaseObj.DeleteAllVarByGroup(delelteGroupObj.ToolTipText);
+            ClearVariable();
 
             //删除该组
-            delelteGroupObj.Remove();
-        }
-
-        /// <summary>
-        /// 编辑指定组的组名称
-        /// </summary>
-        /// <param name="editGroup">需要编辑的组对象</param>
-        /// <param name="groupName">修改后的组名</param>
-        public static void EditGroupName(TreeNode editGroup, string groupName)
-        {
-
-            if (editGroup == null)
+            if (_parent != null)
             {
-                return;
+                _parent._childGroups.Remove(this);
             }
+            else
+            {
+                Debug.Assert(Resource1.VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup != null, 
+                    "Resource1.VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup != null");
+                throw new Exception(Resource1.VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup);
+            }
+        }
+        
+        /// <summary>
+        /// 修改当前变量组名称
+        /// </summary>
+        /// <param name="groupName">修改后的组名</param>
+        public void RenameGroup(string groupName)
+        {
             if (string.IsNullOrEmpty(groupName))
             {
-                return;
+                Debug.Assert(Resource1.VariableGroup_ReGroupName_groupName_Is_Null != null,
+                    "Resource1.VariableGroup_ReGroupName_groupName_Is_Null != null");
+                throw new Exception(Resource1.VariableGroup_ReGroupName_groupName_Is_Null);
             }
 
-            //修改组自身信息
-            editGroup.Text = groupName;
-
-            //修改节点Id值
-            string newGroupName = editGroup.ToolTipText.Substring(0, editGroup.ToolTipText.LastIndexOf('.') + 1) + groupName;
-            ReplaceGroupName(editGroup, editGroup.ToolTipText, newGroupName);
+            GroupName = groupName;
         }
 
         /// <summary>
-        /// 获取指定变量组的所有变量
+        /// 获取当前组的绝对路径
         /// </summary>
-        /// <param name="id">变量组ID</param>
-        /// <returns>变量列表</returns>
-        public static List<VariableBaseObj> GetVars(string id)
+        /// <param name="isHideRoot">是否隐藏根组</param>
+        /// <returns>变量组绝对路径，以“.”作为间隔</returns>
+        public string GetFullPath(bool isHideRoot = true)
         {
-            return VariableBaseObj.FindAllVarByGroup(id);
+            VariableGroup varGroup = this;
+            string path = varGroup.GroupName;
+            while (varGroup._parent != null)
+            {
+                varGroup = varGroup._parent;
+                path = varGroup.GroupName + "." + path;
+            }
+
+            if (isHideRoot)
+            {
+                //隐藏根组
+                int index = path.IndexOf('.');
+                path = index < 0 ? "" : path.Substring(index + 1);
+            }
+            return path;
         }
+
+        /// <summary>
+        /// 根据绝对路径获取组
+        /// </summary>
+        /// <param name="fullPath">绝对路径</param>
+        /// <param name="isHideRoot">绝对路径是否包含根组</param>
+        /// <returns>返回组</returns>
+        public static VariableGroup GetGroup(string fullPath, bool isHideRoot = true)
+        {
+            if (isHideRoot)
+            {
+                fullPath = RootGroup.GroupName + "." + fullPath;
+            }
+            string[] paths = fullPath.Split('.');
+            VariableGroup group = RootGroup;
+            for (int i = 1; i < paths.Length; i++)
+            {
+                group = group._childGroups.Find(m => m.GroupName == paths[i]);
+                if (group == null)
+                    break;
+            }
+
+            return group;
+        }
+
+        #endregion
+
+        #region 当前组的变量公共方法
+
+        /// <summary>
+        /// 向当前组添加变量
+        /// </summary>
+        /// <param name="variable">需要添加的变量</param>
+        public void AddVariable(VariableBase variable)
+        {
+            if (variable == null)
+            {
+                Debug.Assert(Resource1.VariableGroup_AddVariable_variable_is_null != null, 
+                    "Resource1.VariableGroup_AddVariable_variable_is_null != null");
+
+                throw new ArgumentNullException(Resource1.VariableGroup_AddVariable_variable_is_null);
+            }
+
+            if (IsContainVariable(variable))
+            {
+                Debug.Assert(Resource1.VariableGroup_addVariable_variableName_is_Exist != null,
+                             "Resource1.VariableGroup_addVariable_variableName_is_Exist != null");
+                throw new Exception(Resource1.VariableGroup_addVariable_variableName_is_Exist);
+            }
+
+            variable.GroupID = GetFullPath();
+            _childVariables.Add(variable);
+        }
+
+        /// <summary>
+        /// 删除指定变量
+        /// </summary>
+        /// <param name="variableName">变量名称</param>
+        public void RemoveVariable(string variableName)
+        {
+            for (int index = 0; index < _childVariables.Count; index++)
+            {
+                VariableBase curVariable = _childVariables[index];
+                if (curVariable.VarName == variableName)
+                {
+                    _childVariables.Remove(curVariable);
+                    curVariable.RemoveVar();
+                    break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 删除当前组的所有变量
+        /// </summary>
+        public void ClearVariable()
+        {
+            //删除该组下的变量
+            while (_childVariables.Count > 0)
+            {
+                _childVariables[0].RemoveVar();
+                _childVariables.RemoveAt(0);
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region 私有方法
         /// <summary>
-        /// 替换组节点下所有子组和变量Id值
-        /// </summary>
-        /// <param name="editGroup">需要修改的组</param>
-        /// <param name="oldGroupName">修改前的组名称</param>
-        /// <param name="newGroupName">修改后的组名称</param>
-        private static void ReplaceGroupName(TreeNode editGroup, string oldGroupName, string newGroupName)
-        {
-            if (editGroup == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableGroup_ReplaceGroupName_editGroup_is_null);
-            }
-            editGroup.ToolTipText = newGroupName + editGroup.ToolTipText.Substring(oldGroupName.Length);
-
-            //修改组的所有变量Id
-            List<VariableBaseObj> curVarList = GetVars(oldGroupName);
-            if (curVarList != null)
-            {
-                foreach (var variableBaseObj in curVarList)
-                {
-                    variableBaseObj.GroupID = newGroupName + variableBaseObj.GroupID.Substring(oldGroupName.Length);
-                }
-            }
-            for (int i = 0; i < editGroup.Nodes.Count; i++)
-            {
-                ReplaceGroupName(editGroup.Nodes[i], oldGroupName, newGroupName);
-            }
-        }
-
-        /// <summary>
         /// 判断组名称groupNameId是否在parentGroup中存在
         /// </summary>
         /// <param name="groupNameId">组名称</param>
-        /// <param name="parentGroup">父组节点</param>
         /// <returns>true:存在，false：不存在</returns>
-        private static bool IsExistGroupName(string groupNameId, TreeNode parentGroup)
+        private bool IsExistGroupName(string groupNameId)
         {
-            if (parentGroup == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableGroup_IsExistGroupName_parentGroup_is_null);
-            }
-            //如果父节点包含groupName相同的节点，则返回不添加
-            return parentGroup.Nodes.Cast<VariableGroup>().Any(curGroup => curGroup.Text == groupNameId);
+            //如果父组包含groupName相同的组，则返回不添加
+            return _childGroups.Any(curGroup => curGroup.GroupName == groupNameId);
         }
+
+        /// <summary>
+        /// 变量列表是否包含指定变量
+        /// </summary>
+        /// <param name="variable">指定变量</param>
+        /// <returns>true：存在，false：不存在</returns>
+        private bool IsContainVariable(VariableBase variable)
+        {
+            return _childVariables.Any(curVariable => curVariable.VarName == variable.VarName);
+        }
+
         #endregion
     }
 }

@@ -1,9 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "param", "param", "{78EC6F06-C6F9-4A31-89E0-37E8B7AEADEE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VariableObj", "VariableObj\VariableObj.csproj", "{DB27AE46-CD86-42F3-A253-85BA06EBAE8B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Variable", "VariableObj\Variable.csproj", "{DB27AE46-CD86-42F3-A253-85BA06EBAE8B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VariableGroupUnitTest", "VariableGroupUnitTest\VariableGroupUnitTest.csproj", "{C7F93881-C7C0-4030-AD0A-AAA688899186}"
 EndProject
@@ -62,9 +60,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{DB27AE46-CD86-42F3-A253-85BA06EBAE8B} = {78EC6F06-C6F9-4A31-89E0-37E8B7AEADEE}
-		{EF39103A-CBC7-4776-9395-0ECAABC257B2} = {78EC6F06-C6F9-4A31-89E0-37E8B7AEADEE}
 	EndGlobalSection
 EndGlobal

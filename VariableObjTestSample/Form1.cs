@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using VariableObj;
+using Variable;
 
 namespace VariableObjTestSample
 {
@@ -17,52 +17,170 @@ namespace VariableObjTestSample
             InitializeComponent();
         }
 
+        private RichTextBox rtb;
         private void Form1_Load(object sender, EventArgs e)
         {
-            treeView1.Nodes[0].Nodes[0].Nodes.Add(VariableGroup.RootGroup);
-            VariableGroup.RootGroup.ContextMenuStrip = contextMenuStrip1;
-            VariableGroup.RootGroup.Text = "变量字典";
-            treeView1.ExpandAll();
-        }
-
-        private void addToolStripMenuItem_Click(object sender, EventArgs e)
-        {
             try
             {
-                TreeNode node = VariableGroup.AddGroup(textBox1.Text, treeView1.SelectedNode);
-                node.ContextMenuStrip = contextMenuStrip1;
-                treeView1.ExpandAll();
+                rtb = richTextBox1;
+                VariableGroup.RootGroup.GroupName = "变量字典测试";
+                VariableGroup.RootGroup.AddVariable(new VariableBase()); //添加变量
+
+                VariableGroup.RootGroup.AddGroup("varGroup1");
+                VariableGroup.RootGroup.AddGroup("varGroup2");
+                VariableGroup.RootGroup.AddGroup("varGroup3");
+                VariableGroup.RootGroup.AddGroup("varGroup4");
+                VariableGroup varGroup = VariableGroup.GetGroup("varGroup1");
+
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+
+                varGroup.AddGroup("varGroup1_sub1");
+                varGroup.AddGroup("varGroup1_sub2");
+                varGroup.AddGroup("varGroup1_sub3");
+                varGroup.AddGroup("varGroup1_sub4");
+
+                varGroup = VariableGroup.GetGroup("varGroup2");
+
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+
+                varGroup.AddGroup("varGroup2_sub1");
+                varGroup.AddGroup("varGroup2_sub2");
+                varGroup.AddGroup("varGroup2_sub3");
+                varGroup.AddGroup("varGroup2_sub4");
+
+                varGroup = VariableGroup.GetGroup("varGroup3");
+
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+
+                varGroup.AddGroup("varGroup3_sub1");
+                varGroup.AddGroup("varGroup3_sub2");
+                varGroup.AddGroup("varGroup3_sub3");
+                varGroup.AddGroup("varGroup3_sub4");
+
+                varGroup = VariableGroup.GetGroup("varGroup4");
+
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+
+                varGroup.AddGroup("varGroup4_sub1");
+                varGroup.AddGroup("varGroup4_sub2");
+                varGroup.AddGroup("varGroup4_sub3");
+                varGroup.AddGroup("varGroup4_sub4");
+
+                varGroup = VariableGroup.GetGroup("varGroup2.varGroup2_sub4");
+
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+
+                varGroup.AddGroup("varGroup2_sub1");
+                varGroup.AddGroup("varGroup2_sub2");
+                varGroup.AddGroup("varGroup2_sub3");
+                varGroup.AddGroup("varGroup2_sub4");
+
+                varGroup = VariableGroup.GetGroup("varGroup2.varGroup2_sub4.varGroup2_sub3");
+
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+                varGroup.AddVariable(new VariableBase()); //添加变量
+
+                varGroup.AddGroup("varGroup2_sub1");
+                varGroup.AddGroup("varGroup2_sub2");
+                varGroup.AddGroup("varGroup2_sub3");
+                varGroup.AddGroup("varGroup2_sub4");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+
+                MessageBox.Show(ex.Message);
             }
+           
         }
 
-        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-            try
-            {
-                VariableGroup.DeleteGroup(treeView1.SelectedNode);
-                treeView1.ExpandAll();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.ToString());
-            }
+            rtb = richTextBox1;
+            rtb.Text = "";
+            ErgodicTree(VariableGroup.RootGroup, 0);
         }
 
-        private void editToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ErgodicTree(VariableGroup element,int deep)
         {
-            try
+            deep ++;
+            string headStr = "--";
+            for (int i = 0; i < deep; i++)
             {
-                VariableGroup.EditGroupName(treeView1.SelectedNode, textBox1.Text);
-                treeView1.ExpandAll();
+                headStr += "--";
             }
-            catch (Exception ex)
+            rtb.Text += headStr + element.GroupName + "\r\n";
+            for (int i =0;i<  element.ChildGroups.Count();i++)
             {
-                MessageBox.Show(ex.ToString());
-            }
+                if (element.ChildGroups[i].ChildGroups != null)
+                {
+                    ErgodicTree(element.ChildGroups[i], deep);
+                }
+                if (i + 1 == element.ChildGroups.Count())
+                {
+                    headStr += "--";
+                    foreach (var child in element.ChildVariables)
+                    {
+                        rtb.Text += headStr + child.GroupID + "." + child.VarName + "\r\n";
+                    }
+                }
+            } 
+            
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            rtb = richTextBox2;
+            rtb.Text = "";
+            VariableGroup varGroup = VariableGroup.GetGroup("varGroup2.varGroup2_sub4");
+            if (varGroup != null)
+            {
+                varGroup.RemoveGroup();
+            }
+            ErgodicTree(VariableGroup.RootGroup, 0);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            rtb = richTextBox2;
+            rtb.Text = "";
+            VariableGroup varGroup = VariableGroup.GetGroup("varGroup2.varGroup2_sub3");
+            if (varGroup != null)
+            {
+                varGroup.RenameGroup("思考哥");
+            }
+            ErgodicTree(VariableGroup.RootGroup, 0);
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            rtb = richTextBox2;
+            rtb.Text = "";
+            VariableGroup varGroup = VariableGroup.GetGroup("varGroup2.varGroup2_sub4.varGroup2_sub3");
+            if (varGroup != null)
+            {
+                //varGroup.RemoveVariable("Variable22");
+                varGroup.ClearVariable();
+            }
+            ErgodicTree(VariableGroup.RootGroup, 0);
+        }
+      
+
     }
 }
