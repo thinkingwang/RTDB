@@ -53,8 +53,17 @@ namespace Variable
     /// </summary>
     public enum Varoperateproperty
     {
+        /// <summary>
+        /// 可读写
+        /// </summary>
         ReadWrite,
+        /// <summary>
+        /// 只读
+        /// </summary>
         OnlyRead,
+        /// <summary>
+        /// 只写
+        /// </summary>
         OnlyWrite,
     }
     #endregion
@@ -64,217 +73,104 @@ namespace Variable
     /// </summary>
     public class VariableBase
     {
-        private static UInt32 _varCount = 0;
-
-        #region 变量属性
-
         #region 变量基本属性
+
         /// <summary>
         /// 变量名称
         /// </summary>
-        public string VarName;
+        public string VarName { get; set; }
+
         /// <summary>
         /// 数据类型
         /// </summary>
-        public VARVALUETYPE VarValueType = VARVALUETYPE.VarDouble;
+        public VARVALUETYPE VarValueType { get; set; }
+
         /// <summary>
         /// 变量类型
         /// </summary>
-        public VARTYPE VarType;
+        public VARTYPE VarType { get; set; }
 
         /// <summary>
         /// 变量描述
         /// </summary>
-        public string VarDescription;
+        public string VarDescription { get; set; }
 
+        /// <summary>
+        /// 变量组名    
+        /// </summary>
+        public string GroupID { get; set; }
 
         /// <summary>
         /// 是否保存数值
         /// </summary>
-        public bool IsValueSaved;
+        public bool IsValueSaved { get; set; }
 
         /// <summary>
         /// 是否保存参数
         /// </summary>
-        public bool IsParameterSaved;
+        public bool IsParameterSaved { get; set; }
 
         /// <summary>
         /// 是否允许外部程序访问
         /// </summary>
-        public bool IsAddressable;
+        public bool IsAddressable { get; set; }
 
         /// <summary>
         /// 是否记录事件
         /// </summary>
-        public bool IsRecordEvent;
-
-
-        public Varoperateproperty OperateProperty;
-
-        #endregion
-
-        #region 变量报警属性
-
-        #endregion
-
-        #region 变量历史记录属性
-
-        #endregion
-
-
-        #region 变量分组属性
-        /// <summary>
-        /// 变量组名    
-        /// </summary>
-        public string GroupID;
-        #endregion
-
-        #endregion
-
-        #region 变量集合
+        public bool IsRecordEvent { get; set; }
 
         /// <summary>
-        /// 模拟变量集合
+        /// 变量操作属性（可读写、只读、只写）
         /// </summary>
-        protected static Dictionary<string, AnalogVar> analogSet =
-           new System.Collections.Generic.Dictionary<string, AnalogVar>();
+        public Varoperateproperty OperateProperty { get; set; }
 
         /// <summary>
-        /// 数字变量集合
+        /// 变量全名
         /// </summary>
-        protected static Dictionary<string, DigitalVar> digitalSet =
-            new System.Collections.Generic.Dictionary<string, DigitalVar>();
-
-        /// <summary>
-        /// 字符变量集合
-        /// </summary>
-        protected static Dictionary<string, StringVar> stringSet =
-            new System.Collections.Generic.Dictionary<string, StringVar>();
-
-        #endregion
-
-        public VariableBase()
+        public string VariableFullName
         {
-            _varCount++;
-            VarName = "Variable" + _varCount.ToString(CultureInfo.InvariantCulture);
+            get { return (GroupID == string.Empty || GroupID == "") ? VarName : (GroupID + "." + VarName); }
+        }
+
+        #endregion
+
+        /// <summary>
+        /// 变量构造函数
+        /// </summary>
+        /// <param name="groupPath">变量隶属于组别名称</param>
+        /// <param name="varName">变量名称</param>
+        /// <param name="varValueType">变量类型</param>
+        protected VariableBase(string groupPath, string varName = "", VARVALUETYPE varValueType = VARVALUETYPE.VarDouble)
+        {
+            VarName = (varName == "") ? VariableGroup.GetInitVarName(groupPath) : varName;
+
+            VarValueType = varValueType;
             OperateProperty = Varoperateproperty.ReadWrite;
+            GroupID = groupPath;
+            IsAddressable = false;
+            IsParameterSaved = false;
+            IsRecordEvent = false;
+            IsValueSaved = true;
         }
 
-        public VariableBase(string varName)
+        /// <summary>
+        /// 拷贝属性
+        /// </summary>
+        /// <param name="source">源变量对象实例</param>
+        public virtual void CopyProperty(VariableBase source)
         {
-            _varCount++;
-            VarName = varName;
-            OperateProperty = Varoperateproperty.ReadWrite;
-        }
-
-        #region 公有方法
-
-        public static void AddVar(AnalogVar analogElement)
-        {
-            if (analogElement == null) throw new ArgumentNullException(Resource1.VariableBase_AddVar_analogElement_is_null);
-            analogSet.Add(analogElement.VarName, analogElement);
-        }
-
-        public static void AddVar(DigitalVar digitalElement)
-        {
-            if (digitalElement == null) throw new ArgumentNullException(Resource1.VariableBase_AddVar_digitalElement_is_null);
-            digitalSet.Add(digitalElement.VarName, digitalElement);
-        }
-
-        public static void AddVar(StringVar stringElement)
-        {
-            if (stringElement == null) throw new ArgumentNullException(Resource1.VariableBase_AddVar_stringElement_is_null);
-            stringSet.Add(stringElement.VarName, stringElement);
-        }
-
-        public static void EditVar(VariableBase varObj, string newVarName)
-        {
-            if (varObj == null)
+            if (source == null)
             {
-                throw new ArgumentNullException(Resource1.VariableBase_EditVar_varObj_is_null);
+                Debug.Assert(Resource1.AnalogVar_CopyProperty_SourceObjIsNull != null, "Resource1.CopyProperty_SourceObjIsNull != null");
+                throw new ArgumentNullException(Resource1.AnalogVar_CopyProperty_SourceObjIsNull);
             }
+            VarValueType = source.VarValueType;
+            OperateProperty = source.OperateProperty;
+            IsAddressable = source.IsAddressable;
+            IsParameterSaved = source.IsParameterSaved;
+            IsRecordEvent = source.IsRecordEvent;
+            IsValueSaved = source.IsValueSaved;
         }
-
-
-        public void RemoveVar()
-        {
-            if (this.VarValueType == VARVALUETYPE.VarDouble)
-            {
-                analogSet.Remove(this.VarName);
-            }
-            else if (this.VarValueType == VARVALUETYPE.VarBool)
-            {
-                digitalSet.Remove(this.VarName);
-            }
-            else if (this.VarValueType == VARVALUETYPE.VarDouble)
-            {
-                stringSet.Remove(this.VarName);
-            }
-        }
-        
-        #endregion
     }
-
-    public class DigitalVar : VariableBase
-    {
-        /// <summary>
-        /// 变量初始值
-        /// </summary>
-        public bool InitValue;
-
-    }
-
-    public class AnalogVar : VariableBase
-    {
-        /// <summary>
-        /// 死区,变量最小的变化幅度
-        /// </summary>
-        public double DeadArea;
-
-        /// <summary>
-        /// 变量初始值
-        /// </summary>
-        public double InitValue;
-
-        /// <summary>
-        /// 变量最小值
-        /// </summary>
-        public double MinValue;
-
-        /// <summary>
-        /// 变量最大值
-        /// </summary>
-        public double MaxValue;
-
-        /// <summary>
-        /// 工程单位
-        /// </summary>
-        public string ProjectUnit;
-
-        public AnalogVar():base()
-        {
-            this.DeadArea = 0;
-            this.GroupID = "";
-            this.InitValue = 0;
-            this.IsAddressable = false;
-            this.IsParameterSaved = false;
-            this.IsRecordEvent = false;
-            this.IsValueSaved = true;
-            this.MaxValue = 100;
-            this.MinValue = 20;
-            
-            this.ProjectUnit = null;
-            
-        }
-
-    }
-
-    public class StringVar : VariableBase
-    {
-        /// <summary>
-        /// 变量初始值
-        /// </summary>
-        public string InitValue;
-    }
-
 }

@@ -9,6 +9,7 @@ namespace Variable
     {
         #region 私有方法
 
+        private static bool _isHideRoot = true;
         private VariableGroup _parent;
         private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
         private readonly List<VariableBase> _childVariables = new List<VariableBase>();
@@ -26,6 +27,15 @@ namespace Variable
         /// 变量组名称
         /// </summary>
         public string GroupName { get; set; }
+
+        /// <summary>
+        /// 是否隐藏根路径
+        /// </summary>
+        public bool IsHideRoot
+        {
+            get { return _isHideRoot; }
+            set { _isHideRoot = value; }
+        }
 
         /// <summary>
         /// 子组集合
@@ -174,9 +184,8 @@ namespace Variable
         /// <summary>
         /// 获取当前组的绝对路径
         /// </summary>
-        /// <param name="isHideRoot">是否隐藏根组</param>
         /// <returns>变量组绝对路径，以“.”作为间隔</returns>
-        public string GetFullPath(bool isHideRoot = true)
+        public string GetFullPath()
         {
             VariableGroup varGroup = this;
             string path = varGroup.GroupName;
@@ -186,7 +195,7 @@ namespace Variable
                 path = varGroup.GroupName + "." + path;
             }
 
-            if (isHideRoot)
+            if (_isHideRoot)
             {
                 //隐藏根组
                 int index = path.IndexOf('.');
@@ -199,13 +208,12 @@ namespace Variable
         /// 根据绝对路径获取组
         /// </summary>
         /// <param name="fullPath">绝对路径</param>
-        /// <param name="isHideRoot">绝对路径是否包含根组</param>
         /// <returns>返回组</returns>
-        public static VariableGroup GetGroup(string fullPath, bool isHideRoot = true)
+        public static VariableGroup GetGroup(string fullPath)
         {
-            if (isHideRoot)
+            if (_isHideRoot)
             {
-                fullPath = RootGroup.GroupName + "." + fullPath;
+                fullPath = (fullPath == "") ? RootGroup.GroupName : RootGroup.GroupName + "." + fullPath;
             }
             string[] paths = fullPath.Split('.');
             VariableGroup group = RootGroup;
@@ -246,6 +254,9 @@ namespace Variable
 
             variable.GroupID = GetFullPath();
             _childVariables.Add(variable);
+
+            //添加到仓库集合
+            VariableRepository.AddVar(variable);
         }
 
         /// <summary>
@@ -260,7 +271,9 @@ namespace Variable
                 if (curVariable.VarName == variableName)
                 {
                     _childVariables.Remove(curVariable);
-                    curVariable.RemoveVar();
+
+                    //移除仓库集合中的变量
+                    VariableRepository.RemoveVar(curVariable);
                     break;
                 }
             }
@@ -274,9 +287,26 @@ namespace Variable
             //删除该组下的变量
             while (_childVariables.Count > 0)
             {
-                _childVariables[0].RemoveVar();
+                VariableRepository.RemoveVar(_childVariables[0]);
                 _childVariables.RemoveAt(0);
             }
+        }
+
+        /// <summary>
+        /// 获取指定变量组的变量默认名称
+        /// </summary>
+        /// <param name="groupPath">指定变量组路径</param>
+        /// <returns>返回指定变量组的变量默认名称</returns>
+        public static string GetInitVarName(string groupPath)
+        {
+            int cnt = 1;
+            VariableGroup varGroup = GetGroup(groupPath) ?? RootGroup;
+
+            while (varGroup._childVariables.Any(curVar => curVar.VarName == "Variable" + cnt))
+            {
+                cnt++;
+            }
+            return "Variable" + cnt;
         }
 
         #endregion

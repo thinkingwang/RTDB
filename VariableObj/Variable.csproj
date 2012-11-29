@@ -41,6 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalogVar.cs" />
+    <Compile Include="DigitalVar.cs" />
+    <Compile Include="StringVar.cs" />
     <Compile Include="VariableBase.cs" />
     <Compile Include="VariableGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -49,6 +52,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resource1.resx</DependentUpon>
     </Compile>
+    <Compile Include="VariableRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />

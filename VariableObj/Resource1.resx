@@ -156,4 +156,13 @@
   <data name="VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup" xml:space="preserve">
     <value>删除组为根组，不能删除</value>
   </data>
+  <data name="VariableRepository_AddVar_VariableIsNull" xml:space="preserve">
+    <value>添加变量为空</value>
+  </data>
+  <data name="VariableRepository_AddVar_VariableIsExist" xml:space="preserve">
+    <value>该变量已经存在</value>
+  </data>
+  <data name="AnalogVar_CopyProperty_SourceObjIsNull" xml:space="preserve">
+    <value>源变量实例为空</value>
+  </data>
 </root>

@@ -61,6 +61,15 @@ namespace Variable {
         }
         
         /// <summary>
+        ///   查找类似 源变量实例为空 的本地化字符串。
+        /// </summary>
+        internal static string AnalogVar_CopyProperty_SourceObjIsNull {
+            get {
+                return ResourceManager.GetString("AnalogVar_CopyProperty_SourceObjIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 组名称已存在，不能重复加载 的本地化字符串。
         /// </summary>
         internal static string CVariableGroup_AddGroup_GroupeNameIsExist {
@@ -174,6 +183,24 @@ namespace Variable {
         internal static string VariableGroup_ReplaceGroupName_editGroup_is_null {
             get {
                 return ResourceManager.GetString("VariableGroup_ReplaceGroupName_editGroup_is_null", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 该变量已经存在 的本地化字符串。
+        /// </summary>
+        internal static string VariableRepository_AddVar_VariableIsExist {
+            get {
+                return ResourceManager.GetString("VariableRepository_AddVar_VariableIsExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 添加变量为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableRepository_AddVar_VariableIsNull {
+            get {
+                return ResourceManager.GetString("VariableRepository_AddVar_VariableIsNull", resourceCulture);
             }
         }
     }
