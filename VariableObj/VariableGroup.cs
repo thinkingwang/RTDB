@@ -92,7 +92,7 @@ namespace Variable
 
         static VariableGroup()
         {
-            Debug.Assert(Resource1.VariableGroup__rootGroup_variableDictionary != null, 
+            Debug.Assert(Resource1.VariableGroup__rootGroup_variableDictionary != null,
                 "Resource1.VariableGroup__rootGroup_variableDictionary != null");
 
             RootGroup = new VariableGroup(Resource1.VariableGroup__rootGroup_variableDictionary);

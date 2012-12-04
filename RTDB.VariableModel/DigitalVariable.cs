@@ -1,10 +1,18 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace Variable
+namespace RTDB.VariableModel
 {
-    public class DigitalVar : VariableBase
+    public class DigitalVariable : VariableBase
     {
+        /// <summary>
+        /// 模拟变量Id
+        /// </summary>
+        public string DigitalVarId
+        {
+            get { return VariableBaseId; }
+        }
+
         /// <summary>
         /// 变量初始值
         /// </summary>
@@ -13,10 +21,10 @@ namespace Variable
         /// <summary>
         /// 构造函数
         /// </summary>
-        /// <param name="groupPath">变量所属组别的名称,如果是根组，需要传递 "" 值</param>
+        /// <param name="group">变量所属组别的名称,如果是根组，需要传递 "" 值</param>
         /// <param name="varName">变量名</param>
-        public DigitalVar(string groupPath, string varName = "")
-            : base(groupPath, varName, VARVALUETYPE.VarBool)
+        public DigitalVariable(VariableGroup group, string varName = "")
+            : base(group, varName, Varvaluetype.VarBool)
         {
             InitValue = false;
         }
@@ -29,11 +37,11 @@ namespace Variable
         {
             if (source == null)
             {
-                Debug.Assert(Resource1.AnalogVar_CopyProperty_SourceObjIsNull != null, "Resource1.CopyProperty_SourceObjIsNull != null");
-                throw new ArgumentNullException(Resource1.AnalogVar_CopyProperty_SourceObjIsNull);
+                Debug.Assert(Resource1.CopyProperty_SourceObjIsNull != null, "Resource1.CopyProperty_SourceObjIsNull != null");
+                throw new ArgumentNullException(Resource1.CopyProperty_SourceObjIsNull);
             }
             base.CopyProperty(source);
-            var variable = source as DigitalVar;
+            var variable = source as DigitalVariable;
             if (variable != null)
             {
                 InitValue = variable.InitValue;

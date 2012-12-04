@@ -75,12 +75,6 @@
   <ItemGroup>
     <Shadow Include="测试引用\VariableObj.accessor" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\VariableObj\Variable.csproj">
-      <Project>{DB27AE46-CD86-42F3-A253-85BA06EBAE8B}</Project>
-      <Name>Variable</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
