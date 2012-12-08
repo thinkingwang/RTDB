@@ -6,12 +6,9 @@ namespace RTDB.VariableModel
     public class DigitalVariable : VariableBase
     {
         /// <summary>
-        /// 模拟变量Id
+        /// 变量值
         /// </summary>
-        public string DigitalVarId
-        {
-            get { return VariableBaseId; }
-        }
+        public bool Value { get; set; }
 
         /// <summary>
         /// 变量初始值
@@ -27,6 +24,7 @@ namespace RTDB.VariableModel
             : base(group, varName, Varvaluetype.VarBool)
         {
             InitValue = false;
+            Value = InitValue;
         }
 
         /// <summary>
@@ -44,6 +42,7 @@ namespace RTDB.VariableModel
             var variable = source as DigitalVariable;
             if (variable != null)
             {
+                Value = variable.Value;
                 InitValue = variable.InitValue;
             }
         }

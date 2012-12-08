@@ -6,12 +6,9 @@ namespace RTDB.VariableModel
     public class StringVariable : VariableBase
     {
         /// <summary>
-        /// 模拟变量Id
+        /// 变量值
         /// </summary>
-        public string StringVarId
-        {
-            get { return VariableBaseId; }
-        }
+        public string Value { get; set; }
 
         /// <summary>
         /// 变量初始值
@@ -27,6 +24,7 @@ namespace RTDB.VariableModel
             : base(group, varName, Varvaluetype.VarString)
         {
             InitValue = "";
+            Value = InitValue;
         }
 
         /// <summary>
@@ -44,6 +42,7 @@ namespace RTDB.VariableModel
             var variable = source as StringVariable;
             if (variable != null)
             {
+                Value = variable.Value;
                 InitValue = variable.InitValue;
             }
         }

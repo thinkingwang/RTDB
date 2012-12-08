@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace RTDB.VariableModel
 {
@@ -9,8 +9,9 @@ namespace RTDB.VariableModel
         #region 私有方法
 
         private readonly VariableGroup _parent;
-        private  List<VariableGroup> _childGroups = new List<VariableGroup>();
+        private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
         private  List<VariableBase> _childVariables = new List<VariableBase>();
+        private string _groupName;
 
         #endregion
 
@@ -19,19 +20,41 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 根组
         /// </summary>
-        public static VariableGroup RootGroup { get; set; }
+        public static VariableGroup RootGroup { get; private set; }
 
         /// <summary>
         /// 变量组名称
         /// </summary>
-        public string GroupName { get; set; }
+        public string GroupName
+        {
+            get { return _groupName; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    _groupName = value;
+                }
+            }
+        }
 
         /// <summary>
         /// 变量组Id
         /// </summary>
         public string VariableGroupId
         {
-            get { return Parent != null ? Parent.VariableGroupId + "." + GroupName : GroupName; }
+            //get { return Parent != null ? Parent.VariableGroupId + "." + GroupName : GroupName; } //带根节点
+            get //不带根节点
+            {
+                if (Parent == null)
+                {
+                    return "";
+                }
+                if (string.IsNullOrEmpty(Parent.VariableGroupId))
+                {
+                    return GroupName;
+                }
+                return Parent.VariableGroupId + "." + GroupName;
+            }
         }
 
         /// <summary>
@@ -48,7 +71,7 @@ namespace RTDB.VariableModel
         public List<VariableGroup> ChildGroups
         {
             get { return _childGroups; }
-            set { _childGroups = value; }
+            //set { _childGroups = value; }
         }
 
         /// <summary>
@@ -65,7 +88,6 @@ namespace RTDB.VariableModel
         public List<VariableBase> ChildVariables
         {
             get { return _childVariables; }
-            set { _childVariables = value; }
         }
 
         /// <summary>
@@ -88,24 +110,18 @@ namespace RTDB.VariableModel
         #endregion
 
         #region 构造函数
-
-        /// <summary>
-        /// 组默认构造函数
-        /// </summary>
-        /// <param name="parent">父组对象</param>
-        public VariableGroup(VariableGroup parent)
-        {
-            _parent = parent;
-        }
-
         /// <summary>
         /// 组构造函数
         /// </summary>
         /// <param name="groupName">组名称</param>
-        /// <param name="parent">父组对象</param>
+        /// <param name="parent">父组对象, 为null表示根组</param>
         public VariableGroup(string groupName, VariableGroup parent)
         {
-            GroupName = groupName;
+            if (string.IsNullOrEmpty(groupName))
+            {
+                throw new ArgumentNullException(Resource1.VariableGroup_VariableGroup_groupNameIsNull);
+            }
+            _groupName = groupName;
             _parent = parent;
         }
 

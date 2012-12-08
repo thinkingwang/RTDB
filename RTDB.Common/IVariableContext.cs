@@ -28,5 +28,9 @@ namespace RTDB.Common
         List<VariableGroup> VariableGroupSet { get; }
 
         #endregion
+
+        void VariableLoad();
+
+        void VariableSave();
     }
 }

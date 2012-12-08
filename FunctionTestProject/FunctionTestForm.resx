@@ -117,68 +117,61 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="CVariableGroup_AddGroup_GroupNameIsNull" xml:space="preserve">
-    <value>添加组的名称不为空</value>
-  </data>
-  <data name="CVariableGroup_AddGroup_GroupeNameIsExist" xml:space="preserve">
-    <value>组名称已存在，不能重复加载</value>
-  </data>
-  <data name="VariableGroup_IsExistGroupName_parentGroup_is_null" xml:space="preserve">
-    <value>父祖为空</value>
-  </data>
-  <data name="VariableGroup_ReplaceGroupName_editGroup_is_null" xml:space="preserve">
-    <value>需要修改组名称的组为空</value>
-  </data>
-  <data name="VariableBase_AddVar_analogElement_is_null" xml:space="preserve">
-    <value>analogElement is null</value>
-  </data>
-  <data name="VariableBase_AddVar_digitalElement_is_null" xml:space="preserve">
-    <value>digitalElement is null</value>
-  </data>
-  <data name="VariableBase_AddVar_stringElement_is_null" xml:space="preserve">
-    <value>stringElement is null</value>
-  </data>
-  <data name="VariableGroup_ReGroupName_groupName_Is_Null" xml:space="preserve">
-    <value>需要修改的变量组新名称为空</value>
-  </data>
-  <data name="VariableGroup_addVariable_variableName_is_Exist" xml:space="preserve">
-    <value>当前组已存在相同变量名的变量</value>
-  </data>
-  <data name="VariableBase_EditVar_varObj_is_null" xml:space="preserve">
-    <value>varObj is null</value>
-  </data>
-  <data name="VariableGroup_AddVariable_variable_is_null" xml:space="preserve">
-    <value>添加到组的变量为空</value>
-  </data>
-  <data name="VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup" xml:space="preserve">
-    <value>删除组为根组，不能删除</value>
-  </data>
-  <data name="VariableRepository_AddVar_VariableIsNull" xml:space="preserve">
-    <value>添加变量为空</value>
-  </data>
-  <data name="VariableRepository_AddVar_VariableIsExist" xml:space="preserve">
-    <value>该变量已经存在</value>
-  </data>
-  <data name="UnitofWork_AddGroup_currentVariableGroup" xml:space="preserve">
-    <value>未检索到组节点</value>
-  </data>
-  <data name="VariableUnitOfWork_AddGroupMethod_currentNodeIsNull" xml:space="preserve">
-    <value>当前组节点为空</value>
-  </data>
-  <data name="VariableUnitOfWork_VariableUnitOfWork_variableContextIsNull" xml:space="preserve">
-    <value>变量上下文为空</value>
-  </data>
-  <data name="VariableUnitOfWork_AddGroup_parentVariableGroupIdIsNullOrEmpty" xml:space="preserve">
-    <value>父节点字符串为空或不存在</value>
-  </data>
-  <data name="VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty" xml:space="preserve">
-    <value>删除组为根组节点或不存在
-</value>
-  </data>
-  <data name="VariableUnitOfWork_IsExistName_nameIsNullOrEmpty" xml:space="preserve">
-    <value>名字为空或不存在</value>
-  </data>
-  <data name="VariableUnitOfWork_EditVariable_AvarialeNameExist" xml:space="preserve">
-    <value>变量名称重复，不能修改</value>
-  </data>
+  <metadata name="contextMenuStrip_TreeView.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="Column_Name.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_VariableID.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_VarType.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_VarValueType.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_InitValue.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_MinValue.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_MaxValue.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_Value.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_DeadArea.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_OperateType.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_IsValueSaved.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_IsParamentSaved.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_IsAddressable.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_IsEventSaved.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_ProjectUnit.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="Column_Description.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <metadata name="contextMenuStrip_Variable.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>474, 17</value>
+  </metadata>
+  <metadata name="contextMenuStrip_TreeViewSub.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>234, 17</value>
+  </metadata>
 </root>

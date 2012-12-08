@@ -6,12 +6,9 @@ namespace RTDB.VariableModel
     public class AnalogVariable : VariableBase
     {
         /// <summary>
-        /// 模拟变量Id
+        /// 变量值
         /// </summary>
-        public string AnalogVarId
-        {
-            get { return VariableBaseId; }
-        }
+        public double Value { get; set; }
 
         /// <summary>
         /// 死区,变量最小的变化幅度
@@ -48,7 +45,8 @@ namespace RTDB.VariableModel
         {
             DeadArea = 0;
             InitValue = 0;
-            MaxValue = 100;
+            Value = InitValue;
+            MaxValue = 80;
             MinValue = 20;
             ProjectUnit = "";
 
@@ -69,6 +67,7 @@ namespace RTDB.VariableModel
             var variable = source as AnalogVariable;
             if (variable != null)
             {
+                Value = variable.Value;
                 DeadArea = variable.DeadArea;
                 InitValue = variable.InitValue;
                 MinValue = variable.MinValue;

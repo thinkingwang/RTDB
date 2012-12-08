@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTDB.EntityFramework", "RTD
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTDB.VariableModel", "RTDB.VariableModel\RTDB.VariableModel.csproj", "{DF863521-F414-45FA-AD64-F9D89EB46C3F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionTestProject", "FunctionTestProject\FunctionTestProject.csproj", "{A32B3346-F860-4525-9FDD-C5BF704475CE}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = RTDB.vsmdi
@@ -57,6 +59,16 @@ Global
 		{DF863521-F414-45FA-AD64-F9D89EB46C3F}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{DF863521-F414-45FA-AD64-F9D89EB46C3F}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{DF863521-F414-45FA-AD64-F9D89EB46C3F}.Release|x86.ActiveCfg = Release|Any CPU
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Debug|x86.ActiveCfg = Debug|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Debug|x86.Build.0 = Debug|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Release|Any CPU.ActiveCfg = Release|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Release|Mixed Platforms.Build.0 = Release|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Release|x86.ActiveCfg = Release|x86
+		{A32B3346-F860-4525-9FDD-C5BF704475CE}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

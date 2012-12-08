@@ -67,6 +67,8 @@ namespace RTDB.VariableModel
     /// </summary>
     public class VariableBase
     {
+        private string _name;
+
         #region 变量基本属性
 
         /// <summary>
@@ -76,34 +78,44 @@ namespace RTDB.VariableModel
         {
             get
             {
-                return (string.IsNullOrEmpty(Group.ParentGroupId)) ? Name : (Group.VariableGroupId + "." + Name);
+                return ((Group == null) || (Group.Parent == null)) ? Name : (Group.VariableGroupId + "." + Name);
             }
         }
 
         /// <summary>
         /// 变量名称
         /// </summary>
-        public string Name { get; set; }
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    _name = value;
+                }
+            }
+        }
 
         /// <summary>
         /// 数据类型
         /// </summary>
-        public Varvaluetype ValueType { get; set; }
+        public Varvaluetype ValueType { get; private set; }
 
         /// <summary>
         /// 变量类型
         /// </summary>
-        public VarType VarType { get; set; }
+        public VarType VariableType { get; set; }
 
         /// <summary>
         /// 变量描述
         /// </summary>
-        public string VarDescription { get; set; }
+        public string Description { get; set; }
 
         /// <summary>
-        /// 变量组名    
+        /// 变量组
         /// </summary>
-        public VariableGroup Group { get; set; }
+        public VariableGroup Group { get; private set; }
 
         /// <summary>
         /// 是否保存数值
@@ -140,9 +152,13 @@ namespace RTDB.VariableModel
         /// <param name="varValueType">变量类型</param>
         protected VariableBase(VariableGroup group, string varName = "", Varvaluetype varValueType = Varvaluetype.VarDouble)
         {
+            if (group == null)
+            {
+                throw new ArgumentNullException(Resource1.VariableBase_VariableBase_groupIsNull);
+            }
             Name = varName;
-
             ValueType = varValueType;
+            VariableType = VarType.VarNormal;
             OperateProperty = Varoperateproperty.ReadWrite;
             Group = group;
             IsAddressable = false;
@@ -162,8 +178,10 @@ namespace RTDB.VariableModel
                 Debug.Assert(Resource1.CopyProperty_SourceObjIsNull != null, "Resource1.CopyProperty_SourceObjIsNull != null");
                 throw new ArgumentNullException(Resource1.CopyProperty_SourceObjIsNull);
             }
-            ValueType = source.ValueType;
+            _name = source.Name;
+            VariableType = source.VariableType;
             OperateProperty = source.OperateProperty;
+            Description = source.Description;
             IsAddressable = source.IsAddressable;
             IsParameterSaved = source.IsParameterSaved;
             IsRecordEvent = source.IsRecordEvent;

@@ -70,11 +70,29 @@ namespace RTDB.VariableModel {
         }
         
         /// <summary>
+        ///   查找类似 组为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableBase_VariableBase_groupIsNull {
+            get {
+                return ResourceManager.GetString("VariableBase_VariableBase_groupIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 变量字典 的本地化字符串。
         /// </summary>
         internal static string VariableGroup__rootGroup_variableDictionary {
             get {
                 return ResourceManager.GetString("VariableGroup__rootGroup_variableDictionary", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 变量组名不能为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableGroup_VariableGroup_groupNameIsNull {
+            get {
+                return ResourceManager.GetString("VariableGroup_VariableGroup_groupNameIsNull", resourceCulture);
             }
         }
     }

@@ -194,5 +194,60 @@ namespace RTDB.Common {
                 return ResourceManager.GetString("VariableRepository_AddVar_VariableIsNull", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   查找类似 父节点字符串为空或不存在 的本地化字符串。
+        /// </summary>
+        internal static string VariableUnitOfWork_AddGroup_parentVariableGroupIdIsNullOrEmpty {
+            get {
+                return ResourceManager.GetString("VariableUnitOfWork_AddGroup_parentVariableGroupIdIsNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 当前组节点为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableUnitOfWork_AddGroupMethod_currentNodeIsNull {
+            get {
+                return ResourceManager.GetString("VariableUnitOfWork_AddGroupMethod_currentNodeIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 变量名称重复，不能修改 的本地化字符串。
+        /// </summary>
+        internal static string VariableUnitOfWork_EditVariable_AvarialeNameExist {
+            get {
+                return ResourceManager.GetString("VariableUnitOfWork_EditVariable_AvarialeNameExist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 名字为空或不存在 的本地化字符串。
+        /// </summary>
+        internal static string VariableUnitOfWork_IsExistName_nameIsNullOrEmpty {
+            get {
+                return ResourceManager.GetString("VariableUnitOfWork_IsExistName_nameIsNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 删除组为根组节点或不存在
+        /// 的本地化字符串。
+        /// </summary>
+        internal static string VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty {
+            get {
+                return ResourceManager.GetString("VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 变量上下文为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableUnitOfWork_VariableUnitOfWork_variableContextIsNull {
+            get {
+                return ResourceManager.GetString("VariableUnitOfWork_VariableUnitOfWork_variableContextIsNull", resourceCulture);
+            }
+        }
     }
 }
