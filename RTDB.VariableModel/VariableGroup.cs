@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace RTDB.VariableModel
 {
@@ -8,10 +11,10 @@ namespace RTDB.VariableModel
     {
         #region 私有方法
 
-        private readonly VariableGroup _parent;
         private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
-        private  List<VariableBase> _childVariables = new List<VariableBase>();
+        private readonly List<VariableBase> _childVariables = new List<VariableBase>();
         private string _groupName;
+        private int? _parentGroupId;
 
         #endregion
 
@@ -20,11 +23,13 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 根组
         /// </summary>
+        [NotMapped]
         public static VariableGroup RootGroup { get; private set; }
 
         /// <summary>
         /// 变量组名称
         /// </summary>
+         [Required, MaxLength(50)]
         public string GroupName
         {
             get { return _groupName; }
@@ -38,45 +43,69 @@ namespace RTDB.VariableModel
         }
 
         /// <summary>
-        /// 变量组Id
+        /// 变量组全路径
         /// </summary>
-        public string VariableGroupId
+        [NotMapped]
+        public string GroupFullPath
         {
-            //get { return Parent != null ? Parent.VariableGroupId + "." + GroupName : GroupName; } //带根节点
+            //get { return Parent != null ? Parent.GroupFullPath + "." + GroupName : GroupName; } //带根节点
             get //不带根节点
             {
                 if (Parent == null)
                 {
-                    return "";
+                    return "_RootGroup";
                 }
-                if (string.IsNullOrEmpty(Parent.VariableGroupId))
+                if (string.IsNullOrEmpty(Parent.GroupFullPath) 
+                    || Parent.GroupFullPath == "_RootGroup")
                 {
                     return GroupName;
                 }
-                return Parent.VariableGroupId + "." + GroupName;
+                return Parent.GroupFullPath + "." + GroupName;
             }
         }
 
         /// <summary>
+        /// 变量组ID
+        /// </summary>
+        //[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+        public int VariableGroupId { get; set; }
+
+        /// <summary>
         /// 变量父祖Id
         /// </summary>
-        public string ParentGroupId
+        public int? ParentGroupId
         {
-            get { return Parent != null ? Parent.VariableGroupId : null; }
+            get
+            {
+                //如果父祖存在，直接返回父祖Id
+                if (Parent != null)
+                {
+                    return Parent.VariableGroupId;
+                }
+                //如果是根组，返回null
+                if (Equals(RootGroup))
+                {
+                    return null;
+                }
+                //如果父祖为null且不是根组，说明是从数据库加载，返回数据库值
+                return _parentGroupId;
+            }
+            set { _parentGroupId = value; }
         }
 
         /// <summary>
         /// 子组集合
         /// </summary>
-        public List<VariableGroup> ChildGroups
+        [NotMapped]
+        public virtual List<VariableGroup> ChildGroups
         {
             get { return _childGroups; }
-            //set { _childGroups = value; }
         }
 
         /// <summary>
         /// 当前组的子组数量
         /// </summary>
+        [NotMapped]
         public int GroupsCount
         {
             get { return _childGroups.Count; }
@@ -85,7 +114,8 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 组变量集合
         /// </summary>
-        public List<VariableBase> ChildVariables
+        [NotMapped]
+        public virtual List<VariableBase> ChildVariables
         {
             get { return _childVariables; }
         }
@@ -93,6 +123,7 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 当前组的变量数量
         /// </summary>
+        [NotMapped]
         public int VariablesCount
         {
             get { return _childVariables.Count; }
@@ -101,15 +132,19 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 父节点
         /// </summary>
-        public VariableGroup Parent
-        {
-            get { return _parent; }
+        [NotMapped]
+        public VariableGroup Parent { get; set; }
 
-        }
+        //public string test { get; set; }
 
         #endregion
 
         #region 构造函数
+
+        public VariableGroup()
+        {
+            
+        }
         /// <summary>
         /// 组构造函数
         /// </summary>
@@ -122,7 +157,7 @@ namespace RTDB.VariableModel
                 throw new ArgumentNullException(Resource1.VariableGroup_VariableGroup_groupNameIsNull);
             }
             _groupName = groupName;
-            _parent = parent;
+            Parent = parent;
         }
 
         static VariableGroup()

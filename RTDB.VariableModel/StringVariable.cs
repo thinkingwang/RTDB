@@ -5,6 +5,12 @@ namespace RTDB.VariableModel
 {
     public class StringVariable : VariableBase
     {
+
+        /// <summary>
+        /// 变量Id
+        /// </summary>
+        public int StringVariableId { get; set; }
+
         /// <summary>
         /// 变量值
         /// </summary>
@@ -14,6 +20,11 @@ namespace RTDB.VariableModel
         /// 变量初始值
         /// </summary>
         public string InitValue { get; set; }
+
+        public StringVariable()
+        {
+            
+        }
 
         /// <summary>
         /// 构造函数

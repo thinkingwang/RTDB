@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 
 namespace RTDB.VariableModel
@@ -68,17 +69,22 @@ namespace RTDB.VariableModel
     public class VariableBase
     {
         private string _name;
+        private int _groupId;
+        private int _variableType;
+        private int _operateProperty;
+        private int _valueType;
 
         #region 变量基本属性
-
+        
         /// <summary>
         /// 变量全名
         /// </summary>
-        public string VariableBaseId
+        [NotMapped]
+        public string VariableBaseFullPath
         {
             get
             {
-                return ((Group == null) || (Group.Parent == null)) ? Name : (Group.VariableGroupId + "." + Name);
+                return ((Group == null) || (Group.Parent == null)) ? Name : (Group.GroupFullPath + "." + Name);
             }
         }
 
@@ -96,16 +102,59 @@ namespace RTDB.VariableModel
                 }
             }
         }
+        
+        /// <summary>
+        /// 变量的组Id
+        /// </summary>
+        public int GroupId
+        {
+            get
+            {
+                if (Group == null)
+                {
+                    return _groupId;
+                }
+                return Group.VariableGroupId;
+            }
+            set { _groupId = value; }
+        }
 
         /// <summary>
         /// 数据类型
         /// </summary>
-        public Varvaluetype ValueType { get; private set; }
+        public Varvaluetype ValueType
+        {
+            get { return (Varvaluetype)_valueType; }
+            private set { _valueType = (int)value; }
+        }
 
         /// <summary>
         /// 变量类型
         /// </summary>
-        public VarType VariableType { get; set; }
+        public int IntValueType
+        {
+            get { return _valueType; }
+            set { _valueType = value; }
+        }
+
+        /// <summary>
+        /// 变量类型
+        /// </summary>
+        public VarType VariableType
+        {
+            get { return (VarType)_variableType; }
+            set { _variableType = (int)value; }
+        }
+
+
+        /// <summary>
+        /// 变量类型
+        /// </summary>
+        public int IntVariableType
+        {
+            get { return _variableType; }
+            set { _variableType = value; }
+        }
 
         /// <summary>
         /// 变量描述
@@ -115,7 +164,8 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 变量组
         /// </summary>
-        public VariableGroup Group { get; private set; }
+        [NotMapped]
+        public VariableGroup Group { get; set; }
 
         /// <summary>
         /// 是否保存数值
@@ -140,9 +190,28 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 变量操作属性（可读写、只读、只写）
         /// </summary>
-        public Varoperateproperty OperateProperty { get; set; }
+        [NotMapped]
+        public Varoperateproperty OperateProperty
+        {
+            get { return (Varoperateproperty)_operateProperty; }
+            set { _operateProperty = (int)value; }
+        }
+
+        /// <summary>
+        /// 变量操作属性（可读写、只读、只写）,数据库存取
+        /// </summary>
+        public int IntOperateProperty
+        {
+            get { return _operateProperty; }
+            set { _operateProperty = value; }
+        }
 
         #endregion
+
+        public VariableBase()
+        {
+            
+        }
 
         /// <summary>
         /// 变量构造函数

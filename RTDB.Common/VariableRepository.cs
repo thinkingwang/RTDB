@@ -5,11 +5,11 @@ using RTDB.VariableModel;
 
 namespace RTDB.Common
 {
-    public class VariableUnitOfWork
+    public class VariableRepository
     {
         private readonly IVariableContext _variableContext;
 
-        public VariableUnitOfWork(IVariableContext variableContext)
+        public VariableRepository(IVariableContext variableContext)
         {
             if (variableContext == null)
             {
@@ -18,9 +18,9 @@ namespace RTDB.Common
                 throw new ArgumentNullException(Resource1.VariableUnitOfWork_VariableUnitOfWork_variableContextIsNull);
             }
             _variableContext = variableContext;
-            
-        }
 
+        }
+        
         #region 组公共方法
 
         /// <summary>
@@ -30,9 +30,10 @@ namespace RTDB.Common
         /// <returns>返回组对象，未找到返回null</returns>
         public VariableGroup GetGroupById(string groupId)
         {
-            return string.IsNullOrEmpty(groupId) ? VariableGroup.RootGroup :  //等于null或为空字符返回根组
-                _variableContext.VariableGroupSet.FirstOrDefault(variableGroup
-                    => variableGroup.VariableGroupId == groupId);
+            //等于null或为空字符返回根组
+            return string.IsNullOrEmpty(groupId)
+                       ? VariableGroup.RootGroup
+                       : _variableContext.VariableGroupSet.Local.FirstOrDefault(curGroup => curGroup.GroupFullPath == groupId);
         }
 
         /// <summary>
@@ -66,6 +67,7 @@ namespace RTDB.Common
             parentVariableGroup.ChildGroups.Add(newGroup);
 
             _variableContext.VariableGroupSet.Add(newGroup);
+            _variableContext.SaveVariable();
         }
 
         /// <summary>
@@ -88,14 +90,14 @@ namespace RTDB.Common
             //删除该组下面的子组
             while (currentVariableGroup.ChildGroups.Count > 0)
             {
-                RemoveGroup(currentVariableGroup.ChildGroups[0].VariableGroupId);
+                RemoveGroup(currentVariableGroup.ChildGroups[0].GroupFullPath);
             }
 
             //删除该组下的变量
             ClearVariable(currentVariableGroup);
 
             //删除该组
-            if (currentVariableGroup.ParentGroupId == null)
+            if (currentVariableGroup.ParentGroupId <= 0)
             {
                 //根组不允许
                 Debug.Assert(Resource1.VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup != null,
@@ -104,6 +106,7 @@ namespace RTDB.Common
             }
             currentVariableGroup.Parent.ChildGroups.Remove(currentVariableGroup);
             _variableContext.VariableGroupSet.Remove(currentVariableGroup);
+            _variableContext.SaveVariable();
         }
 
         /// <summary>
@@ -137,8 +140,8 @@ namespace RTDB.Common
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupeNameIsExist);
             }
             currentVariableGroup.GroupName = groupName;
+            _variableContext.SaveVariable();
         }
-
 
         #endregion
 
@@ -175,6 +178,8 @@ namespace RTDB.Common
             
             //添加到仓库集合
             AddVar(variable);
+
+            _variableContext.SaveVariable();
         }
 
         /// <summary>
@@ -198,7 +203,7 @@ namespace RTDB.Common
             for (int index = 0; index < currentVariableGroup.ChildVariables.Count; index++)
             {
                 VariableBase curVariable = currentVariableGroup.ChildVariables[index];
-                if (curVariable.VariableBaseId == variableName)
+                if (curVariable.VariableBaseFullPath == variableName)
                 {
                     currentVariableGroup.ChildVariables.Remove(curVariable);
 
@@ -207,6 +212,8 @@ namespace RTDB.Common
                     break;
                 }
             }
+
+            _variableContext.SaveVariable();
         }
 
         /// <summary>
@@ -225,6 +232,7 @@ namespace RTDB.Common
                 RemoveVar(currentVariableGroup.ChildVariables[0]);
                 currentVariableGroup.ChildVariables.RemoveAt(0);
             }
+            _variableContext.SaveVariable();
         }
 
         /// <summary>
@@ -248,25 +256,26 @@ namespace RTDB.Common
 
             if (variable.ValueType == Varvaluetype.VarBool)
             {
-                if (_variableContext.DigitalSet.ContainsKey(variable.VariableBaseId))
+                if (_variableContext.DigitalSet.Local.Any(m=>m.VariableBaseFullPath==variable.VariableBaseFullPath))
                 {
-                    _variableContext.DigitalSet[variable.VariableBaseId].CopyProperty(newVariable);
+                    _variableContext.DigitalSet.Local.First(m=>m.VariableBaseFullPath==variable.VariableBaseFullPath).CopyProperty(newVariable);
                 }
             }
             else if (variable.ValueType == Varvaluetype.VarDouble)
             {
-                if (_variableContext.AnalogSet.ContainsKey(variable.VariableBaseId))
+                if (_variableContext.AnalogSet.Local.Any(m => m.VariableBaseFullPath == variable.VariableBaseFullPath))
                 {
-                    _variableContext.AnalogSet[variable.VariableBaseId].CopyProperty(newVariable);
+                    _variableContext.AnalogSet.Local.First(m=>m.VariableBaseFullPath==variable.VariableBaseFullPath).CopyProperty(newVariable);
                 }
             }
             else
             {
-                if (_variableContext.StringSet.ContainsKey(variable.VariableBaseId))
+                if (_variableContext.StringSet.Local.Any(m=>m.VariableBaseFullPath==variable.VariableBaseFullPath))
                 {
-                    _variableContext.StringSet[variable.VariableBaseId].CopyProperty(newVariable);
+                    _variableContext.StringSet.Local.First(m=>m.VariableBaseFullPath==variable.VariableBaseFullPath).CopyProperty(newVariable);
                 }
             }
+            _variableContext.SaveVariable();
         }
 
         #endregion
@@ -287,33 +296,33 @@ namespace RTDB.Common
             }
             if (variable.ValueType == Varvaluetype.VarBool)
             {
-                if (_variableContext.DigitalSet.ContainsKey(variable.VariableBaseId))
+                if (_variableContext.DigitalSet.Local.Any(m => m.VariableBaseFullPath == variable.VariableBaseFullPath))
                 {
                     Debug.Assert(Resource1.VariableRepository_AddVar_VariableIsExist != null,
                                  "Resource1.VariableRepository_AddVar_VariableIsExist != null");
                     throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
                 }
-                _variableContext.DigitalSet.Add(variable.VariableBaseId, variable as DigitalVariable);
+                _variableContext.DigitalSet.Add(variable as DigitalVariable);
             }
             else if (variable.ValueType == Varvaluetype.VarDouble)
             {
-                if (_variableContext.AnalogSet.ContainsKey(variable.VariableBaseId))
+                if (_variableContext.AnalogSet.Local.Any(m => m.VariableBaseFullPath == variable.VariableBaseFullPath))
                 {
                     Debug.Assert(Resource1.VariableRepository_AddVar_VariableIsExist != null,
                                  "Resource1.VariableRepository_AddVar_VariableIsExist != null");
                     throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
                 }
-                _variableContext.AnalogSet.Add(variable.VariableBaseId, variable as AnalogVariable);
+                _variableContext.AnalogSet.Add(variable as AnalogVariable);
             }
             else
             {
-                if (_variableContext.StringSet.ContainsKey(variable.VariableBaseId))
+                if (_variableContext.StringSet.Local.Any(m => m.VariableBaseFullPath == variable.VariableBaseFullPath))
                 {
                     Debug.Assert(Resource1.VariableRepository_AddVar_VariableIsExist != null,
                                  "Resource1.VariableRepository_AddVar_VariableIsExist != null");
                     throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
                 }
-                _variableContext.StringSet.Add(variable.VariableBaseId, variable as StringVariable);
+                _variableContext.StringSet.Add(variable as StringVariable);
             }
 
         }
@@ -332,15 +341,15 @@ namespace RTDB.Common
             }
             if (variable.ValueType == Varvaluetype.VarDouble)
             {
-                _variableContext.AnalogSet.Remove(variable.VariableBaseId);
+                _variableContext.AnalogSet.Remove(variable as AnalogVariable);
             }
             else if (variable.ValueType == Varvaluetype.VarBool)
             {
-                _variableContext.DigitalSet.Remove(variable.VariableBaseId);
+                _variableContext.DigitalSet.Remove(variable as DigitalVariable);
             }
             else if (variable.ValueType == Varvaluetype.VarString)
             {
-                _variableContext.StringSet.Remove(variable.VariableBaseId);
+                _variableContext.StringSet.Remove(variable as StringVariable);
             }
         }
 

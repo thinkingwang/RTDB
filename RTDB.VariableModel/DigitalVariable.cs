@@ -5,6 +5,12 @@ namespace RTDB.VariableModel
 {
     public class DigitalVariable : VariableBase
     {
+
+        /// <summary>
+        /// 变量Id
+        /// </summary>
+        public int DigitalVariableId { get; set; }
+
         /// <summary>
         /// 变量值
         /// </summary>
@@ -14,6 +20,11 @@ namespace RTDB.VariableModel
         /// 变量初始值
         /// </summary>
         public bool InitValue { get; set; }
+
+        public DigitalVariable()
+        {
+            
+        }
 
         /// <summary>
         /// 构造函数

@@ -20,20 +20,30 @@ namespace FunctionTestProject
         #region TreeView操作方法
 
         private TreeNode _currentNode = new TreeNode();
-        private IVariableContext _iVariableContext;
-        private VariableUnitOfWork _unitOfWork;
+        private VariableEntity _iVariableContext;
+        private VariableRepository _unitOfWork;
 
-
+        /// <summary>
+        /// 窗体初始化加载函数
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void FunctionTestFormLoad(object sender, EventArgs e)
         {
-            _iVariableContext = new VariableEntity();
-            _unitOfWork = new VariableUnitOfWork(_iVariableContext);
+            _iVariableContext = new VariableEntity("Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableEntity;User ID=sa;Password=666666");
+
+            _unitOfWork = new VariableRepository(_iVariableContext);
 
             //listView_Variable.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
             treeView_FunctionTest.LabelEdit = false;
             RefreshTree();
         }
         
+        /// <summary>
+        /// 由变量组集合生成树
+        /// </summary>
+        /// <param name="treeNode">树节点</param>
+        /// <param name="variableGroup">树节点所属组</param>
         private void VairableGroupToTreeView(TreeNode treeNode, VariableGroup variableGroup)
         {
             var node = new TreeNode(variableGroup.GroupName)
@@ -47,6 +57,11 @@ namespace FunctionTestProject
             }
         }
 
+        /// <summary>
+        /// 由变量组集合生成树
+        /// </summary>
+        /// <param name="treeNode">树</param>
+        /// <param name="variableGroup">树节点所属组</param>
         private void VairableGroupToTreeView(TreeView treeNode, VariableGroup variableGroup)
         {
             var node = new TreeNode(variableGroup.GroupName)
@@ -60,19 +75,34 @@ namespace FunctionTestProject
             }
         }
 
+        /// <summary>
+        /// 更新树
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToolStripMenuItemRefreshClick(object sender, EventArgs e)
         {
             RefreshTree();
         }
 
+        /// <summary>
+        /// 更新树方法体
+        /// </summary>
         private void RefreshTree()
         {
             treeView_FunctionTest.Nodes.Clear();
             VairableGroupToTreeView(treeView_FunctionTest, _unitOfWork.GetGroupById(null));
             _currentNode = treeView_FunctionTest.TopNode;
+
+            RefreshDataGridView();
             treeView_FunctionTest.ExpandAll();
         }
 
+        /// <summary>
+        /// 增加组节点
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToolStripMenuItemCreateGroupClick(object sender, EventArgs e)
         {
             var node = new TreeNode(GetInitVarName(_currentNode))
@@ -80,7 +110,6 @@ namespace FunctionTestProject
                     ContextMenuStrip = contextMenuStrip_TreeViewSub
                 };
             _currentNode.Nodes.Add(node);
-            //BiginEdit();
             _unitOfWork.AddGroup(node.Text, GetVariableGroupPath(node.Parent.FullPath));
             treeView_FunctionTest.ExpandAll();
         }
@@ -107,6 +136,11 @@ namespace FunctionTestProject
             }
         }
 
+        /// <summary>
+        /// 获取节点的组路径
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
         private string GetVariableGroupPath(string source)
         {
             if (source == null)
@@ -121,6 +155,11 @@ namespace FunctionTestProject
             return des;
         }
 
+        /// <summary>
+        /// 删除指定组
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToolStripMenuItemDeleteGroupClick(object sender, EventArgs e)
         {
             try
@@ -134,12 +173,19 @@ namespace FunctionTestProject
             }
         }
 
-
+        /// <summary>
+        /// 重命名指定组
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ToolStripMenuItemRenameGroupClick(object sender, EventArgs e)
         {
             BiginEdit();
         }
 
+        /// <summary>
+        /// 组节点进入可编辑状态
+        /// </summary>
         private void BiginEdit()
         {
             if (_currentNode != null && _currentNode.Parent != null)
@@ -159,6 +205,11 @@ namespace FunctionTestProject
 
         }
 
+        /// <summary>
+        /// 组节点退出编辑状态
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TreeViewFunctionTestAfterLabelEdit(object sender,
                                                         NodeLabelEditEventArgs e)
         {
@@ -220,6 +271,11 @@ namespace FunctionTestProject
             }
         }
 
+        /// <summary>
+        /// 树点击事件处理函数
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void TreeViewFunctionTestMouseDown(object sender, MouseEventArgs e)
         {
             TreeNode node = treeView_FunctionTest.GetNodeAt(e.X, e.Y);
@@ -228,6 +284,11 @@ namespace FunctionTestProject
                 return;
             }
             _currentNode = node;
+            RefreshDataGridView();
+        }
+
+        private void RefreshDataGridView()
+        {
             treeView_FunctionTest.SelectedNode = _currentNode;
             VariableGroup varGroup = _unitOfWork.GetGroupById(GetVariableGroupPath(_currentNode.FullPath));
             if (varGroup == null)
@@ -241,6 +302,11 @@ namespace FunctionTestProject
             }
         }
 
+        /// <summary>
+        /// 添加离散变量
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DigToolStripMenuItemClick(object sender, EventArgs e)
         {
             var digitalVariable =
@@ -249,6 +315,11 @@ namespace FunctionTestProject
             AddVarToListview(digitalVariable);
         }
 
+        /// <summary>
+        /// 添加模拟变量
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AnaToolStripMenuItemClick(object sender, EventArgs e)
         {
             var analogVariable =
@@ -257,6 +328,11 @@ namespace FunctionTestProject
             AddVarToListview(analogVariable);
         }
 
+        /// <summary>
+        /// 添加字符串变量
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void StrToolStripMenuItemClick(object sender, EventArgs e)
         {
             var stringVariable =
@@ -274,6 +350,10 @@ namespace FunctionTestProject
 
         #region DataGridView操作方法
 
+        /// <summary>
+        /// 添加变量到DataGridView
+        /// </summary>
+        /// <param name="variable">变量</param>
         private void AddVarToListview(VariableBase variable)
         {
             var row = new DataGridViewRow();
@@ -282,7 +362,7 @@ namespace FunctionTestProject
             if (variable is DigitalVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.VariableBaseId;
+                row.Cells[1].Value = variable.VariableBaseFullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -307,7 +387,7 @@ namespace FunctionTestProject
             else if (variable is AnalogVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.VariableBaseId;
+                row.Cells[1].Value = variable.VariableBaseFullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -336,7 +416,7 @@ namespace FunctionTestProject
             else if (variable is StringVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.VariableBaseId;
+                row.Cells[1].Value = variable.VariableBaseFullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -361,6 +441,11 @@ namespace FunctionTestProject
             dataGridView_Avaiable.Rows.Add(row); //增加一个新行
         }
 
+        /// <summary>
+        /// 从DataGridView中移除指定变量
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void RemoveAvariableToolStripMenuItemClick(object sender, EventArgs e)
         {
             var collenction = new DataGridViewRow[dataGridView_Avaiable.SelectedRows.Count];
@@ -368,6 +453,10 @@ namespace FunctionTestProject
             RemoveAvariale(collenction);
         }
 
+        /// <summary>
+        /// 移除变量的方法体
+        /// </summary>
+        /// <param name="collenction"></param>
         private void RemoveAvariale(IEnumerable<DataGridViewRow> collenction)
         {
             foreach (DataGridViewRow row in collenction)
@@ -378,6 +467,11 @@ namespace FunctionTestProject
             }
         }
 
+        /// <summary>
+        /// DataGridView鼠标点击事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DataGridViewAvaiableMouseDown(object sender, MouseEventArgs e)
         {
             try
@@ -403,6 +497,11 @@ namespace FunctionTestProject
             }
         }
 
+        /// <summary>
+        /// 单元格内容改变出发的事件处理函数
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DataGridViewAvaiableCellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (dataGridView_Avaiable.SelectedCells.Count <= 0)
@@ -415,8 +514,8 @@ namespace FunctionTestProject
                 DataGridViewRow currentRow = dataGridView_Avaiable.Rows[currentCell.RowIndex];
                 VariableBase editVar;
                 VariableBase oldVar = _unitOfWork.GetGroupById(GetVariableGroupPath(_currentNode.FullPath))
-                                                .ChildVariables.Find(
-                                                    m => m.VariableBaseId == currentRow.Cells[1].Value.ToString());
+                                                 .ChildVariables.Find(
+                                                     m => m.VariableBaseFullPath == currentRow.Cells[1].Value.ToString());
                 if (oldVar is DigitalVariable)
                 {
                     editVar = new DigitalVariable(oldVar.Group);
@@ -557,16 +656,21 @@ namespace FunctionTestProject
                         return;
                 }
                 _unitOfWork.EditVariable(oldVar, editVar);
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+            finally
+            {
+                RefreshDataGridView();
+            }
         }
 
         #endregion
 
-        
+
     }
 
     

@@ -5,6 +5,12 @@ namespace RTDB.VariableModel
 {
     public class AnalogVariable : VariableBase
     {
+
+        /// <summary>
+        /// 变量Id
+        /// </summary>
+        public int AnalogVariableId { get; set; }
+
         /// <summary>
         /// 变量值
         /// </summary>
@@ -35,6 +41,10 @@ namespace RTDB.VariableModel
         /// </summary>
         public string ProjectUnit { get; set; }
 
+        public AnalogVariable()
+        {
+            
+        }
         /// <summary>
         /// 构造函数
         /// </summary>

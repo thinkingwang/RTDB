@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Data.Entity;
 using RTDB.VariableModel;
 
 namespace RTDB.Common
@@ -10,27 +11,28 @@ namespace RTDB.Common
         /// <summary>
         /// 模拟变量集合
         /// </summary>
-        Dictionary<string, AnalogVariable> AnalogSet { get; }
+        IDbSet<AnalogVariable>  AnalogSet{ get; set; }
 
         /// <summary>
         /// 数字变量集合
         /// </summary>
-        Dictionary<string, DigitalVariable> DigitalSet { get; }
+        IDbSet<DigitalVariable>  DigitalSet{ get; set; }
 
         /// <summary>
         /// 字符变量集合
         /// </summary>
-        Dictionary<string, StringVariable> StringSet { get; }
+        IDbSet<StringVariable>  StringSet{ get; set; }
 
         /// <summary>
         /// 变量组集合
         /// </summary>
-        List<VariableGroup> VariableGroupSet { get; }
+        IDbSet<VariableGroup> VariableGroupSet { get; set; }
 
         #endregion
 
-        void VariableLoad();
-
-        void VariableSave();
+        /// <summary>
+        /// 保存变量到实体集
+        /// </summary>
+        void SaveVariable();
     }
 }
