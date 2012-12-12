@@ -3,13 +3,13 @@ using System.Diagnostics;
 
 namespace RTDB.VariableModel
 {
-    public class StringVariable : VariableBase
+    public class TextVariable : VariableBase
     {
 
         /// <summary>
         /// 变量Id
         /// </summary>
-        public int StringVariableId { get; set; }
+        public int TextVariableId { get; set; }
 
         /// <summary>
         /// 变量值
@@ -21,7 +21,7 @@ namespace RTDB.VariableModel
         /// </summary>
         public string InitValue { get; set; }
 
-        public StringVariable()
+        public TextVariable()
         {
             
         }
@@ -31,7 +31,7 @@ namespace RTDB.VariableModel
         /// </summary>
         /// <param name="group">变量所属组别的名称,如果是根组，需要传递 "" 值</param>
         /// <param name="varName">变量名</param>
-        public StringVariable(VariableGroup group, string varName = "")
+        public TextVariable(VariableGroup group, string varName = "")
             : base(group, varName, Varvaluetype.VarString)
         {
             InitValue = "";
@@ -50,7 +50,7 @@ namespace RTDB.VariableModel
                 throw new ArgumentNullException(Resource1.CopyProperty_SourceObjIsNull);
             }
             base.CopyProperty(source);
-            var variable = source as StringVariable;
+            var variable = source as TextVariable;
             if (variable != null)
             {
                 Value = variable.Value;

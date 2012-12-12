@@ -322,7 +322,7 @@ namespace RTDB.Common
                                  "Resource1.VariableRepository_AddVar_VariableIsExist != null");
                     throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
                 }
-                _variableContext.StringSet.Add(variable as StringVariable);
+                _variableContext.StringSet.Add(variable as TextVariable);
             }
 
         }
@@ -349,7 +349,7 @@ namespace RTDB.Common
             }
             else if (variable.ValueType == Varvaluetype.VarString)
             {
-                _variableContext.StringSet.Remove(variable as StringVariable);
+                _variableContext.StringSet.Remove(variable as TextVariable);
             }
         }
 

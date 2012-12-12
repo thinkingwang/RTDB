@@ -21,7 +21,7 @@ namespace RTDB.Common
         /// <summary>
         /// 字符变量集合
         /// </summary>
-        IDbSet<StringVariable>  StringSet{ get; set; }
+        IDbSet<TextVariable>  StringSet{ get; set; }
 
         /// <summary>
         /// 变量组集合

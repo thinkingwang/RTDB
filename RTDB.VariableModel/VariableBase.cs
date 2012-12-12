@@ -55,11 +55,11 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 只读
         /// </summary>
-        OnlyRead,
+        ReadOnly,
         /// <summary>
         /// 只写
         /// </summary>
-        OnlyWrite,
+        WriteOnly,
     }
     #endregion
 

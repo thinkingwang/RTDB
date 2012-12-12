@@ -20,7 +20,7 @@ namespace FunctionTestProject
         #region TreeView操作方法
 
         private TreeNode _currentNode = new TreeNode();
-        private VariableEntity _iVariableContext;
+        private VariableContext _iVariableContext;
         private VariableRepository _unitOfWork;
 
         /// <summary>
@@ -30,7 +30,7 @@ namespace FunctionTestProject
         /// <param name="e"></param>
         private void FunctionTestFormLoad(object sender, EventArgs e)
         {
-            _iVariableContext = new VariableEntity("Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableEntity;User ID=sa;Password=666666");
+            _iVariableContext = new VariableContext("Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableEntity;User ID=sa;Password=666666");
 
             _unitOfWork = new VariableRepository(_iVariableContext);
 
@@ -336,7 +336,7 @@ namespace FunctionTestProject
         private void StrToolStripMenuItemClick(object sender, EventArgs e)
         {
             var stringVariable =
-                new StringVariable(_unitOfWork.GetGroupById(GetVariableGroupPath(_currentNode.FullPath)));
+                new TextVariable(_unitOfWork.GetGroupById(GetVariableGroupPath(_currentNode.FullPath)));
             _unitOfWork.AddVariable(stringVariable);
             AddVarToListview(stringVariable);
         }
@@ -413,7 +413,7 @@ namespace FunctionTestProject
                     (variable as AnalogVariable).ProjectUnit;
                 row.Cells[15].Value = variable.Description;
             }
-            else if (variable is StringVariable)
+            else if (variable is TextVariable)
             {
                 row.Cells[0].Value = variable.Name;
                 row.Cells[1].Value = variable.VariableBaseFullPath;
@@ -422,11 +422,11 @@ namespace FunctionTestProject
                 row.Cells[3].Value =
                     variable.ValueType.ToString();
                 row.Cells[4].Value =
-                    (variable as StringVariable).InitValue;
+                    (variable as TextVariable).InitValue;
                 row.Cells[5].Value = "N/A";
                 row.Cells[6].Value = "N/A";
                 row.Cells[7].Value =
-                    (variable as StringVariable).Value;
+                    (variable as TextVariable).Value;
                 row.Cells[8].Value = "N/A";
                 row.Cells[9].Value =
                     variable.OperateProperty.ToString();
@@ -528,7 +528,7 @@ namespace FunctionTestProject
                 }
                 else
                 {
-                    editVar = new StringVariable(oldVar.Group);
+                    editVar = new TextVariable(oldVar.Group);
                     editVar.CopyProperty(oldVar);
                 }
 
@@ -567,7 +567,7 @@ namespace FunctionTestProject
                         }
                         else
                         {
-                            (editVar as StringVariable).InitValue =
+                            (editVar as TextVariable).InitValue =
                                 currentRow.Cells[currentCell.ColumnIndex].Value.ToString();
                         }
                         break;
@@ -599,7 +599,7 @@ namespace FunctionTestProject
                         }
                         else
                         {
-                            (editVar as StringVariable).Value =
+                            (editVar as TextVariable).Value =
                                 currentRow.Cells[currentCell.ColumnIndex].Value.ToString();
                         }
                         break;
@@ -617,10 +617,10 @@ namespace FunctionTestProject
                                 editVar.OperateProperty = Varoperateproperty.ReadWrite;
                                 break;
                             case "OnlyRead":
-                                editVar.OperateProperty = Varoperateproperty.OnlyRead;
+                                editVar.OperateProperty = Varoperateproperty.ReadOnly;
                                 break;
                             case "OnlyWrite":
-                                editVar.OperateProperty = Varoperateproperty.OnlyWrite;
+                                editVar.OperateProperty = Varoperateproperty.WriteOnly;
                                 break;
                             default:
                                 return;

@@ -13,7 +13,7 @@ using RTDB.VariableModel;
 
 namespace RTDB.EntityFramework
 {
-    internal sealed class ReportingDbMigrationsConfiguration : DbMigrationsConfiguration<VariableEntity>
+    internal sealed class ReportingDbMigrationsConfiguration : DbMigrationsConfiguration<VariableContext>
     {
         public ReportingDbMigrationsConfiguration()
         {
@@ -22,7 +22,7 @@ namespace RTDB.EntityFramework
         }
     }
     [SuppressMessage("Microsoft.Design", "CA1063:ImplementIDisposableCorrectly", Justification = "IDisposable is specified by IEmployeeContext and the implementation is inherited from ObjectContext")]
-    public class VariableEntity : DbContext, IVariableContext
+    public class VariableContext : DbContext, IVariableContext
     {
 
         #region 变量集合和组集合
@@ -39,7 +39,7 @@ namespace RTDB.EntityFramework
         /// <summary>
         /// 字符变量集合
         /// </summary>
-        public IDbSet<StringVariable> StringSet { get; set; }
+        public IDbSet<TextVariable> StringSet { get; set; }
 
         /// <summary>
         /// 变量组集合
@@ -53,7 +53,7 @@ namespace RTDB.EntityFramework
         /// </summary>
         /// <param name="dbNameOrConnectingString"></param>
         /// <param name="isLoadData"></param>
-        public VariableEntity(string dbNameOrConnectingString = "VariableEntity", bool isLoadData = true)
+        public VariableContext(string dbNameOrConnectingString = "VariableDB", bool isLoadData = true)
             : base(dbNameOrConnectingString)
             //: base("Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableEntity;User ID=sa;Password=666666")
         {
