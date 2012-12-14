@@ -52,6 +52,9 @@
             this.Column_Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Variable = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.RemoveAvariableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMS_CopyVariable = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMS_CutVariable = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMS_PasteVariable = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip_TreeViewSub = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ToolStripMenuItemCreateGroup = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemDeleteGroup = new System.Windows.Forms.ToolStripMenuItem();
@@ -60,6 +63,9 @@
             this.Ana_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Str_ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemRenameGroup = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMS_CopyVariableGroup = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMS_CutVariableGroup = new System.Windows.Forms.ToolStripMenuItem();
+            this.CMS_PasteVariableGroup = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -249,9 +255,12 @@
             // contextMenuStrip_Variable
             // 
             this.contextMenuStrip_Variable.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.RemoveAvariableToolStripMenuItem});
+            this.RemoveAvariableToolStripMenuItem,
+            this.CMS_CopyVariable,
+            this.CMS_CutVariable,
+            this.CMS_PasteVariable});
             this.contextMenuStrip_Variable.Name = "contextMenuStrip_Variable";
-            this.contextMenuStrip_Variable.Size = new System.Drawing.Size(125, 26);
+            this.contextMenuStrip_Variable.Size = new System.Drawing.Size(153, 114);
             // 
             // RemoveAvariableToolStripMenuItem
             // 
@@ -260,15 +269,40 @@
             this.RemoveAvariableToolStripMenuItem.Text = "移除变量";
             this.RemoveAvariableToolStripMenuItem.Click += new System.EventHandler(this.RemoveAvariableToolStripMenuItemClick);
             // 
+            // CMS_CopyVariable
+            // 
+            this.CMS_CopyVariable.Name = "CMS_CopyVariable";
+            this.CMS_CopyVariable.Size = new System.Drawing.Size(152, 22);
+            this.CMS_CopyVariable.Text = "复制变量";
+            this.CMS_CopyVariable.Click += new System.EventHandler(this.CmsCopyVariableClick);
+            // 
+            // CMS_CutVariable
+            // 
+            this.CMS_CutVariable.Name = "CMS_CutVariable";
+            this.CMS_CutVariable.Size = new System.Drawing.Size(152, 22);
+            this.CMS_CutVariable.Text = "剪切变量";
+            this.CMS_CutVariable.Click += new System.EventHandler(this.CmsCutVariableClick);
+            // 
+            // CMS_PasteVariable
+            // 
+            this.CMS_PasteVariable.Enabled = false;
+            this.CMS_PasteVariable.Name = "CMS_PasteVariable";
+            this.CMS_PasteVariable.Size = new System.Drawing.Size(152, 22);
+            this.CMS_PasteVariable.Text = "粘贴变量";
+            this.CMS_PasteVariable.Click += new System.EventHandler(this.CmsPasteVariableClick);
+            // 
             // contextMenuStrip_TreeViewSub
             // 
             this.contextMenuStrip_TreeViewSub.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ToolStripMenuItemCreateGroup,
             this.ToolStripMenuItemDeleteGroup,
             this.ToolStripMenuItemCreateVariable,
-            this.ToolStripMenuItemRenameGroup});
+            this.ToolStripMenuItemRenameGroup,
+            this.CMS_CopyVariableGroup,
+            this.CMS_CutVariableGroup,
+            this.CMS_PasteVariableGroup});
             this.contextMenuStrip_TreeViewSub.Name = "contextMenuStrip_TreeViewSub";
-            this.contextMenuStrip_TreeViewSub.Size = new System.Drawing.Size(125, 92);
+            this.contextMenuStrip_TreeViewSub.Size = new System.Drawing.Size(125, 158);
             // 
             // ToolStripMenuItemCreateGroup
             // 
@@ -305,7 +339,7 @@
             // 
             this.Ana_ToolStripMenuItem.Name = "Ana_ToolStripMenuItem";
             this.Ana_ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
-            this.Ana_ToolStripMenuItem.Text = "数字变量";
+            this.Ana_ToolStripMenuItem.Text = "模拟变量";
             this.Ana_ToolStripMenuItem.Click += new System.EventHandler(this.AnaToolStripMenuItemClick);
             // 
             // Str_ToolStripMenuItem
@@ -321,6 +355,28 @@
             this.ToolStripMenuItemRenameGroup.Size = new System.Drawing.Size(124, 22);
             this.ToolStripMenuItemRenameGroup.Text = "重命名";
             this.ToolStripMenuItemRenameGroup.Click += new System.EventHandler(this.ToolStripMenuItemRenameGroupClick);
+            // 
+            // CMS_CopyVariableGroup
+            // 
+            this.CMS_CopyVariableGroup.Name = "CMS_CopyVariableGroup";
+            this.CMS_CopyVariableGroup.Size = new System.Drawing.Size(124, 22);
+            this.CMS_CopyVariableGroup.Text = "复制组";
+            this.CMS_CopyVariableGroup.Click += new System.EventHandler(this.CmsCopyVariableGroupClick);
+            // 
+            // CMS_CutVariableGroup
+            // 
+            this.CMS_CutVariableGroup.Name = "CMS_CutVariableGroup";
+            this.CMS_CutVariableGroup.Size = new System.Drawing.Size(124, 22);
+            this.CMS_CutVariableGroup.Text = "剪切组";
+            this.CMS_CutVariableGroup.Click += new System.EventHandler(this.CmsCutVariableGroupClick);
+            // 
+            // CMS_PasteVariableGroup
+            // 
+            this.CMS_PasteVariableGroup.Enabled = false;
+            this.CMS_PasteVariableGroup.Name = "CMS_PasteVariableGroup";
+            this.CMS_PasteVariableGroup.Size = new System.Drawing.Size(124, 22);
+            this.CMS_PasteVariableGroup.Text = "粘贴组";
+            this.CMS_PasteVariableGroup.Click += new System.EventHandler(this.CmsPasteVariableGroupClick);
             // 
             // FunctionTestForm
             // 
@@ -377,6 +433,12 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn Column_IsEventSaved;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column_ProjectUnit;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column_Description;
+        private System.Windows.Forms.ToolStripMenuItem CMS_CopyVariable;
+        private System.Windows.Forms.ToolStripMenuItem CMS_CutVariable;
+        private System.Windows.Forms.ToolStripMenuItem CMS_PasteVariable;
+        private System.Windows.Forms.ToolStripMenuItem CMS_CopyVariableGroup;
+        private System.Windows.Forms.ToolStripMenuItem CMS_CutVariableGroup;
+        private System.Windows.Forms.ToolStripMenuItem CMS_PasteVariableGroup;
     }
 }
 

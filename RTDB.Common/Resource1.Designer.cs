@@ -196,6 +196,24 @@ namespace RTDB.Common {
         }
         
         /// <summary>
+        ///   查找类似 粘贴位置未找到或不存在 的本地化字符串。
+        /// </summary>
+        internal static string VariableRepository_PasteVariable_desGroup {
+            get {
+                return ResourceManager.GetString("VariableRepository_PasteVariable_desGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 粘贴板为空 的本地化字符串。
+        /// </summary>
+        internal static string VariableRepository_PasteVariable_sourceVariable {
+            get {
+                return ResourceManager.GetString("VariableRepository_PasteVariable_sourceVariable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 父节点字符串为空或不存在 的本地化字符串。
         /// </summary>
         internal static string VariableUnitOfWork_AddGroup_parentVariableGroupIdIsNullOrEmpty {

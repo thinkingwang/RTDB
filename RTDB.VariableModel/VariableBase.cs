@@ -1,6 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
 
 namespace RTDB.VariableModel
 {
@@ -68,23 +66,26 @@ namespace RTDB.VariableModel
     /// </summary>
     public class VariableBase
     {
+        #region 私有字段
+
         private string _name;
         private int _groupId;
         private int _variableType;
         private int _operateProperty;
         private int _valueType;
 
+        #endregion
+
         #region 变量基本属性
         
         /// <summary>
         /// 变量全名
         /// </summary>
-        [NotMapped]
         public string VariableBaseFullPath
         {
             get
             {
-                return ((Group == null) || (Group.Parent == null)) ? Name : (Group.GroupFullPath + "." + Name);
+                return ((Parent == null) || (Parent.Parent == null)) ? Name : (Parent.GroupFullPath + "." + Name);
             }
         }
 
@@ -110,11 +111,11 @@ namespace RTDB.VariableModel
         {
             get
             {
-                if (Group == null)
+                if (Parent == null)
                 {
                     return _groupId;
                 }
-                return Group.VariableGroupId;
+                return Parent.VariableGroupId;
             }
             set { _groupId = value; }
         }
@@ -146,7 +147,6 @@ namespace RTDB.VariableModel
             set { _variableType = (int)value; }
         }
 
-
         /// <summary>
         /// 变量类型
         /// </summary>
@@ -164,8 +164,7 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 变量组
         /// </summary>
-        [NotMapped]
-        public VariableGroup Group { get; set; }
+        public VariableGroup Parent { get; set; }
 
         /// <summary>
         /// 是否保存数值
@@ -190,7 +189,6 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 变量操作属性（可读写、只读、只写）
         /// </summary>
-        [NotMapped]
         public Varoperateproperty OperateProperty
         {
             get { return (Varoperateproperty)_operateProperty; }
@@ -208,9 +206,11 @@ namespace RTDB.VariableModel
 
         #endregion
 
-        public VariableBase()
+        #region 构造函数
+
+        protected VariableBase()
         {
-            
+
         }
 
         /// <summary>
@@ -219,7 +219,8 @@ namespace RTDB.VariableModel
         /// <param name="group">变量隶属于组别名称</param>
         /// <param name="varName">变量名称</param>
         /// <param name="varValueType">变量类型</param>
-        protected VariableBase(VariableGroup group, string varName = "", Varvaluetype varValueType = Varvaluetype.VarDouble)
+        protected VariableBase(VariableGroup group, string varName = "",
+                               Varvaluetype varValueType = Varvaluetype.VarDouble)
         {
             if (group == null)
             {
@@ -229,12 +230,16 @@ namespace RTDB.VariableModel
             ValueType = varValueType;
             VariableType = VarType.VarNormal;
             OperateProperty = Varoperateproperty.ReadWrite;
-            Group = group;
+            Parent = group;
             IsAddressable = false;
             IsParameterSaved = false;
             IsRecordEvent = false;
             IsValueSaved = true;
         }
+
+        #endregion
+
+        #region 复制变量
 
         /// <summary>
         /// 拷贝属性
@@ -244,7 +249,6 @@ namespace RTDB.VariableModel
         {
             if (source == null)
             {
-                Debug.Assert(Resource1.CopyProperty_SourceObjIsNull != null, "Resource1.CopyProperty_SourceObjIsNull != null");
                 throw new ArgumentNullException(Resource1.CopyProperty_SourceObjIsNull);
             }
             _name = source.Name;
@@ -256,5 +260,8 @@ namespace RTDB.VariableModel
             IsRecordEvent = source.IsRecordEvent;
             IsValueSaved = source.IsValueSaved;
         }
+
+        #endregion
+
     }
 }

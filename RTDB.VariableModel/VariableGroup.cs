@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Diagnostics;
-using System.Globalization;
 
 namespace RTDB.VariableModel
 {
-    public class VariableGroup
+    public sealed class VariableGroup
     {
-        #region 私有方法
+        #region 私有字段
 
         private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
         private readonly List<VariableBase> _childVariables = new List<VariableBase>();
-        private string _groupName;
+        private string _name;
         private int? _parentGroupId;
 
         #endregion
@@ -23,21 +19,19 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 根组
         /// </summary>
-        [NotMapped]
-        public static VariableGroup RootGroup { get; private set; }
+        public static VariableGroup RootGroup { get; set; }
 
         /// <summary>
         /// 变量组名称
         /// </summary>
-         [Required, MaxLength(50)]
-        public string GroupName
+        public string Name
         {
-            get { return _groupName; }
+            get { return _name; }
             set
             {
                 if (!string.IsNullOrEmpty(value))
                 {
-                    _groupName = value;
+                    _name = value;
                 }
             }
         }
@@ -45,10 +39,9 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 变量组全路径
         /// </summary>
-        [NotMapped]
         public string GroupFullPath
         {
-            //get { return Parent != null ? Parent.GroupFullPath + "." + GroupName : GroupName; } //带根节点
+            //get { return Parent != null ? Parent.GroupFullPath + "." + Name : Name; } //带根节点
             get //不带根节点
             {
                 if (Parent == null)
@@ -58,17 +51,18 @@ namespace RTDB.VariableModel
                 if (string.IsNullOrEmpty(Parent.GroupFullPath) 
                     || Parent.GroupFullPath == "_RootGroup")
                 {
-                    return GroupName;
+                    return Name;
                 }
-                return Parent.GroupFullPath + "." + GroupName;
+                return Parent.GroupFullPath + "." + Name;
             }
         }
 
         /// <summary>
         /// 变量组ID
         /// </summary>
-        //[Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
+// ReSharper disable UnusedAutoPropertyAccessor.Global
         public int VariableGroupId { get; set; }
+// ReSharper restore UnusedAutoPropertyAccessor.Global
 
         /// <summary>
         /// 变量父祖Id
@@ -96,8 +90,7 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 子组集合
         /// </summary>
-        [NotMapped]
-        public virtual List<VariableGroup> ChildGroups
+        public List<VariableGroup> ChildGroups
         {
             get { return _childGroups; }
         }
@@ -105,7 +98,6 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 当前组的子组数量
         /// </summary>
-        [NotMapped]
         public int GroupsCount
         {
             get { return _childGroups.Count; }
@@ -114,8 +106,7 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 组变量集合
         /// </summary>
-        [NotMapped]
-        public virtual List<VariableBase> ChildVariables
+        public List<VariableBase> ChildVariables
         {
             get { return _childVariables; }
         }
@@ -123,7 +114,6 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 当前组的变量数量
         /// </summary>
-        [NotMapped]
         public int VariablesCount
         {
             get { return _childVariables.Count; }
@@ -132,10 +122,7 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 父节点
         /// </summary>
-        [NotMapped]
         public VariableGroup Parent { get; set; }
-
-        //public string test { get; set; }
 
         #endregion
 
@@ -143,28 +130,26 @@ namespace RTDB.VariableModel
 
         public VariableGroup()
         {
-            
+
         }
+
         /// <summary>
         /// 组构造函数
         /// </summary>
-        /// <param name="groupName">组名称</param>
+        /// <param name="name">组名称</param>
         /// <param name="parent">父组对象, 为null表示根组</param>
-        public VariableGroup(string groupName, VariableGroup parent)
+        public VariableGroup(string name, VariableGroup parent)
         {
-            if (string.IsNullOrEmpty(groupName))
+            if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentNullException(Resource1.VariableGroup_VariableGroup_groupNameIsNull);
             }
-            _groupName = groupName;
+            _name = name;
             Parent = parent;
         }
 
         static VariableGroup()
         {
-            Debug.Assert(Resource1.VariableGroup__rootGroup_variableDictionary != null, 
-                "Resource1.VariableGroup__rootGroup_variableDictionary != null");
-
             RootGroup = new VariableGroup(Resource1.VariableGroup__rootGroup_variableDictionary, null);
         }
 

@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace RTDB.VariableModel
 {
     public class AnalogVariable : VariableBase
     {
+        #region 属性
 
         /// <summary>
         /// 变量Id
@@ -41,10 +41,15 @@ namespace RTDB.VariableModel
         /// </summary>
         public string ProjectUnit { get; set; }
 
+        #endregion
+
+        #region 构造函数
+
         public AnalogVariable()
         {
-            
+
         }
+
         /// <summary>
         /// 构造函数
         /// </summary>
@@ -62,6 +67,10 @@ namespace RTDB.VariableModel
 
         }
 
+        #endregion
+
+        #region 复制变量
+
         /// <summary>
         /// 拷贝属性
         /// </summary>
@@ -70,7 +79,6 @@ namespace RTDB.VariableModel
         {
             if (source == null)
             {
-                Debug.Assert(Resource1.CopyProperty_SourceObjIsNull != null, "Resource1.CopyProperty_SourceObjIsNull != null");
                 throw new ArgumentNullException(Resource1.CopyProperty_SourceObjIsNull);
             }
             base.CopyProperty(source);
@@ -85,5 +93,8 @@ namespace RTDB.VariableModel
                 ProjectUnit = variable.ProjectUnit;
             }
         }
+
+        #endregion
+
     }
 }

@@ -1,13 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{202384CE-6CBF-4655-82DD-F1332CC91571}"
-	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
-		RTDB.vsmdi = RTDB.vsmdi
-		TraceAndTestImpact.testsettings = TraceAndTestImpact.testsettings
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RTDB.Common", "RTDB.Common\RTDB.Common.csproj", "{5641C3DA-3ED3-4A18-A46F-4682432DEE48}"
 	ProjectSection(ProjectDependencies) = postProject
 		{DF863521-F414-45FA-AD64-F9D89EB46C3F} = {DF863521-F414-45FA-AD64-F9D89EB46C3F}

@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Diagnostics;
 
 namespace RTDB.VariableModel
 {
     public class TextVariable : VariableBase
     {
+        #region 属性
 
         /// <summary>
         /// 变量Id
@@ -21,9 +21,13 @@ namespace RTDB.VariableModel
         /// </summary>
         public string InitValue { get; set; }
 
+        #endregion
+
+        #region 构造函数
+
         public TextVariable()
         {
-            
+
         }
 
         /// <summary>
@@ -38,6 +42,10 @@ namespace RTDB.VariableModel
             Value = InitValue;
         }
 
+        #endregion
+
+        #region 复制变量
+
         /// <summary>
         /// 拷贝属性
         /// </summary>
@@ -46,7 +54,6 @@ namespace RTDB.VariableModel
         {
             if (source == null)
             {
-                Debug.Assert(Resource1.CopyProperty_SourceObjIsNull != null, "Resource1.CopyProperty_SourceObjIsNull != null");
                 throw new ArgumentNullException(Resource1.CopyProperty_SourceObjIsNull);
             }
             base.CopyProperty(source);
@@ -57,5 +64,8 @@ namespace RTDB.VariableModel
                 InitValue = variable.InitValue;
             }
         }
+
+        #endregion
+
     }
 }

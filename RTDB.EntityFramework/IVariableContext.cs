@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using RTDB.VariableModel;
 
-namespace RTDB.Common
+namespace RTDB.EntityFramework
 {
     public interface IVariableContext
     {
@@ -33,6 +32,6 @@ namespace RTDB.Common
         /// <summary>
         /// 保存变量到实体集
         /// </summary>
-        void SaveVariable();
+        void Save();
     }
 }

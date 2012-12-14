@@ -181,4 +181,10 @@
   <data name="VariableUnitOfWork_EditVariable_AvarialeNameExist" xml:space="preserve">
     <value>变量名称重复，不能修改</value>
   </data>
+  <data name="VariableRepository_PasteVariable_desGroup" xml:space="preserve">
+    <value>粘贴位置未找到或不存在</value>
+  </data>
+  <data name="VariableRepository_PasteVariable_sourceVariable" xml:space="preserve">
+    <value>粘贴板为空</value>
+  </data>
 </root>
