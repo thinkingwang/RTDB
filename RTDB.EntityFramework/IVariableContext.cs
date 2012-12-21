@@ -1,7 +1,7 @@
 ﻿using System.Data.Entity;
-using RTDB.VariableModel;
+using SCADA.RTDB.VariableModel;
 
-namespace RTDB.EntityFramework
+namespace SCADA.RTDB.EntityFramework
 {
     public interface IVariableContext
     {
@@ -20,7 +20,7 @@ namespace RTDB.EntityFramework
         /// <summary>
         /// 字符变量集合
         /// </summary>
-        IDbSet<TextVariable>  StringSet{ get; set; }
+        IDbSet<TextVariable>  TextSet{ get; set; }
 
         /// <summary>
         /// 变量组集合

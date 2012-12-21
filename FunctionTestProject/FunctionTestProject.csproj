@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework, Version=4.4.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
@@ -89,13 +93,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RTDB.Common\RTDB.Common.csproj">
+    <ProjectReference Include="..\RTDB.Common\SCADA.RTDB.Repository.csproj">
       <Project>{5641C3DA-3ED3-4A18-A46F-4682432DEE48}</Project>
-      <Name>RTDB.Common</Name>
+      <Name>SCADA.RTDB.Repository</Name>
     </ProjectReference>
-    <ProjectReference Include="..\RTDB.VariableModel\RTDB.VariableModel.csproj">
+    <ProjectReference Include="..\RTDB.VariableModel\SCADA.RTDB.VariableModel.csproj">
       <Project>{DF863521-F414-45FA-AD64-F9D89EB46C3F}</Project>
-      <Name>RTDB.VariableModel</Name>
+      <Name>SCADA.RTDB.VariableModel</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

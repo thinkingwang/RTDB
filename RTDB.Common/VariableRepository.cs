@@ -1,17 +1,40 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using RTDB.VariableModel;
-using RTDB.EntityFramework;
+using SCADA.RTDB.EntityFramework;
+using SCADA.RTDB.VariableModel;
 
-namespace RTDB.Common
+namespace SCADA.RTDB.Repository
 {
     public class VariableRepository : IVariableRepository
     {
         #region 私有字段
 
         private readonly IVariableContext _variableContext;
+        private bool _isChanged;
 
         #endregion
+
+        /// <summary>
+        /// 变量及变量组集合发生改变时触发事件
+        /// </summary>
+        public event DataChangedEvent DataChanged;
+
+        /// <summary>
+        /// 变量及变量组集合是否改变
+        /// </summary>
+        public bool IsChanged
+        {
+            get { return _isChanged; }
+            private set
+            {
+                _isChanged = value;
+                if (_isChanged)
+                {
+                    if (DataChanged != null) DataChanged();
+                }
+            }
+        }
 
         #region 构造函数
 
@@ -26,7 +49,6 @@ namespace RTDB.Common
                 dbNameOrConnectingString = "VariableDB";
             }
             _variableContext = new VariableContext(dbNameOrConnectingString);
-
         }
 
         #endregion
@@ -36,65 +58,88 @@ namespace RTDB.Common
         /// <summary>
         /// 根据组Id获取组对象
         /// </summary>
-        /// <param name="curGroupFullPath">组全路径，等于null或为空字符返回根组</param>
+        /// <param name="fullPath">组全路径，等于null或为空字符返回根组</param>
         /// <returns>返回组对象，未找到返回null</returns>
-        public VariableGroup GetGroup(string curGroupFullPath)
+        public VariableGroup FindGroupById(string fullPath)
         {
             //等于null或为空字符返回根组
-            if (string.IsNullOrEmpty(curGroupFullPath))
+            if (string.IsNullOrEmpty(fullPath))
+            {
+                return VariableGroup.RootGroup;
+            }
+            
+            return _variableContext.VariableGroupSet.Local.FirstOrDefault(curGroup => curGroup.FullPath == fullPath);
+
+        }
+        /// <summary>
+        /// 根据组Id提供的路径信息，遍历树查找组节点
+        /// </summary>
+        /// <param name="fullPath">组全路径，等于null或为空字符返回根组</param>
+        /// <returns>返回组对象，未找到返回null</returns>
+        public VariableGroup FindGroupByPath(string fullPath)
+        {
+            //等于null或为空字符返回根组
+            if (string.IsNullOrEmpty(fullPath))
             {
                 return VariableGroup.RootGroup;
             }
 
-            if (curGroupFullPath.Split('.')[0] == VariableGroup.RootGroup.GroupFullPath)
-            {
-                curGroupFullPath = curGroupFullPath.Substring(curGroupFullPath.IndexOf('.') + 1);
-            }
-            
-            return  _variableContext.VariableGroupSet.Local.FirstOrDefault(curGroup => curGroup.GroupFullPath == curGroupFullPath);
+            return findRecursion(VariableGroup.RootGroup, fullPath);
+
         }
 
         /// <summary>
+        /// 查询组路径下面所有子组
+        /// </summary>
+        /// <param name="fullPath">组路径</param>
+        /// <returns>所有子组列表</returns>
+        public IEnumerable<VariableGroup> FindGroups(string fullPath)
+        {
+            VariableGroup variableGroup = FindGroupById(fullPath);
+            return variableGroup == null ? null : variableGroup.ChildGroups;
+        }
+        
+        /// <summary>
         /// 向当前组添加子组
         /// </summary>
-        /// <param name="groupName">子组名称</param>
-        /// <param name="curGroupFullPath">要添加的组全路径</param>
-        public void AddGroup(string groupName,string curGroupFullPath)
+        /// <param name="name">子组名称</param>
+        /// <param name="fullPath">要添加的组全路径</param>
+        public void AddGroup(string name,string fullPath)
         {
-            if (string.IsNullOrEmpty(groupName))
+            if (string.IsNullOrEmpty(name))
             {
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupNameIsNull);
             }
 
-            VariableGroup parentVariableGroup = GetGroup(curGroupFullPath);
+            VariableGroup parentVariableGroup = FindGroupById(fullPath);
             if (parentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
-            var newGroup = new VariableGroup(groupName, parentVariableGroup);
+            var newGroup = new VariableGroup(name, parentVariableGroup);
 
-            if (IsExistName(groupName, parentVariableGroup))
+            if (IsExistName(name, parentVariableGroup))
             {
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupeNameIsExist);
             }
 
             parentVariableGroup.ChildGroups.Add(newGroup);
-
             _variableContext.VariableGroupSet.Add(newGroup);
-            _variableContext.Save();
+            IsChanged = true;
+            
         }
 
         /// <summary>
         /// 删除指定组
         /// </summary>
-        /// <param name="curGroupFullPath">要移除的组全路径</param>
-        public void RemoveGroup(string curGroupFullPath)
+        /// <param name="fullPath">要移除的组全路径</param>
+        public void RemoveGroup(string fullPath)
         {
-            if (string.IsNullOrEmpty(curGroupFullPath))
+            if (string.IsNullOrEmpty(fullPath))
             {
                 throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
             }
-            VariableGroup currentVariableGroup = GetGroup(curGroupFullPath);
+            VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -102,11 +147,11 @@ namespace RTDB.Common
             //删除该组下面的子组
             while (currentVariableGroup.ChildGroups.Count > 0)
             {
-                RemoveGroup(currentVariableGroup.ChildGroups[0].GroupFullPath);
+                RemoveGroup(currentVariableGroup.ChildGroups[0].FullPath);
             }
 
             //删除该组下的变量
-            ClearVariable(curGroupFullPath);
+            ClearVariable(fullPath);
 
             //删除该组
             if (currentVariableGroup.ParentGroupId <= 0)
@@ -116,67 +161,68 @@ namespace RTDB.Common
             }
             currentVariableGroup.Parent.ChildGroups.Remove(currentVariableGroup);
             _variableContext.VariableGroupSet.Remove(currentVariableGroup);
-            _variableContext.Save();
+            IsChanged = true;
         }
 
         /// <summary>
         /// 修改当前变量组名称
         /// </summary>
-        /// <param name="groupName">修改后的组名</param>
-        /// <param name="curGroupFullPath">要重命名的组全路径</param>
-        public void RenameGroup(string groupName, string curGroupFullPath)
+        /// <param name="name">修改后的组名</param>
+        /// <param name="fullPath">要重命名的组全路径</param>
+        public void RenameGroup(string name, string fullPath)
         {
-            if (string.IsNullOrEmpty(groupName))
+            if (string.IsNullOrEmpty(name))
             {
                 throw new Exception(Resource1.VariableGroup_ReGroupName_groupName_Is_Null);
             }
-            if (string.IsNullOrEmpty(curGroupFullPath))
+            if (string.IsNullOrEmpty(fullPath))
             {
                 throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
             }
-            VariableGroup currentVariableGroup = GetGroup(curGroupFullPath);
+            VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
-            if (IsExistName(groupName, currentVariableGroup.Parent))
+            if (IsExistName(name, currentVariableGroup.Parent))
             {
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupeNameIsExist);
             }
-            currentVariableGroup.Name = groupName;
-            _variableContext.Save();
+            currentVariableGroup.Name = name;
+            IsChanged = true;
         }
 
         /// <summary>
         /// 粘贴变量组
         /// </summary>
-        /// <param name="sourceGroup">需要粘贴的变量组</param>
-        /// <param name="curGroupFullPath">粘贴变量的目标组</param>
+        /// <param name="source">需要粘贴的变量组</param>
+        /// <param name="fullPath">粘贴变量的目标组,null为根组</param>
         /// <param name="isCopy">是否为复制，true为复制，false为剪切</param>
         /// <param name="pasteMode">粘贴模式，0：默认模式，重复则返回，1：如果重复则替换，2：如果重复则两个变量都保留，3：如果重复则放弃</param>
         /// <returns>如果默认模式下且有相同变量名称存在返回变量新名称，否则返回粘贴变量名称</returns>
-        public string PasteGroup(VariableGroup sourceGroup, string curGroupFullPath, bool isCopy,
+        public string PasteGroup(VariableGroup source, string fullPath, bool isCopy,
                                   uint pasteMode = 0)
         {
-            if (sourceGroup == null)
+            if (source == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
             }
 
-            if (curGroupFullPath == null)
+            //目标组是源文件的子文件组，不允许粘贴
+            if ((source.FullPath == fullPath) || (fullPath != null && fullPath.Contains(source.FullPath)))
             {
-                throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
+                throw new Exception(Resource1.VariableRepository_PasteGroup_SourceGroupContainDesGroup);
             }
 
-            VariableGroup desGroup = GetGroup(curGroupFullPath);
+            VariableGroup desGroup = FindGroupById(fullPath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
             }
 
-            if (IsExistName(sourceGroup.Name, desGroup) && (pasteMode == 0))
+            if (IsExistName(source.Name, desGroup) && (pasteMode == 0))
             {
-                return GetInitVarName(desGroup, sourceGroup.Name); //保留两个变量后新的变量名
+                return GetDefaultName(desGroup, source.Name); //保留两个变量后新的变量名
             }
 
             if (pasteMode <= 2)
@@ -184,28 +230,34 @@ namespace RTDB.Common
                 //替换
                 if (pasteMode == 1) //替换
                 {
-                    RemoveGroup(desGroup.GroupFullPath + "." + sourceGroup.Name);
+                    if (source.Parent != null && desGroup.FullPath == source.Parent.FullPath) //如果源与目标位置相同，无需替换
+                    {
+                        return source.Name;
+                    }
+                    RemoveGroup(desGroup.FullPath + "." + source.Name);
                 }
 
                 if (isCopy)
                 {
-                    CopyGroup(sourceGroup, desGroup, pasteMode);
+                    CopyGroup(source, desGroup, pasteMode);
                 }
                 else
                 {
-                    sourceGroup.Parent.ChildGroups.Remove(sourceGroup);
-                    sourceGroup.Parent = desGroup;
+                    if (source.Parent == null)
+                    {
+                        return null;
+                    }
+                    source.Parent.ChildGroups.Remove(source);
+                    source.Parent = desGroup;
                     if (pasteMode == 2) //同时保留两个
                     {
-                        sourceGroup.Name = GetInitVarName(desGroup, sourceGroup.Name);
+                        source.Name = GetDefaultName(desGroup, source.Name);
                     }
-                    desGroup.ChildGroups.Add(sourceGroup);
+                    desGroup.ChildGroups.Add(source);
                 }
-
-                _variableContext.Save();
             }
-
-            return sourceGroup.Name;
+            IsChanged = true;
+            return source.Name;
         }
         
         #endregion
@@ -227,7 +279,7 @@ namespace RTDB.Common
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
             
-            variable.Name = (string.IsNullOrEmpty(variable.Name)) ? GetInitVarName(variable.Parent) : variable.Name;
+            variable.Name = (string.IsNullOrEmpty(variable.Name)) ? GetDefaultName(variable.Parent) : variable.Name;
 
             if (IsExistName(variable.Name, variable.Parent))
             {
@@ -238,22 +290,22 @@ namespace RTDB.Common
             
             //添加到仓库集合
             AddVar(variable);
-
-            _variableContext.Save();
+            IsChanged = true;
+            
         }
 
         /// <summary>
         /// 删除指定变量
         /// </summary>
-        /// <param name="variableName">变量名称</param>
-        /// <param name="curGroupFullPath">移除变量所属组全路径</param>
-        public void RemoveVariable(string variableName, string curGroupFullPath)
+        /// <param name="name">变量名称</param>
+        /// <param name="fullPath">移除变量所属组全路径</param>
+        public void RemoveVariable(string name, string fullPath)
         {
-            if (curGroupFullPath==null)
+            if (fullPath==null)
             {
                 throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
             }
-            VariableGroup currentVariableGroup = GetGroup(curGroupFullPath);
+            VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -261,7 +313,7 @@ namespace RTDB.Common
             for (int index = 0; index < currentVariableGroup.ChildVariables.Count; index++)
             {
                 VariableBase curVariable = currentVariableGroup.ChildVariables[index];
-                if (curVariable.Name == variableName)
+                if (curVariable.Name == name)
                 {
                     currentVariableGroup.ChildVariables.Remove(curVariable);
 
@@ -270,21 +322,21 @@ namespace RTDB.Common
                     break;
                 }
             }
-
-            _variableContext.Save();
+            IsChanged = true;
+            
         }
 
         /// <summary>
         /// 删除当前组的所有变量
         /// </summary>
-        /// <param name="curGroupFullPath">要清空的组全路径</param>
-        public void ClearVariable(string curGroupFullPath)
+        /// <param name="fullPath">要清空的组全路径</param>
+        public void ClearVariable(string fullPath)
         {
-            if (curGroupFullPath == null)
+            if (fullPath == null)
             {
                 throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
             }
-            VariableGroup currentVariableGroup = GetGroup(curGroupFullPath);
+            VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -295,7 +347,7 @@ namespace RTDB.Common
                 RemoveVar(currentVariableGroup.ChildVariables[0]);
                 currentVariableGroup.ChildVariables.RemoveAt(0);
             }
-            _variableContext.Save();
+            IsChanged = true;
         }
 
         /// <summary>
@@ -317,58 +369,111 @@ namespace RTDB.Common
 
             if (oldVariable.ValueType == Varvaluetype.VarBool)
             {
-                if (_variableContext.DigitalSet.Local.Any(m=>m.VariableBaseFullPath==oldVariable.VariableBaseFullPath))
+                if (_variableContext.DigitalSet.Local.Any(m=>m.fullPath==oldVariable.fullPath))
                 {
-                    _variableContext.DigitalSet.Local.First(m=>m.VariableBaseFullPath==oldVariable.VariableBaseFullPath).CopyProperty(newVariable);
+                    _variableContext.DigitalSet.Local.First(m=>m.fullPath==oldVariable.fullPath).CopyProperty(newVariable);
                 }
             }
             else if (oldVariable.ValueType == Varvaluetype.VarDouble)
             {
-                if (_variableContext.AnalogSet.Local.Any(m => m.VariableBaseFullPath == oldVariable.VariableBaseFullPath))
+                if (_variableContext.AnalogSet.Local.Any(m => m.fullPath == oldVariable.fullPath))
                 {
-                    _variableContext.AnalogSet.Local.First(m=>m.VariableBaseFullPath==oldVariable.VariableBaseFullPath).CopyProperty(newVariable);
+                    _variableContext.AnalogSet.Local.First(m=>m.fullPath==oldVariable.fullPath).CopyProperty(newVariable);
                 }
             }
             else
             {
-                if (_variableContext.StringSet.Local.Any(m=>m.VariableBaseFullPath==oldVariable.VariableBaseFullPath))
+                if (_variableContext.TextSet.Local.Any(m=>m.fullPath==oldVariable.fullPath))
                 {
-                    _variableContext.StringSet.Local.First(m=>m.VariableBaseFullPath==oldVariable.VariableBaseFullPath).CopyProperty(newVariable);
+                    _variableContext.TextSet.Local.First(m=>m.fullPath==oldVariable.fullPath).CopyProperty(newVariable);
                 }
             }
-            _variableContext.Save();
+            IsChanged = true;
+        }
+
+        /// <summary>
+        /// 根据变量Id查找变量
+        /// </summary>
+        /// <param name="fullPath">变量全路径，如果路径指向组则返回组下所有节点，否则返回找到的变量或null</param>
+        /// <returns>返回变量对象，未找到返回null</returns>
+        public VariableBase FindVariableById(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath))
+            {
+                return null;
+            }
+            VariableBase variable =
+                _variableContext.AnalogSet.Local.FirstOrDefault(m => m.fullPath == fullPath) ??
+                (VariableBase) _variableContext.DigitalSet.Local.FirstOrDefault(m => m.fullPath == fullPath);
+            return variable ??
+                   (_variableContext.TextSet.Local.FirstOrDefault(m => m.fullPath == fullPath));
+        }
+
+        /// <summary>
+        /// 根据变量Id提供的路径信息，遍历树查找变量
+        /// </summary>
+        /// <param name="fullPath">变量全路径</param>
+        /// <returns>返回变量对象，未找到返回null</returns>
+        public VariableBase FindVariableByPath(string fullPath)
+        {
+            if (string.IsNullOrEmpty(fullPath))
+            {
+                return null;
+            }
+
+            if (!fullPath.Contains('.'))
+            {
+                return VariableGroup.RootGroup.ChildVariables.Find(m => m.fullPath == fullPath);
+            }
+            VariableGroup variableGroup = findRecursion(VariableGroup.RootGroup,
+                                                        fullPath.Substring(0, fullPath.LastIndexOf('.')));
+
+            return variableGroup == null
+                       ? null
+                       : variableGroup.ChildVariables.Find(m => m.fullPath == fullPath);
+        }
+
+        /// <summary>
+        /// 查询组路径下面所有变量
+        /// </summary>
+        /// <param name="fullPath">组路径</param>
+        /// <returns>所有变量列表</returns>
+        public IEnumerable<VariableBase> FindVariables(string fullPath)
+        {
+            VariableGroup variableGroup = FindGroupById(fullPath);
+            return variableGroup == null ? null : variableGroup.ChildVariables;
         }
         
         /// <summary>
         /// 粘贴变量
         /// </summary>
-        /// <param name="sourceVariable">需要粘贴的变量</param>
-        /// <param name="curGroupFullPath">粘贴变量的目标组</param>
+        /// <param name="source">需要粘贴的变量</param>
+        /// <param name="fullPath">粘贴变量的目标组</param>
         /// <param name="isCopy">是否为复制，true为复制，false为剪切</param>
         /// <param name="pasteMode">粘贴模式，0：默认模式，重复则返回，1：如果重复则替换，2：如果重复则两个变量都保留，3：如果重复则放弃</param>
         /// <returns>如果默认模式下且有相同变量名称存在返回变量新名称，否则返回粘贴变量名称</returns>
-        public string PasteVariable(VariableBase sourceVariable, string curGroupFullPath, bool isCopy,
+        public string PasteVariable(VariableBase source, string fullPath, bool isCopy,
                                     uint pasteMode = 0)
         {
-            if (sourceVariable == null)
+            if (source == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
             }
 
-            if (curGroupFullPath == null)
+            if (fullPath == null)
             {
                 throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
             }
 
-            VariableGroup desGroup = GetGroup(curGroupFullPath);
+            VariableGroup desGroup = FindGroupById(fullPath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
             }
 
-            if (IsExistName(sourceVariable.Name, desGroup) && (pasteMode == 0))
+            if (IsExistName(source.Name, desGroup) && (pasteMode == 0))
             {
-                return GetInitVarName(desGroup, sourceVariable.Name); //保留两个变量后新的变量名
+                return GetDefaultName(desGroup, source.Name); //保留两个变量后新的变量名
             }
 
             if (pasteMode <= 2)
@@ -376,17 +481,17 @@ namespace RTDB.Common
                 //替换
                 if (pasteMode == 1) //替换
                 {
-                    RemoveVariable(sourceVariable.Name, desGroup.GroupFullPath);
+                    RemoveVariable(source.Name, desGroup.FullPath);
                 }
 
                 if (isCopy)
                 {
                     VariableBase var;
-                    if (sourceVariable is AnalogVariable)
+                    if (source is AnalogVariable)
                     {
                         var = new AnalogVariable(desGroup);
                     }
-                    else if (sourceVariable is DigitalVariable)
+                    else if (source is DigitalVariable)
                     {
                         var = new DigitalVariable(desGroup);
                     }
@@ -394,28 +499,35 @@ namespace RTDB.Common
                     {
                         var = new TextVariable(desGroup);
                     }
-                    var.CopyProperty(sourceVariable);
+                    var.CopyProperty(source);
                     if (pasteMode == 2) //同时保留两个
                     {
-                        var.Name = GetInitVarName(desGroup, sourceVariable.Name);
+                        var.Name = GetDefaultName(desGroup, source.Name);
                     }
                     AddVariable(var);
                 }
                 else
                 {
-                    sourceVariable.Parent.ChildVariables.Remove(sourceVariable);
-                    sourceVariable.Parent = desGroup;
+                    source.Parent.ChildVariables.Remove(source);
+                    source.Parent = desGroup;
                     if (pasteMode == 2) //同时保留两个
                     {
-                        sourceVariable.Name = GetInitVarName(desGroup, sourceVariable.Name);
+                        source.Name = GetDefaultName(desGroup, source.Name);
                     }
-                    desGroup.ChildVariables.Add(sourceVariable);
+                    desGroup.ChildVariables.Add(source);
                 }
-
-                _variableContext.Save();
             }
+            IsChanged = true;
+            return source.Name;
+        }
 
-            return sourceVariable.Name;
+        /// <summary>
+        /// 保存变量
+        /// </summary>
+        public void Save()
+        {
+            _variableContext.Save();
+            IsChanged = false;
         }
 
         #endregion
@@ -425,23 +537,24 @@ namespace RTDB.Common
         /// <summary>
         /// 复制变量组
         /// </summary>
-        /// <param name="sourse"></param>
-        /// <param name="desGroup"></param>
-        /// <param name="pasteMode"></param>
-        private void CopyGroup(VariableGroup sourse, VariableGroup desGroup, uint pasteMode)
+        /// <param name="sourse">源</param>
+        /// <param name="group">目标</param>
+        /// <param name="pasteMode">粘贴模式，0：默认模式，重复则返回，1：如果重复则替换，2：如果重复则两个变量都保留，3：如果重复则放弃</param>
+        private void CopyGroup(VariableGroup sourse, VariableGroup group, uint pasteMode)
         {
             if (sourse == null)
             {
                 return;
             }
             string groupName = sourse.Name;
-            if (IsExistName(sourse.Name, desGroup) && (pasteMode == 2))//同时保留两个
+            if ((pasteMode == 2) && IsExistName(sourse.Name, group))//同时保留两个
             {
-                groupName = GetInitVarName(desGroup, sourse.Name);
+                groupName = GetDefaultName(group, sourse.Name);
             }
-            AddGroup(groupName, desGroup.GroupFullPath);
+            AddGroup(groupName, group.FullPath);
 
-            VariableGroup var = GetGroup(desGroup.GroupFullPath + "." + groupName);
+            VariableGroup var =
+                FindGroupById(group.FullPath == null ? groupName : group.FullPath + "." + groupName);
             foreach (var childVariable in sourse.ChildVariables)
             {
                 VariableBase varVariable;
@@ -483,7 +596,7 @@ namespace RTDB.Common
             }
             if (variable.ValueType == Varvaluetype.VarBool)
             {
-                if (_variableContext.DigitalSet.Local.Any(m => m.VariableBaseFullPath == variable.VariableBaseFullPath))
+                if (_variableContext.DigitalSet.Local.Any(m => m.fullPath == variable.fullPath))
                 {
                     throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
                 }
@@ -491,7 +604,7 @@ namespace RTDB.Common
             }
             else if (variable.ValueType == Varvaluetype.VarDouble)
             {
-                if (_variableContext.AnalogSet.Local.Any(m => m.VariableBaseFullPath == variable.VariableBaseFullPath))
+                if (_variableContext.AnalogSet.Local.Any(m => m.fullPath == variable.fullPath))
                 {
                     throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
                 }
@@ -499,11 +612,11 @@ namespace RTDB.Common
             }
             else
             {
-                if (_variableContext.StringSet.Local.Any(m => m.VariableBaseFullPath == variable.VariableBaseFullPath))
+                if (_variableContext.TextSet.Local.Any(m => m.fullPath == variable.fullPath))
                 {
                     throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
                 }
-                _variableContext.StringSet.Add(variable as TextVariable);
+                _variableContext.TextSet.Add(variable as TextVariable);
             }
 
         }
@@ -528,19 +641,19 @@ namespace RTDB.Common
             }
             else if (variable.ValueType == Varvaluetype.VarString)
             {
-                _variableContext.StringSet.Remove(variable as TextVariable);
+                _variableContext.TextSet.Remove(variable as TextVariable);
             }
         }
 
         /// <summary>
         /// 获取指定变量组的变量默认名称
         /// </summary>
-        /// <param name="currentVariableGroup">指定变量组</param>
+        /// <param name="group">指定变量组</param>
         /// <param name="defaultName">默认名称前缀</param>
         /// <returns>返回指定变量组的变量默认名称</returns>
-        private string GetInitVarName(VariableGroup currentVariableGroup, string defaultName = "Variable")
+        private string GetDefaultName(VariableGroup group, string defaultName = "Variable")
         {
-            if (currentVariableGroup == null)
+            if (group == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
@@ -551,8 +664,8 @@ namespace RTDB.Common
             }
             int cnt = 1;
 
-            while (currentVariableGroup.ChildVariables.Any(curVar => curVar.Name == defaultName + cnt) ||
-                   currentVariableGroup.ChildGroups.Any(curVar => curVar.Name == defaultName + cnt))
+            while (group.ChildVariables.Any(curVar => curVar.Name == defaultName + cnt) ||
+                   group.ChildGroups.Any(curVar => curVar.Name == defaultName + cnt))
             {
                 cnt++;
             }
@@ -563,21 +676,41 @@ namespace RTDB.Common
         /// 判断组或者变量的名称name是否在currentVariableGroup中存在
         /// </summary>
         /// <param name="name">组名称</param>
-        /// <param name="currentVariableGroup">组对象</param>
+        /// <param name="group">组对象</param>
         /// <returns>true:存在，false：不存在</returns>
-        private bool IsExistName(string name, VariableGroup currentVariableGroup)
+        private bool IsExistName(string name, VariableGroup group)
         {
             if (name == null)
             {
                 throw new ArgumentNullException(Resource1.VariableUnitOfWork_IsExistName_nameIsNullOrEmpty);
             }
-            if (currentVariableGroup == null)
+            if (group == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
             //如果父组包含groupName相同的组或者相同的变量，则返回不添加
-            return currentVariableGroup.ChildGroups.Any(curGroup => curGroup.Name == name) 
-                || currentVariableGroup.ChildVariables.Any(curVariable => curVariable.Name == name);
+            return group.ChildGroups.Any(curGroup => curGroup.Name == name) 
+                || group.ChildVariables.Any(curVariable => curVariable.Name == name);
+        }
+
+        /// <summary>
+        /// 递归查找组内部方法
+        /// </summary>
+        /// <param name="group"></param>
+        /// <param name="fullPath"></param>
+        /// <returns></returns>
+        private VariableGroup findRecursion(VariableGroup group, string fullPath)
+        {
+            if (group == null)
+            {
+                return null;
+            }
+            if (!fullPath.Contains('.'))
+            {
+                return group.ChildGroups.FirstOrDefault(m => m.Name == fullPath);
+            }
+            return findRecursion(group.ChildGroups.FirstOrDefault(m => m.Name == fullPath.Split('.')[0]),
+                     fullPath.Substring(fullPath.IndexOf('.') + 1));
         }
 
         #endregion

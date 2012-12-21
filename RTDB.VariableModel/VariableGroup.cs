@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace RTDB.VariableModel
+namespace SCADA.RTDB.VariableModel
 {
     public sealed class VariableGroup
     {
@@ -39,21 +39,20 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 变量组全路径
         /// </summary>
-        public string GroupFullPath
+        public string FullPath
         {
-            //get { return Parent != null ? Parent.GroupFullPath + "." + Name : Name; } //带根节点
+            //get { return Parent != null ? Parent.fullPath + "." + Name : Name; } //带根节点
             get //不带根节点
             {
                 if (Parent == null)
                 {
-                    return "_RootGroup";
+                    return null;
                 }
-                if (string.IsNullOrEmpty(Parent.GroupFullPath) 
-                    || Parent.GroupFullPath == "_RootGroup")
+                if (string.IsNullOrEmpty(Parent.FullPath))
                 {
                     return Name;
                 }
-                return Parent.GroupFullPath + "." + Name;
+                return Parent.FullPath + "." + Name;
             }
         }
 
@@ -123,6 +122,7 @@ namespace RTDB.VariableModel
         /// 父节点
         /// </summary>
         public VariableGroup Parent { get; set; }
+
 
         #endregion
 

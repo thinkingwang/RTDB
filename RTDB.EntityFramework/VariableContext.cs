@@ -1,8 +1,8 @@
 ﻿using System.Data.Entity;
 using System.Linq;
-using RTDB.VariableModel;
+using SCADA.RTDB.VariableModel;
 
-namespace RTDB.EntityFramework
+namespace SCADA.RTDB.EntityFramework
 {
     public class VariableContext : DbContext, IVariableContext
     {
@@ -21,7 +21,7 @@ namespace RTDB.EntityFramework
         /// <summary>
         /// 字符变量集合
         /// </summary>
-        public IDbSet<TextVariable> StringSet { get; set; }
+        public IDbSet<TextVariable> TextSet { get; set; }
 
         /// <summary>
         /// 变量组集合
@@ -41,7 +41,8 @@ namespace RTDB.EntityFramework
             : base(dbNameOrConnectingString)
         {
             Configuration.LazyLoadingEnabled = false;
-
+            Database.SetInitializer(
+                new DropCreateDatabaseIfModelChanges<VariableContext>());
             //加载现有集合及变量
             if (isLoadData)
             {
@@ -59,14 +60,12 @@ namespace RTDB.EntityFramework
         private void LoadVariable()
         {
             //遍历数据库变量组数据到set集合
-// ReSharper disable ReturnValueOfPureMethodIsNotUsed
-            VariableGroupSet.ToList();
-            DigitalSet.ToList();
-            AnalogSet.ToList();
-            StringSet.ToList();
-// ReSharper restore ReturnValueOfPureMethodIsNotUsed
+            VariableGroupSet.Load();
+            DigitalSet.Load();
+            AnalogSet.Load();
+            TextSet.Load();
 
-            VariableGroup rootGroup = VariableGroupSet.Local.FirstOrDefault(root => !root.ParentGroupId.HasValue);
+            VariableGroup rootGroup = VariableGroupSet.FirstOrDefault(root => !root.ParentGroupId.HasValue);
             //没有找到根组则添加根组到数据库并返回
             if (rootGroup == null)
             {
@@ -74,7 +73,6 @@ namespace RTDB.EntityFramework
                 SaveChanges();
                 return;
             }
-
             VariableGroup.RootGroup = VariableGroupSet.Local[0];
             LoadchildGroups(rootGroup);
         }
@@ -85,14 +83,14 @@ namespace RTDB.EntityFramework
         /// <param name="parentGroup">指定变量组</param>
         private void LoadchildGroups(VariableGroup parentGroup)
         {
-            parentGroup.ChildGroups.AddRange(VariableGroupSet.Local.Where(
+            parentGroup.ChildGroups.AddRange(VariableGroupSet.Where(
                 childGroup => childGroup.ParentGroupId == parentGroup.VariableGroupId));
             parentGroup.ChildVariables.AddRange(
                 DigitalSet.Local.Where(childVariable => childVariable.GroupId == parentGroup.VariableGroupId));
             parentGroup.ChildVariables.AddRange(
                 AnalogSet.Local.Where(childVariable => childVariable.GroupId == parentGroup.VariableGroupId));
             parentGroup.ChildVariables.AddRange(
-                StringSet.Local.Where(childVariable => childVariable.GroupId == parentGroup.VariableGroupId));
+                TextSet.Local.Where(childVariable => childVariable.GroupId == parentGroup.VariableGroupId));
 
             foreach (VariableBase variable in parentGroup.ChildVariables)
             {
@@ -142,7 +140,7 @@ namespace RTDB.EntityFramework
         /// <param name="modelBuilder">数据库表模型</param>
         private static void VariableGroupTable(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<VariableGroup>().Ignore(p => p.GroupFullPath);
+            modelBuilder.Entity<VariableGroup>().Ignore(p => p.FullPath);
             modelBuilder.Entity<VariableGroup>().Ignore(p => p.ChildVariables);
             modelBuilder.Entity<VariableGroup>().Ignore(p => p.ChildGroups);
             modelBuilder.Entity<VariableGroup>().HasKey(p => p.VariableGroupId);
@@ -159,7 +157,7 @@ namespace RTDB.EntityFramework
         /// <param name="modelBuilder">数据库表模型</param>
         private static void TextVariableTable(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TextVariable>().Ignore(p => p.VariableBaseFullPath);
+            modelBuilder.Entity<TextVariable>().Ignore(p => p.fullPath);
             modelBuilder.Entity<TextVariable>().Ignore(p => p.OperateProperty);
             modelBuilder.Entity<TextVariable>().Ignore(p => p.ValueType);
             modelBuilder.Entity<TextVariable>().Ignore(p => p.VariableType);
@@ -173,7 +171,7 @@ namespace RTDB.EntityFramework
         /// <param name="modelBuilder">数据库表模型</param>
         private static void AnalogVariableTable(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AnalogVariable>().Ignore(p => p.VariableBaseFullPath);
+            modelBuilder.Entity<AnalogVariable>().Ignore(p => p.fullPath);
             modelBuilder.Entity<AnalogVariable>().Ignore(p => p.OperateProperty);
             modelBuilder.Entity<AnalogVariable>().Ignore(p => p.ValueType);
             modelBuilder.Entity<AnalogVariable>().Ignore(p => p.VariableType);
@@ -187,7 +185,7 @@ namespace RTDB.EntityFramework
         /// <param name="modelBuilder">数据库表模型</param>
         private static void DigitalVariableTable(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<DigitalVariable>().Ignore(p => p.VariableBaseFullPath);
+            modelBuilder.Entity<DigitalVariable>().Ignore(p => p.fullPath);
             modelBuilder.Entity<DigitalVariable>().Ignore(p => p.OperateProperty);
             modelBuilder.Entity<DigitalVariable>().Ignore(p => p.ValueType);
             modelBuilder.Entity<DigitalVariable>().Ignore(p => p.VariableType);

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RTDB.Common {
+namespace SCADA.RTDB.Repository {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace RTDB.Common {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("RTDB.Common.Resource1", typeof(Resource1).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SCADA.RTDB.Repository.Resource1", typeof(Resource1).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -192,6 +192,15 @@ namespace RTDB.Common {
         internal static string VariableRepository_AddVar_VariableIsNull {
             get {
                 return ResourceManager.GetString("VariableRepository_AddVar_VariableIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   查找类似 目标组是源组的子组 的本地化字符串。
+        /// </summary>
+        internal static string VariableRepository_PasteGroup_SourceGroupContainDesGroup {
+            get {
+                return ResourceManager.GetString("VariableRepository_PasteGroup_SourceGroupContainDesGroup", resourceCulture);
             }
         }
         

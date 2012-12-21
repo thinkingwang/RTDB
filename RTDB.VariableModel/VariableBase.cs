@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RTDB.VariableModel
+namespace SCADA.RTDB.VariableModel
 {
     #region 变量枚举类型
     /// <summary>
@@ -81,11 +81,11 @@ namespace RTDB.VariableModel
         /// <summary>
         /// 变量全名
         /// </summary>
-        public string VariableBaseFullPath
+        public string fullPath
         {
             get
             {
-                return ((Parent == null) || (Parent.Parent == null)) ? Name : (Parent.GroupFullPath + "." + Name);
+                return ((Parent == null) || (Parent.Parent == null)) ? Name : (Parent.FullPath + "." + Name);
             }
         }
 

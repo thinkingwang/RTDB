@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RTDB.VariableModel
+namespace SCADA.RTDB.VariableModel
 {
     public class TextVariable : VariableBase
     {

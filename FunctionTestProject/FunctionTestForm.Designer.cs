@@ -66,6 +66,12 @@
             this.CMS_CopyVariableGroup = new System.Windows.Forms.ToolStripMenuItem();
             this.CMS_CutVariableGroup = new System.Windows.Forms.ToolStripMenuItem();
             this.CMS_PasteVariableGroup = new System.Windows.Forms.ToolStripMenuItem();
+            this.保存ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
+            this.搜索ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            this.按组搜索ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.搜索组的所有变量ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -74,12 +80,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Avaiable)).BeginInit();
             this.contextMenuStrip_Variable.SuspendLayout();
             this.contextMenuStrip_TreeViewSub.SuspendLayout();
+            this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Location = new System.Drawing.Point(0, 27);
             this.splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -89,7 +96,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView_Avaiable);
-            this.splitContainer1.Size = new System.Drawing.Size(1777, 586);
+            this.splitContainer1.Size = new System.Drawing.Size(1777, 559);
             this.splitContainer1.SplitterDistance = 234;
             this.splitContainer1.TabIndex = 0;
             // 
@@ -99,7 +106,7 @@
             this.treeView_FunctionTest.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView_FunctionTest.Location = new System.Drawing.Point(0, 0);
             this.treeView_FunctionTest.Name = "treeView_FunctionTest";
-            this.treeView_FunctionTest.Size = new System.Drawing.Size(234, 586);
+            this.treeView_FunctionTest.Size = new System.Drawing.Size(234, 559);
             this.treeView_FunctionTest.TabIndex = 0;
             this.treeView_FunctionTest.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.TreeViewFunctionTestAfterLabelEdit);
             this.treeView_FunctionTest.Click += new System.EventHandler(this.TreeViewFunctionTestClick);
@@ -145,7 +152,7 @@
             this.dataGridView_Avaiable.Location = new System.Drawing.Point(0, 0);
             this.dataGridView_Avaiable.Name = "dataGridView_Avaiable";
             this.dataGridView_Avaiable.RowTemplate.Height = 23;
-            this.dataGridView_Avaiable.Size = new System.Drawing.Size(1539, 586);
+            this.dataGridView_Avaiable.Size = new System.Drawing.Size(1539, 559);
             this.dataGridView_Avaiable.TabIndex = 1;
             this.dataGridView_Avaiable.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewAvaiableCellValueChanged);
             this.dataGridView_Avaiable.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DataGridViewAvaiableMouseDown);
@@ -260,7 +267,7 @@
             this.CMS_CutVariable,
             this.CMS_PasteVariable});
             this.contextMenuStrip_Variable.Name = "contextMenuStrip_Variable";
-            this.contextMenuStrip_Variable.Size = new System.Drawing.Size(153, 114);
+            this.contextMenuStrip_Variable.Size = new System.Drawing.Size(125, 92);
             // 
             // RemoveAvariableToolStripMenuItem
             // 
@@ -272,14 +279,14 @@
             // CMS_CopyVariable
             // 
             this.CMS_CopyVariable.Name = "CMS_CopyVariable";
-            this.CMS_CopyVariable.Size = new System.Drawing.Size(152, 22);
+            this.CMS_CopyVariable.Size = new System.Drawing.Size(124, 22);
             this.CMS_CopyVariable.Text = "复制变量";
             this.CMS_CopyVariable.Click += new System.EventHandler(this.CmsCopyVariableClick);
             // 
             // CMS_CutVariable
             // 
             this.CMS_CutVariable.Name = "CMS_CutVariable";
-            this.CMS_CutVariable.Size = new System.Drawing.Size(152, 22);
+            this.CMS_CutVariable.Size = new System.Drawing.Size(124, 22);
             this.CMS_CutVariable.Text = "剪切变量";
             this.CMS_CutVariable.Click += new System.EventHandler(this.CmsCutVariableClick);
             // 
@@ -287,7 +294,7 @@
             // 
             this.CMS_PasteVariable.Enabled = false;
             this.CMS_PasteVariable.Name = "CMS_PasteVariable";
-            this.CMS_PasteVariable.Size = new System.Drawing.Size(152, 22);
+            this.CMS_PasteVariable.Size = new System.Drawing.Size(124, 22);
             this.CMS_PasteVariable.Text = "粘贴变量";
             this.CMS_PasteVariable.Click += new System.EventHandler(this.CmsPasteVariableClick);
             // 
@@ -378,15 +385,66 @@
             this.CMS_PasteVariableGroup.Text = "粘贴组";
             this.CMS_PasteVariableGroup.Click += new System.EventHandler(this.CmsPasteVariableGroupClick);
             // 
+            // 保存ToolStripMenuItem
+            // 
+            this.保存ToolStripMenuItem.Name = "保存ToolStripMenuItem";
+            this.保存ToolStripMenuItem.Size = new System.Drawing.Size(44, 23);
+            this.保存ToolStripMenuItem.Text = "保存";
+            this.保存ToolStripMenuItem.Click += new System.EventHandler(this.保存ToolStripMenuItemClick);
+            // 
+            // toolStripTextBox1
+            // 
+            this.toolStripTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.toolStripTextBox1.Name = "toolStripTextBox1";
+            this.toolStripTextBox1.Size = new System.Drawing.Size(300, 23);
+            // 
+            // 搜索ToolStripMenuItem
+            // 
+            this.搜索ToolStripMenuItem.Name = "搜索ToolStripMenuItem";
+            this.搜索ToolStripMenuItem.Size = new System.Drawing.Size(68, 23);
+            this.搜索ToolStripMenuItem.Text = "按Id搜索";
+            this.搜索ToolStripMenuItem.Click += new System.EventHandler(this.搜索ToolStripMenuItemClick);
+            // 
+            // menuStrip1
+            // 
+            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.保存ToolStripMenuItem,
+            this.toolStripTextBox1,
+            this.搜索ToolStripMenuItem,
+            this.按组搜索ToolStripMenuItem,
+            this.搜索组的所有变量ToolStripMenuItem});
+            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.Size = new System.Drawing.Size(1777, 27);
+            this.menuStrip1.TabIndex = 1;
+            this.menuStrip1.Text = "menuStrip1";
+            // 
+            // 按组搜索ToolStripMenuItem
+            // 
+            this.按组搜索ToolStripMenuItem.Name = "按组搜索ToolStripMenuItem";
+            this.按组搜索ToolStripMenuItem.Size = new System.Drawing.Size(68, 23);
+            this.按组搜索ToolStripMenuItem.Text = "按组搜索";
+            this.按组搜索ToolStripMenuItem.Click += new System.EventHandler(this.按组搜索ToolStripMenuItemClick);
+            // 
+            // 搜索组的所有变量ToolStripMenuItem
+            // 
+            this.搜索组的所有变量ToolStripMenuItem.Name = "搜索组的所有变量ToolStripMenuItem";
+            this.搜索组的所有变量ToolStripMenuItem.Size = new System.Drawing.Size(116, 23);
+            this.搜索组的所有变量ToolStripMenuItem.Text = "搜索组的所有变量";
+            this.搜索组的所有变量ToolStripMenuItem.Click += new System.EventHandler(this.搜索组的所有变量ToolStripMenuItemClick);
+            // 
             // FunctionTestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1777, 586);
             this.Controls.Add(this.splitContainer1);
+            this.Controls.Add(this.menuStrip1);
+            this.MainMenuStrip = this.menuStrip1;
             this.Name = "FunctionTestForm";
             this.Text = "功能测试";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FunctionTestFormFormClosing);
             this.Load += new System.EventHandler(this.FunctionTestFormLoad);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -396,7 +454,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Avaiable)).EndInit();
             this.contextMenuStrip_Variable.ResumeLayout(false);
             this.contextMenuStrip_TreeViewSub.ResumeLayout(false);
+            this.menuStrip1.ResumeLayout(false);
+            this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -439,6 +500,12 @@
         private System.Windows.Forms.ToolStripMenuItem CMS_CopyVariableGroup;
         private System.Windows.Forms.ToolStripMenuItem CMS_CutVariableGroup;
         private System.Windows.Forms.ToolStripMenuItem CMS_PasteVariableGroup;
+        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem 保存ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
+        private System.Windows.Forms.ToolStripMenuItem 搜索ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 按组搜索ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 搜索组的所有变量ToolStripMenuItem;
     }
 }
 

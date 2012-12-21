@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using FunctionTestProject.Properties;
-using RTDB.VariableModel;
-using RTDB.Common;
+using SCADA.RTDB.Repository;
+using SCADA.RTDB.VariableModel;
 
 namespace FunctionTestProject
 {
@@ -18,7 +18,7 @@ namespace FunctionTestProject
         #region TreeView操作方法
 
         private TreeNode _currentNode = new TreeNode();
-        private IVariableRepository _unitOfWork;
+        private IVariableRepository _iVariableRepository;
 
         private readonly List<VariableBase> _variablePasteBoard = new List<VariableBase>();
         private VariableGroup _groupPasteBoard = new VariableGroup();
@@ -31,13 +31,19 @@ namespace FunctionTestProject
         /// <param name="e"></param>
         private void FunctionTestFormLoad(object sender, EventArgs e)
         {
-            _unitOfWork =
+            _iVariableRepository =
                 new VariableRepository(
                     "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666");
-
+            _iVariableRepository.DataChanged += VariableRepositoryDataChanged;
             //listView_Variable.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
             treeView_FunctionTest.LabelEdit = false;
             RefreshTree();
+
+        }
+
+        private void VariableRepositoryDataChanged()
+        {
+            Text = _iVariableRepository.IsChanged ? "功能测试 *" : "功能测试";
         }
 
         /// <summary>
@@ -92,7 +98,7 @@ namespace FunctionTestProject
         private void RefreshTree()
         {
             treeView_FunctionTest.Nodes.Clear();
-            VairableGroupToTreeView(treeView_FunctionTest, _unitOfWork.GetGroup(null));
+            VairableGroupToTreeView(treeView_FunctionTest, _iVariableRepository.FindGroupById(null));
             _currentNode = treeView_FunctionTest.TopNode;
 
             RefreshDataGridView();
@@ -111,7 +117,7 @@ namespace FunctionTestProject
                     ContextMenuStrip = contextMenuStrip_TreeViewSub
                 };
             _currentNode.Nodes.Add(node);
-            _unitOfWork.AddGroup(node.Text, GetVariableGroupPath(node.Parent.FullPath));
+            _iVariableRepository.AddGroup(node.Text, GetVariableGroupPath(node.Parent.FullPath));
             treeView_FunctionTest.ExpandAll();
         }
 
@@ -152,7 +158,7 @@ namespace FunctionTestProject
             }
             string des = source.Replace('\\', '.');
             int index = des.IndexOf('.');
-            des = index >= 0 ? des.Substring(index + 1) : "";
+            des = index >= 0 ? des.Substring(index + 1) : null;
             return des;
         }
 
@@ -165,7 +171,7 @@ namespace FunctionTestProject
         {
             try
             {
-                _unitOfWork.RemoveGroup(GetVariableGroupPath(_currentNode.FullPath));
+                _iVariableRepository.RemoveGroup(GetVariableGroupPath(_currentNode.FullPath));
                 _currentNode.Remove();
             }
             catch (Exception ex)
@@ -223,8 +229,8 @@ namespace FunctionTestProject
                         try
                         {
                             VariableGroup varGroup =
-                                _unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath));
-                            _unitOfWork.RenameGroup(e.Label, GetVariableGroupPath(_currentNode.FullPath));
+                                _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
+                            _iVariableRepository.RenameGroup(e.Label, GetVariableGroupPath(_currentNode.FullPath));
                             if (varGroup != null)
                             {
                                 dataGridView_Avaiable.Rows.Clear();
@@ -292,13 +298,13 @@ namespace FunctionTestProject
         private void RefreshDataGridView()
         {
             treeView_FunctionTest.SelectedNode = _currentNode;
-            VariableGroup varGroup = _unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath));
+            VariableGroup varGroup = _iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath));
             if (varGroup == null)
             {
                 return;
             }
             dataGridView_Avaiable.Rows.Clear();
-            foreach (VariableBase variable in varGroup.ChildVariables)
+            foreach (VariableBase variable in _iVariableRepository.FindVariables(varGroup.FullPath))
             {
                 AddVarToListview(variable);
             }
@@ -312,8 +318,8 @@ namespace FunctionTestProject
         private void DigToolStripMenuItemClick(object sender, EventArgs e)
         {
             var digitalVariable =
-                new DigitalVariable(_unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath)));
-            _unitOfWork.AddVariable(digitalVariable);
+                new DigitalVariable(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath)));
+            _iVariableRepository.AddVariable(digitalVariable);
             AddVarToListview(digitalVariable);
         }
 
@@ -325,8 +331,8 @@ namespace FunctionTestProject
         private void AnaToolStripMenuItemClick(object sender, EventArgs e)
         {
             var analogVariable =
-                new AnalogVariable(_unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath)));
-            _unitOfWork.AddVariable(analogVariable);
+                new AnalogVariable(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath)));
+            _iVariableRepository.AddVariable(analogVariable);
             AddVarToListview(analogVariable);
         }
 
@@ -338,8 +344,8 @@ namespace FunctionTestProject
         private void StrToolStripMenuItemClick(object sender, EventArgs e)
         {
             var stringVariable =
-                new TextVariable(_unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath)));
-            _unitOfWork.AddVariable(stringVariable);
+                new TextVariable(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath)));
+            _iVariableRepository.AddVariable(stringVariable);
             AddVarToListview(stringVariable);
         }
 
@@ -364,7 +370,7 @@ namespace FunctionTestProject
             if (variable is DigitalVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.VariableBaseFullPath;
+                row.Cells[1].Value = variable.fullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -389,7 +395,7 @@ namespace FunctionTestProject
             else if (variable is AnalogVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.VariableBaseFullPath;
+                row.Cells[1].Value = variable.fullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -418,7 +424,7 @@ namespace FunctionTestProject
             else if (variable is TextVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.VariableBaseFullPath;
+                row.Cells[1].Value = variable.fullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -463,7 +469,7 @@ namespace FunctionTestProject
         {
             foreach (DataGridViewRow row in collenction)
             {
-                _unitOfWork.RemoveVariable(row.Cells[1].Value.ToString(),
+                _iVariableRepository.RemoveVariable(row.Cells[1].Value.ToString(),
                                            GetVariableGroupPath(_currentNode.FullPath));
                 dataGridView_Avaiable.Rows.Remove(row);
             }
@@ -527,9 +533,9 @@ namespace FunctionTestProject
                 DataGridViewCell currentCell = dataGridView_Avaiable.SelectedCells[0];
                 DataGridViewRow currentRow = dataGridView_Avaiable.Rows[currentCell.RowIndex];
                 VariableBase editVar;
-                VariableBase oldVar = _unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath))
+                VariableBase oldVar = _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
                                                  .ChildVariables.Find(
-                                                     m => m.VariableBaseFullPath == currentRow.Cells[1].Value.ToString());
+                                                     m => m.fullPath == currentRow.Cells[1].Value.ToString());
                 if (oldVar is DigitalVariable)
                 {
                     editVar = new DigitalVariable(oldVar.Parent);
@@ -669,7 +675,7 @@ namespace FunctionTestProject
                     default:
                         return;
                 }
-                _unitOfWork.EditVariable(oldVar, editVar);
+                _iVariableRepository.EditVariable(oldVar, editVar);
 
             }
             catch (Exception ex)
@@ -694,10 +700,10 @@ namespace FunctionTestProject
             _variablePasteBoard.Clear();
             foreach (DataGridViewRow c in dataGridView_Avaiable.SelectedRows)
             {
-                _variablePasteBoard.Add(_unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath))
+                _variablePasteBoard.Add(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
                                                    .ChildVariables.Find(
                                                        m =>
-                                                       m.VariableBaseFullPath == c.Cells[1].Value.ToString()));
+                                                       m.fullPath == c.Cells[1].Value.ToString()));
             }
 
             if (_variablePasteBoard == null)
@@ -718,10 +724,10 @@ namespace FunctionTestProject
             _variablePasteBoard.Clear();
             foreach (DataGridViewRow c in dataGridView_Avaiable.SelectedRows)
             {
-                _variablePasteBoard.Add(_unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath))
+                _variablePasteBoard.Add(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
                                                    .ChildVariables.Find(
                                                        m =>
-                                                       m.VariableBaseFullPath == c.Cells[1].Value.ToString()));
+                                                       m.fullPath == c.Cells[1].Value.ToString()));
             }
             if (_variablePasteBoard == null)
             {
@@ -741,18 +747,18 @@ namespace FunctionTestProject
             foreach (VariableBase variableBase in _variablePasteBoard)
             {
 
-                string str = _unitOfWork.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath),
+                string str = _iVariableRepository.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath),
                                                        _iscopy);
                 if (str != variableBase.Name)
                 {
                     switch ((new PasteMessage(str)).ShowDialog())
                     {
                         case DialogResult.Yes: //移动并替换
-                            _unitOfWork.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath), _iscopy,
+                            _iVariableRepository.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath), _iscopy,
                                                       1);
                             break;
                         case DialogResult.OK: //移动，但保留两个文件
-                            _unitOfWork.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath), _iscopy,
+                            _iVariableRepository.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath), _iscopy,
                                                       2);
                             break;
                     }
@@ -781,7 +787,7 @@ namespace FunctionTestProject
             {
                 return;
             }
-            _groupPasteBoard = _unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath));
+            _groupPasteBoard = _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
 
             if (_groupPasteBoard == null)
             {
@@ -803,7 +809,7 @@ namespace FunctionTestProject
             {
                 return;
             }
-            _groupPasteBoard = _unitOfWork.GetGroup(GetVariableGroupPath(_currentNode.FullPath));
+            _groupPasteBoard = _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
 
             if (_groupPasteBoard == null)
             {
@@ -824,33 +830,93 @@ namespace FunctionTestProject
             {
                 return;
             }
-            string str = _unitOfWork.PasteGroup(_groupPasteBoard, GetVariableGroupPath(_currentNode.FullPath),
-                                                   _iscopy);
+            try
+            {
 
-            if (str != _groupPasteBoard.Name)
-            {
-                switch ((new PasteMessage(str)).ShowDialog())
+                string str = _iVariableRepository.PasteGroup(_groupPasteBoard, GetVariableGroupPath(_currentNode.FullPath),
+                                                    _iscopy);
+
+                if (str != _groupPasteBoard.Name)
                 {
-                    case DialogResult.Yes: //移动并替换
-                        _unitOfWork.PasteGroup(_groupPasteBoard, GetVariableGroupPath(_currentNode.FullPath), _iscopy, 1);
-                        break;
-                    case DialogResult.OK: //移动，但保留两个文件
-                        _unitOfWork.PasteGroup(_groupPasteBoard, GetVariableGroupPath(_currentNode.FullPath), _iscopy, 2);
-                        break;
+                    switch ((new PasteMessage(str)).ShowDialog())
+                    {
+                        case DialogResult.Yes: //移动并替换
+                            _iVariableRepository.PasteGroup(_groupPasteBoard, GetVariableGroupPath(_currentNode.FullPath),
+                                                   _iscopy, 1);
+                            break;
+                        case DialogResult.OK: //移动，但保留两个文件
+                            _iVariableRepository.PasteGroup(_groupPasteBoard, GetVariableGroupPath(_currentNode.FullPath),
+                                                   _iscopy, 2);
+                            break;
+                    }
                 }
+                RefreshTree();
+                if (_iscopy == false)
+                {
+                    _groupPasteBoard = null;
+                }
+                if (_groupPasteBoard == null)
+                {
+                    CMS_PasteVariableGroup.Enabled = false;
+                }
+                RefreshDataGridView();
             }
-            RefreshTree();
-            if (_iscopy == false)
+            catch (Exception ex)
             {
-                _groupPasteBoard = null;
+                MessageBox.Show(ex.Message);
             }
-            if (_groupPasteBoard == null)
-            {
-                CMS_PasteVariableGroup.Enabled = false;
-            }
-            RefreshDataGridView();
         }
 
+        private void 保存ToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            _iVariableRepository.Save();
+        }
+        
+        private void 搜索ToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            VariableBase digitalVariable = _iVariableRepository.FindVariableById(toolStripTextBox1.Text);
+            dataGridView_Avaiable.Rows.Clear();
+            if (digitalVariable != null)
+            {
+                AddVarToListview(digitalVariable);
+            }
+                
+        }
+
+        private void 按组搜索ToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            VariableBase digitalVariable = _iVariableRepository.FindVariableByPath(toolStripTextBox1.Text);
+            dataGridView_Avaiable.Rows.Clear();
+            if (digitalVariable != null)
+            {
+                AddVarToListview(digitalVariable);
+            }
+        }
+
+        private void 搜索组的所有变量ToolStripMenuItemClick(object sender, EventArgs e)
+        {
+            IEnumerable<VariableBase> digitalVariable = _iVariableRepository.FindVariables(toolStripTextBox1.Text);
+            if (digitalVariable == null) return;
+
+            dataGridView_Avaiable.Rows.Clear();
+            foreach (VariableBase variableBase in digitalVariable)
+            {
+                AddVarToListview(variableBase);
+            }
+            
+        }
+
+        private void FunctionTestFormFormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (_iVariableRepository.IsChanged)
+            {
+                if (MessageBox.Show("变量已改变，是否需要保存", "提示", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) ==
+                    DialogResult.Yes)
+                {
+                    _iVariableRepository.Save();
+                }
+            }
+        }
     }
 
 

@@ -187,4 +187,7 @@
   <data name="VariableRepository_PasteVariable_sourceVariable" xml:space="preserve">
     <value>粘贴板为空</value>
   </data>
+  <data name="VariableRepository_PasteGroup_SourceGroupContainDesGroup" xml:space="preserve">
+    <value>目标组是源组的子组</value>
+  </data>
 </root>
