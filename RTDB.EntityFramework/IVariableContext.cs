@@ -6,6 +6,11 @@ namespace SCADA.RTDB.EntityFramework
     public interface IVariableContext
     {
         #region 变量集合
+        
+        /// <summary>
+        /// 变量组集合
+        /// </summary>
+        IDbSet<VariableGroup> VariableGroupSet { get; set; }
 
         /// <summary>
         /// 模拟变量集合
@@ -21,12 +26,6 @@ namespace SCADA.RTDB.EntityFramework
         /// 字符变量集合
         /// </summary>
         IDbSet<TextVariable>  TextSet{ get; set; }
-
-        /// <summary>
-        /// 变量组集合
-        /// </summary>
-        IDbSet<VariableGroup> VariableGroupSet { get; set; }
-
         #endregion
 
         /// <summary>

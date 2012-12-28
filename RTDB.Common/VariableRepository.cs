@@ -52,7 +52,7 @@ namespace SCADA.RTDB.Repository
         }
 
         #endregion
-        
+
         #region 组公共方法
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace SCADA.RTDB.Repository
             {
                 return VariableGroup.RootGroup;
             }
-            
+
             return _variableContext.VariableGroupSet.Local.FirstOrDefault(curGroup => curGroup.FullPath == fullPath);
 
         }
@@ -98,13 +98,13 @@ namespace SCADA.RTDB.Repository
             VariableGroup variableGroup = FindGroupById(fullPath);
             return variableGroup == null ? null : variableGroup.ChildGroups;
         }
-        
+
         /// <summary>
         /// 向当前组添加子组
         /// </summary>
         /// <param name="name">子组名称</param>
         /// <param name="fullPath">要添加的组全路径</param>
-        public void AddGroup(string name,string fullPath)
+        public void AddGroup(string name, string fullPath)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -124,9 +124,8 @@ namespace SCADA.RTDB.Repository
             }
 
             parentVariableGroup.ChildGroups.Add(newGroup);
-            _variableContext.VariableGroupSet.Add(newGroup);
             IsChanged = true;
-            
+
         }
 
         /// <summary>
@@ -135,10 +134,6 @@ namespace SCADA.RTDB.Repository
         /// <param name="fullPath">要移除的组全路径</param>
         public void RemoveGroup(string fullPath)
         {
-            if (string.IsNullOrEmpty(fullPath))
-            {
-                throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
-            }
             VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
             {
@@ -154,7 +149,7 @@ namespace SCADA.RTDB.Repository
             ClearVariable(fullPath);
 
             //删除该组
-            if (currentVariableGroup.ParentGroupId <= 0)
+            if (currentVariableGroup.Parent == null)
             {
                 //根组不允许
                 throw new Exception(Resource1.VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup);
@@ -174,10 +169,6 @@ namespace SCADA.RTDB.Repository
             if (string.IsNullOrEmpty(name))
             {
                 throw new Exception(Resource1.VariableGroup_ReGroupName_groupName_Is_Null);
-            }
-            if (string.IsNullOrEmpty(fullPath))
-            {
-                throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
             }
             VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
@@ -209,7 +200,7 @@ namespace SCADA.RTDB.Repository
             }
 
             //目标组是源文件的子文件组，不允许粘贴
-            if ((source.FullPath == fullPath) || (fullPath != null && fullPath.Contains(source.FullPath)))
+            if ((source.FullPath == null) || (fullPath != null && fullPath.Contains(source.FullPath)))
             {
                 throw new Exception(Resource1.VariableRepository_PasteGroup_SourceGroupContainDesGroup);
             }
@@ -259,7 +250,7 @@ namespace SCADA.RTDB.Repository
             IsChanged = true;
             return source.Name;
         }
-        
+
         #endregion
 
         #region 组变量公共方法
@@ -274,24 +265,32 @@ namespace SCADA.RTDB.Repository
             {
                 throw new ArgumentNullException(Resource1.VariableGroup_AddVariable_variable_is_null);
             }
-            if (variable.Parent == null)
+            if (variable.ParentGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
-            
-            variable.Name = (string.IsNullOrEmpty(variable.Name)) ? GetDefaultName(variable.Parent) : variable.Name;
 
-            if (IsExistName(variable.Name, variable.Parent))
+            variable.Name = (string.IsNullOrEmpty(variable.Name)) ? GetDefaultName(variable.ParentGroup) : variable.Name;
+
+            if (IsExistName(variable.Name, variable.ParentGroup))
             {
                 throw new Exception(Resource1.VariableGroup_addVariable_variableName_is_Exist);
             }
-
-            variable.Parent.ChildVariables.Add(variable);
-            
-            //添加到仓库集合
-            AddVar(variable);
+            if (variable is AnalogVariable)
+            {
+                variable.ParentGroup.AnalogVariables.Add(variable as AnalogVariable);
+            }
+            if (variable is DigitalVariable)
+            {
+                variable.ParentGroup.DigitalVariables.Add(variable as DigitalVariable);
+            }
+            if (variable is TextVariable)
+            {
+                variable.ParentGroup.TextVariables.Add(variable as TextVariable);
+            }
+            variable.ParentGroup.ChildVariables.Add(variable);
             IsChanged = true;
-            
+
         }
 
         /// <summary>
@@ -301,29 +300,25 @@ namespace SCADA.RTDB.Repository
         /// <param name="fullPath">移除变量所属组全路径</param>
         public void RemoveVariable(string name, string fullPath)
         {
-            if (fullPath==null)
-            {
-                throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
-            }
             VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
+
             for (int index = 0; index < currentVariableGroup.ChildVariables.Count; index++)
             {
                 VariableBase curVariable = currentVariableGroup.ChildVariables[index];
                 if (curVariable.Name == name)
                 {
-                    currentVariableGroup.ChildVariables.Remove(curVariable);
-
+                    currentVariableGroup.ChildVariables.RemoveAt(index);
                     //移除仓库集合中的变量
                     RemoveVar(curVariable);
-                    break;
+                    IsChanged = true;
+                    return;
                 }
             }
-            IsChanged = true;
-            
+            IsChanged = false;
         }
 
         /// <summary>
@@ -332,10 +327,6 @@ namespace SCADA.RTDB.Repository
         /// <param name="fullPath">要清空的组全路径</param>
         public void ClearVariable(string fullPath)
         {
-            if (fullPath == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
-            }
             VariableGroup currentVariableGroup = FindGroupById(fullPath);
             if (currentVariableGroup == null)
             {
@@ -362,30 +353,30 @@ namespace SCADA.RTDB.Repository
                 throw new ArgumentNullException(Resource1.VariableRepository_AddVar_VariableIsNull);
             }
 
-            if ((oldVariable.Name != newVariable.Name) && (IsExistName(newVariable.Name, oldVariable.Parent)))
+            if ((oldVariable.Name != newVariable.Name) && (IsExistName(newVariable.Name, oldVariable.ParentGroup)))
             {
                 throw new Exception(Resource1.VariableUnitOfWork_EditVariable_AvarialeNameExist);
             }
 
             if (oldVariable.ValueType == Varvaluetype.VarBool)
             {
-                if (_variableContext.DigitalSet.Local.Any(m=>m.fullPath==oldVariable.fullPath))
+                if (_variableContext.DigitalSet.Local.Any(m => m.FullPath == oldVariable.FullPath))
                 {
-                    _variableContext.DigitalSet.Local.First(m=>m.fullPath==oldVariable.fullPath).CopyProperty(newVariable);
+                    _variableContext.DigitalSet.Local.First(m => m.FullPath == oldVariable.FullPath).CopyProperty(newVariable);
                 }
             }
             else if (oldVariable.ValueType == Varvaluetype.VarDouble)
             {
-                if (_variableContext.AnalogSet.Local.Any(m => m.fullPath == oldVariable.fullPath))
+                if (_variableContext.AnalogSet.Local.Any(m => m.FullPath == oldVariable.FullPath))
                 {
-                    _variableContext.AnalogSet.Local.First(m=>m.fullPath==oldVariable.fullPath).CopyProperty(newVariable);
+                    _variableContext.AnalogSet.Local.First(m => m.FullPath == oldVariable.FullPath).CopyProperty(newVariable);
                 }
             }
             else
             {
-                if (_variableContext.TextSet.Local.Any(m=>m.fullPath==oldVariable.fullPath))
+                if (_variableContext.TextSet.Local.Any(m => m.FullPath == oldVariable.FullPath))
                 {
-                    _variableContext.TextSet.Local.First(m=>m.fullPath==oldVariable.fullPath).CopyProperty(newVariable);
+                    _variableContext.TextSet.Local.First(m => m.FullPath == oldVariable.FullPath).CopyProperty(newVariable);
                 }
             }
             IsChanged = true;
@@ -403,10 +394,10 @@ namespace SCADA.RTDB.Repository
                 return null;
             }
             VariableBase variable =
-                _variableContext.AnalogSet.Local.FirstOrDefault(m => m.fullPath == fullPath) ??
-                (VariableBase) _variableContext.DigitalSet.Local.FirstOrDefault(m => m.fullPath == fullPath);
+                _variableContext.AnalogSet.Local.FirstOrDefault(m => m.FullPath == fullPath) ??
+                (VariableBase)_variableContext.DigitalSet.Local.FirstOrDefault(m => m.FullPath == fullPath);
             return variable ??
-                   (_variableContext.TextSet.Local.FirstOrDefault(m => m.fullPath == fullPath));
+                   (_variableContext.TextSet.Local.FirstOrDefault(m => m.FullPath == fullPath));
         }
 
         /// <summary>
@@ -423,14 +414,14 @@ namespace SCADA.RTDB.Repository
 
             if (!fullPath.Contains('.'))
             {
-                return VariableGroup.RootGroup.ChildVariables.Find(m => m.fullPath == fullPath);
+                return VariableGroup.RootGroup.ChildVariables.Find(m => m.FullPath == fullPath);
             }
-            VariableGroup variableGroup = findRecursion(VariableGroup.RootGroup,
+            var variableGroup = findRecursion(VariableGroup.RootGroup,
                                                         fullPath.Substring(0, fullPath.LastIndexOf('.')));
 
             return variableGroup == null
                        ? null
-                       : variableGroup.ChildVariables.Find(m => m.fullPath == fullPath);
+                       : VariableGroup.RootGroup.ChildVariables.Find(m => m.FullPath == fullPath);
         }
 
         /// <summary>
@@ -441,9 +432,13 @@ namespace SCADA.RTDB.Repository
         public IEnumerable<VariableBase> FindVariables(string fullPath)
         {
             VariableGroup variableGroup = FindGroupById(fullPath);
-            return variableGroup == null ? null : variableGroup.ChildVariables;
+            if (variableGroup == null)
+            {
+                return null;
+            }
+            return variableGroup.ChildVariables;
         }
-        
+
         /// <summary>
         /// 粘贴变量
         /// </summary>
@@ -460,11 +455,6 @@ namespace SCADA.RTDB.Repository
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
             }
 
-            if (fullPath == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableUnitOfWork_RemoveGroup_curVariableGroupIdIsNullOrEmpty);
-            }
-
             VariableGroup desGroup = FindGroupById(fullPath);
             if (desGroup == null)
             {
@@ -478,12 +468,10 @@ namespace SCADA.RTDB.Repository
 
             if (pasteMode <= 2)
             {
-                //替换
                 if (pasteMode == 1) //替换
                 {
                     RemoveVariable(source.Name, desGroup.FullPath);
                 }
-
                 if (isCopy)
                 {
                     VariableBase var;
@@ -500,6 +488,7 @@ namespace SCADA.RTDB.Repository
                         var = new TextVariable(desGroup);
                     }
                     var.CopyProperty(source);
+
                     if (pasteMode == 2) //同时保留两个
                     {
                         var.Name = GetDefaultName(desGroup, source.Name);
@@ -508,13 +497,14 @@ namespace SCADA.RTDB.Repository
                 }
                 else
                 {
-                    source.Parent.ChildVariables.Remove(source);
-                    source.Parent = desGroup;
+                    source.ParentGroup.ChildVariables.Remove(source);
+                    source.ParentGroup = desGroup;
                     if (pasteMode == 2) //同时保留两个
                     {
                         source.Name = GetDefaultName(desGroup, source.Name);
                     }
                     desGroup.ChildVariables.Add(source);
+
                 }
             }
             IsChanged = true;
@@ -555,70 +545,18 @@ namespace SCADA.RTDB.Repository
 
             VariableGroup var =
                 FindGroupById(group.FullPath == null ? groupName : group.FullPath + "." + groupName);
+
             foreach (var childVariable in sourse.ChildVariables)
             {
-                VariableBase varVariable;
-                if (childVariable is DigitalVariable)
-                {
-                    varVariable = new DigitalVariable(var);
-                    varVariable.CopyProperty(childVariable);
-                    AddVariable(varVariable);
-                }
-                if (childVariable is AnalogVariable)
-                {
-                    varVariable = new AnalogVariable(var);
-                    varVariable.CopyProperty(childVariable);
-                    AddVariable(varVariable);
-                }
-                if (childVariable is TextVariable)
-                {
-                    varVariable = new TextVariable(var);
-                    varVariable.CopyProperty(childVariable);
-                    AddVariable(varVariable);
-                }
+                var varVariable = new AnalogVariable(var);
+                varVariable.CopyProperty(childVariable);
+                AddVariable(varVariable);
             }
 
             foreach (var variableGroup in sourse.ChildGroups)
             {
                 CopyGroup(variableGroup, var, pasteMode);
             }
-        }
-
-        /// <summary>
-        /// 增加指定变量
-        /// </summary>
-        /// <param name="variable">指定变量</param>
-        private void AddVar(VariableBase variable)
-        {
-            if (variable == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableRepository_AddVar_VariableIsNull);
-            }
-            if (variable.ValueType == Varvaluetype.VarBool)
-            {
-                if (_variableContext.DigitalSet.Local.Any(m => m.fullPath == variable.fullPath))
-                {
-                    throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
-                }
-                _variableContext.DigitalSet.Add(variable as DigitalVariable);
-            }
-            else if (variable.ValueType == Varvaluetype.VarDouble)
-            {
-                if (_variableContext.AnalogSet.Local.Any(m => m.fullPath == variable.fullPath))
-                {
-                    throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
-                }
-                _variableContext.AnalogSet.Add(variable as AnalogVariable);
-            }
-            else
-            {
-                if (_variableContext.TextSet.Local.Any(m => m.fullPath == variable.fullPath))
-                {
-                    throw new Exception(Resource1.VariableRepository_AddVar_VariableIsExist);
-                }
-                _variableContext.TextSet.Add(variable as TextVariable);
-            }
-
         }
 
         /// <summary>
@@ -689,8 +627,8 @@ namespace SCADA.RTDB.Repository
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
             }
             //如果父组包含groupName相同的组或者相同的变量，则返回不添加
-            return group.ChildGroups.Any(curGroup => curGroup.Name == name) 
-                || group.ChildVariables.Any(curVariable => curVariable.Name == name);
+            return group.ChildGroups.Any(curGroup => curGroup.Name == name)
+                   || group.ChildVariables.Any(curVariable => curVariable.Name == name);
         }
 
         /// <summary>

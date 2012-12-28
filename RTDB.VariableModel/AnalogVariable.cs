@@ -41,6 +41,26 @@ namespace SCADA.RTDB.VariableModel
         /// </summary>
         public string ProjectUnit { get; set; }
 
+        /// <summary>
+        /// 变量组
+        /// </summary>
+        private VariableGroup Parent
+        {
+            get { return ParentGroup; }
+            set { ParentGroup = value; }
+        }
+
+        /// <summary>
+        /// 变量全名
+        /// </summary>
+        public override string FullPath
+        {
+            get
+            {
+                return ((ParentGroup == null) || (ParentGroup.Parent == null)) ? Name : (ParentGroup.FullPath + "." + Name);
+            }
+        }
+
         #endregion
 
         #region 构造函数
@@ -56,7 +76,7 @@ namespace SCADA.RTDB.VariableModel
         /// <param name="group">变量所属组别的名称,如果是根组，需要传递 "" 值</param>
         /// <param name="varName">变量名</param>
         public AnalogVariable(VariableGroup group, string varName = "")
-            : base(group, varName, Varvaluetype.VarDouble)
+            : base(varName, Varvaluetype.VarDouble)
         {
             DeadArea = 0;
             InitValue = 0;
@@ -64,6 +84,7 @@ namespace SCADA.RTDB.VariableModel
             MaxValue = 80;
             MinValue = 20;
             ProjectUnit = "";
+            Parent = group;
 
         }
 
@@ -91,6 +112,7 @@ namespace SCADA.RTDB.VariableModel
                 MinValue = variable.MinValue;
                 MaxValue = variable.MaxValue;
                 ProjectUnit = variable.ProjectUnit;
+                //Parent = source.ParentGroup;
             }
         }
 

@@ -66,29 +66,17 @@ namespace SCADA.RTDB.VariableModel
     /// </summary>
     public class VariableBase
     {
-        #region 私有字段
-
         private string _name;
-        private int _groupId;
         private int _variableType;
         private int _operateProperty;
         private int _valueType;
 
-        #endregion
-
-        #region 变量基本属性
-        
         /// <summary>
-        /// 变量全名
+        /// 变量组
         /// </summary>
-        public string fullPath
-        {
-            get
-            {
-                return ((Parent == null) || (Parent.Parent == null)) ? Name : (Parent.FullPath + "." + Name);
-            }
-        }
-
+        public VariableGroup ParentGroup;
+        
+        #region 变量基本属性
         /// <summary>
         /// 变量名称
         /// </summary>
@@ -103,22 +91,11 @@ namespace SCADA.RTDB.VariableModel
                 }
             }
         }
-        
+
         /// <summary>
-        /// 变量的组Id
+        /// 变量全名
         /// </summary>
-        public int GroupId
-        {
-            get
-            {
-                if (Parent == null)
-                {
-                    return _groupId;
-                }
-                return Parent.VariableGroupId;
-            }
-            set { _groupId = value; }
-        }
+        public virtual string FullPath { get; private set; }
 
         /// <summary>
         /// 数据类型
@@ -160,11 +137,6 @@ namespace SCADA.RTDB.VariableModel
         /// 变量描述
         /// </summary>
         public string Description { get; set; }
-
-        /// <summary>
-        /// 变量组
-        /// </summary>
-        public VariableGroup Parent { get; set; }
 
         /// <summary>
         /// 是否保存数值
@@ -216,21 +188,15 @@ namespace SCADA.RTDB.VariableModel
         /// <summary>
         /// 变量构造函数
         /// </summary>
-        /// <param name="group">变量隶属于组别名称</param>
         /// <param name="varName">变量名称</param>
         /// <param name="varValueType">变量类型</param>
-        protected VariableBase(VariableGroup group, string varName = "",
+        protected VariableBase(string varName = "",
                                Varvaluetype varValueType = Varvaluetype.VarDouble)
         {
-            if (group == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableBase_VariableBase_groupIsNull);
-            }
             Name = varName;
             ValueType = varValueType;
             VariableType = VarType.VarNormal;
             OperateProperty = Varoperateproperty.ReadWrite;
-            Parent = group;
             IsAddressable = false;
             IsParameterSaved = false;
             IsRecordEvent = false;

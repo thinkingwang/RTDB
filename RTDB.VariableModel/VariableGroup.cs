@@ -8,9 +8,11 @@ namespace SCADA.RTDB.VariableModel
         #region 私有字段
 
         private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
-        private readonly List<VariableBase> _childVariables = new List<VariableBase>();
         private string _name;
-        private int? _parentGroupId;
+        private List<DigitalVariable> _digitalVariables=new List<DigitalVariable>();
+        private List<AnalogVariable> _analogVariables=new List<AnalogVariable>();
+        private List<TextVariable> _textVariables=new List<TextVariable>();
+        private readonly List<VariableBase> _childVariables = new List<VariableBase>();
 
         #endregion
 
@@ -41,7 +43,7 @@ namespace SCADA.RTDB.VariableModel
         /// </summary>
         public string FullPath
         {
-            //get { return Parent != null ? Parent.fullPath + "." + Name : Name; } //带根节点
+            //get { return ParentGroup != null ? ParentGroup.fullPath + "." + Name : Name; } //带根节点
             get //不带根节点
             {
                 if (Parent == null)
@@ -59,32 +61,7 @@ namespace SCADA.RTDB.VariableModel
         /// <summary>
         /// 变量组ID
         /// </summary>
-// ReSharper disable UnusedAutoPropertyAccessor.Global
         public int VariableGroupId { get; set; }
-// ReSharper restore UnusedAutoPropertyAccessor.Global
-
-        /// <summary>
-        /// 变量父祖Id
-        /// </summary>
-        public int? ParentGroupId
-        {
-            get
-            {
-                //如果父祖存在，直接返回父祖Id
-                if (Parent != null)
-                {
-                    return Parent.VariableGroupId;
-                }
-                //如果是根组，返回null
-                if (Equals(RootGroup))
-                {
-                    return null;
-                }
-                //如果父祖为null且不是根组，说明是从数据库加载，返回数据库值
-                return _parentGroupId;
-            }
-            set { _parentGroupId = value; }
-        }
 
         /// <summary>
         /// 子组集合
@@ -100,6 +77,33 @@ namespace SCADA.RTDB.VariableModel
         public int GroupsCount
         {
             get { return _childGroups.Count; }
+        }
+
+        /// <summary>
+        /// 组变量集合
+        /// </summary>
+        public List<DigitalVariable> DigitalVariables
+        {
+            get { return _digitalVariables; }
+            private set { _digitalVariables = value; }
+        }
+
+        /// <summary>
+        /// 组变量集合
+        /// </summary>
+        public List<AnalogVariable> AnalogVariables
+        {
+            get { return _analogVariables; }
+            private set { _analogVariables = value; }
+        }
+
+        /// <summary>
+        /// 组变量集合
+        /// </summary>
+        public List<TextVariable> TextVariables
+        {
+            get { return _textVariables; }
+            private set { _textVariables = value; }
         }
 
         /// <summary>
@@ -123,14 +127,12 @@ namespace SCADA.RTDB.VariableModel
         /// </summary>
         public VariableGroup Parent { get; set; }
 
-
         #endregion
 
         #region 构造函数
 
         public VariableGroup()
         {
-
         }
 
         /// <summary>
@@ -146,6 +148,7 @@ namespace SCADA.RTDB.VariableModel
             }
             _name = name;
             Parent = parent;
+
         }
 
         static VariableGroup()
@@ -154,7 +157,6 @@ namespace SCADA.RTDB.VariableModel
         }
 
         #endregion
-
 
     }
 }

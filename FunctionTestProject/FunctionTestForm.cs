@@ -32,8 +32,8 @@ namespace FunctionTestProject
         private void FunctionTestFormLoad(object sender, EventArgs e)
         {
             _iVariableRepository =
-                new VariableRepository(
-                    "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666");
+                new VariableRepository();
+            // "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666");
             _iVariableRepository.DataChanged += VariableRepositoryDataChanged;
             //listView_Variable.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
             treeView_FunctionTest.LabelEdit = false;
@@ -54,9 +54,9 @@ namespace FunctionTestProject
         private void VairableGroupToTreeView(TreeNode treeNode, VariableGroup variableGroup)
         {
             var node = new TreeNode(variableGroup.Name)
-                {
-                    ContextMenuStrip = contextMenuStrip_TreeViewSub
-                };
+            {
+                ContextMenuStrip = contextMenuStrip_TreeViewSub
+            };
             if (treeNode != null) treeNode.Nodes.Add(node);
             foreach (var variable in variableGroup.ChildGroups)
             {
@@ -72,9 +72,9 @@ namespace FunctionTestProject
         private void VairableGroupToTreeView(TreeView treeNode, VariableGroup variableGroup)
         {
             var node = new TreeNode(variableGroup.Name)
-                {
-                    ContextMenuStrip = contextMenuStrip_TreeViewSub
-                };
+            {
+                ContextMenuStrip = contextMenuStrip_TreeViewSub
+            };
             if (treeNode != null) treeNode.Nodes.Add(node);
             foreach (var variable in variableGroup.ChildGroups)
             {
@@ -113,9 +113,9 @@ namespace FunctionTestProject
         private void ToolStripMenuItemCreateGroupClick(object sender, EventArgs e)
         {
             var node = new TreeNode(GetInitVarName(_currentNode))
-                {
-                    ContextMenuStrip = contextMenuStrip_TreeViewSub
-                };
+            {
+                ContextMenuStrip = contextMenuStrip_TreeViewSub
+            };
             _currentNode.Nodes.Add(node);
             _iVariableRepository.AddGroup(node.Text, GetVariableGroupPath(node.Parent.FullPath));
             treeView_FunctionTest.ExpandAll();
@@ -224,7 +224,7 @@ namespace FunctionTestProject
             {
                 if (e.Label.Length > 0)
                 {
-                    if (e.Label.IndexOfAny(new[] {'@', '.', ',', '!'}) == -1)
+                    if (e.Label.IndexOfAny(new[] { '@', '.', ',', '!' }) == -1)
                     {
                         try
                         {
@@ -234,7 +234,7 @@ namespace FunctionTestProject
                             if (varGroup != null)
                             {
                                 dataGridView_Avaiable.Rows.Clear();
-                                foreach (VariableBase variable in varGroup.ChildVariables)
+                                foreach (var variable in varGroup.ChildVariables)
                                 {
                                     AddVarToListview(variable);
                                 }
@@ -370,7 +370,7 @@ namespace FunctionTestProject
             if (variable is DigitalVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.fullPath;
+                row.Cells[1].Value = variable.FullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -395,7 +395,7 @@ namespace FunctionTestProject
             else if (variable is AnalogVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.fullPath;
+                row.Cells[1].Value = variable.FullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -424,7 +424,7 @@ namespace FunctionTestProject
             else if (variable is TextVariable)
             {
                 row.Cells[0].Value = variable.Name;
-                row.Cells[1].Value = variable.fullPath;
+                row.Cells[1].Value = variable.FullPath;
                 row.Cells[2].Value =
                     variable.VariableType.ToString();
                 row.Cells[3].Value =
@@ -469,7 +469,7 @@ namespace FunctionTestProject
         {
             foreach (DataGridViewRow row in collenction)
             {
-                _iVariableRepository.RemoveVariable(row.Cells[1].Value.ToString(),
+                _iVariableRepository.RemoveVariable(row.Cells[0].Value.ToString(),
                                            GetVariableGroupPath(_currentNode.FullPath));
                 dataGridView_Avaiable.Rows.Remove(row);
             }
@@ -502,9 +502,9 @@ namespace FunctionTestProject
                 CMS_CutVariable.Enabled = true;
                 RemoveAvariableToolStripMenuItem.Enabled = true;
             }
-                // ReSharper disable EmptyGeneralCatchClause
+            // ReSharper disable EmptyGeneralCatchClause
             catch
-                // ReSharper restore EmptyGeneralCatchClause
+            // ReSharper restore EmptyGeneralCatchClause
             {
                 CMS_CopyVariable.Enabled = false;
                 CMS_CutVariable.Enabled = false;
@@ -533,22 +533,22 @@ namespace FunctionTestProject
                 DataGridViewCell currentCell = dataGridView_Avaiable.SelectedCells[0];
                 DataGridViewRow currentRow = dataGridView_Avaiable.Rows[currentCell.RowIndex];
                 VariableBase editVar;
-                VariableBase oldVar = _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
-                                                 .ChildVariables.Find(
-                                                     m => m.fullPath == currentRow.Cells[1].Value.ToString());
+                VariableBase oldVar = (_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
+                                                           .ChildVariables.Find(
+                                                               m => m.FullPath == currentRow.Cells[1].Value.ToString()));
                 if (oldVar is DigitalVariable)
                 {
-                    editVar = new DigitalVariable(oldVar.Parent);
+                    editVar = new DigitalVariable(oldVar.ParentGroup);
                     editVar.CopyProperty(oldVar);
                 }
                 else if (oldVar is AnalogVariable)
                 {
-                    editVar = new AnalogVariable(oldVar.Parent);
+                    editVar = new AnalogVariable(oldVar.ParentGroup);
                     editVar.CopyProperty(oldVar);
                 }
                 else
                 {
-                    editVar = new TextVariable(oldVar.Parent);
+                    editVar = new TextVariable(oldVar.ParentGroup);
                     editVar.CopyProperty(oldVar);
                 }
 
@@ -697,20 +697,30 @@ namespace FunctionTestProject
         /// <param name="e"></param>
         private void CmsCopyVariableClick(object sender, EventArgs e)
         {
+            CopyVariables(true);
+        }
+
+        private void CopyVariables(bool isCopy)
+        {
             _variablePasteBoard.Clear();
             foreach (DataGridViewRow c in dataGridView_Avaiable.SelectedRows)
             {
-                _variablePasteBoard.Add(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
-                                                   .ChildVariables.Find(
-                                                       m =>
-                                                       m.fullPath == c.Cells[1].Value.ToString()));
+                VariableGroup variableGroup =
+                    _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
+                VariableBase variable = variableGroup.ChildVariables.Find(
+                    m =>
+                    m.FullPath == c.Cells[1].Value.ToString());
+                if (variable != null)
+                {
+                    _variablePasteBoard.Add(variable);
+                }
             }
 
             if (_variablePasteBoard == null)
             {
                 return;
             }
-            _iscopy = true;
+            _iscopy = isCopy;
             CMS_PasteVariable.Enabled = true;
         }
 
@@ -721,20 +731,7 @@ namespace FunctionTestProject
         /// <param name="e"></param>
         private void CmsCutVariableClick(object sender, EventArgs e)
         {
-            _variablePasteBoard.Clear();
-            foreach (DataGridViewRow c in dataGridView_Avaiable.SelectedRows)
-            {
-                _variablePasteBoard.Add(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
-                                                   .ChildVariables.Find(
-                                                       m =>
-                                                       m.fullPath == c.Cells[1].Value.ToString()));
-            }
-            if (_variablePasteBoard == null)
-            {
-                return;
-            }
-            _iscopy = false;
-            CMS_PasteVariable.Enabled = true;
+            CopyVariables(false);
         }
 
         /// <summary>
@@ -870,8 +867,9 @@ namespace FunctionTestProject
         private void 保存ToolStripMenuItemClick(object sender, EventArgs e)
         {
             _iVariableRepository.Save();
+            Text = _iVariableRepository.IsChanged ? "功能测试 *" : "功能测试";
         }
-        
+
         private void 搜索ToolStripMenuItemClick(object sender, EventArgs e)
         {
             VariableBase digitalVariable = _iVariableRepository.FindVariableById(toolStripTextBox1.Text);
@@ -880,7 +878,7 @@ namespace FunctionTestProject
             {
                 AddVarToListview(digitalVariable);
             }
-                
+
         }
 
         private void 按组搜索ToolStripMenuItemClick(object sender, EventArgs e)
@@ -903,7 +901,7 @@ namespace FunctionTestProject
             {
                 AddVarToListview(variableBase);
             }
-            
+
         }
 
         private void FunctionTestFormFormClosing(object sender, FormClosingEventArgs e)

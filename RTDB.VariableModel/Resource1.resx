@@ -123,10 +123,10 @@
   <data name="VariableGroup__rootGroup_variableDictionary" xml:space="preserve">
     <value>变量字典</value>
   </data>
-  <data name="VariableGroup_VariableGroup_groupNameIsNull" xml:space="preserve">
-    <value>变量组名不能为空</value>
-  </data>
   <data name="VariableBase_VariableBase_groupIsNull" xml:space="preserve">
     <value>组为空</value>
+  </data>
+  <data name="VariableGroup_VariableGroup_groupNameIsNull" xml:space="preserve">
+    <value>变量组名不能为空</value>
   </data>
 </root>

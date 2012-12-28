@@ -21,6 +21,26 @@ namespace SCADA.RTDB.VariableModel
         /// </summary>
         public bool InitValue { get; set; }
 
+        /// <summary>
+        /// 变量组
+        /// </summary>
+        private VariableGroup Parent
+        {
+            get { return ParentGroup; }
+            set { ParentGroup = value; }
+        }
+
+        /// <summary>
+        /// 变量全名
+        /// </summary>
+        public override string FullPath
+        {
+            get
+            {
+                return ((ParentGroup == null) || (ParentGroup.Parent == null)) ? Name : (ParentGroup.FullPath + "." + Name);
+            }
+        }
+
         #endregion
 
         #region 构造函数
@@ -36,10 +56,15 @@ namespace SCADA.RTDB.VariableModel
         /// <param name="group">变量所属组别的名称,如果是根组，需要传递 "" 值</param>
         /// <param name="varName">变量名</param>
         public DigitalVariable(VariableGroup group, string varName = "")
-            : base(group, varName, Varvaluetype.VarBool)
+            : base(varName, Varvaluetype.VarBool)
         {
+            if (group == null)
+            {
+                throw new ArgumentNullException(Resource1.VariableBase_VariableBase_groupIsNull);
+            }
             InitValue = false;
             Value = InitValue;
+            Parent = group;
         }
 
         #endregion
@@ -62,6 +87,7 @@ namespace SCADA.RTDB.VariableModel
             {
                 Value = variable.Value;
                 InitValue = variable.InitValue;
+                //Parent = source.ParentGroup;
             }
         }
 
