@@ -16,7 +16,7 @@ namespace FunctionTestProject
         }
 
         //private const string Connectstring = "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666";
-        private const string Connectstring = "data source=D:\\project\\RTDB\\FunctionTestProject\\bin\\Debug\\VariableDB.sdf";
+        private const string Connectstring = "data source=VariableDB.sdf";
 
         #region TreeView操作方法
 
