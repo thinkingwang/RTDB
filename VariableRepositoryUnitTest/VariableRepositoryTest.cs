@@ -85,7 +85,7 @@ namespace VariableRepositoryUnitTest
         {
             string dbNameOrConnectingString = string.Empty; // TODO: 初始化为适当的值
             VariableRepository target = new VariableRepository(dbNameOrConnectingString); // TODO: 初始化为适当的值
-            string name = string.Empty; // TODO: 初始化为适当的值
+            string name = "group1"; // TODO: 初始化为适当的值
             string fullPath = string.Empty; // TODO: 初始化为适当的值
             target.AddGroup(name, fullPath);
             Assert.Inconclusive("无法验证不返回值的方法。");
@@ -99,7 +99,7 @@ namespace VariableRepositoryUnitTest
         {
             string dbNameOrConnectingString = string.Empty; // TODO: 初始化为适当的值
             VariableRepository target = new VariableRepository(dbNameOrConnectingString); // TODO: 初始化为适当的值
-            VariableBase variable = null; // TODO: 初始化为适当的值
+            VariableBase variable = new AnalogVariable(VariableGroup.RootGroup,"var1"); // TODO: 初始化为适当的值
             target.AddVariable(variable);
             Assert.Inconclusive("无法验证不返回值的方法。");
         }
@@ -118,22 +118,6 @@ namespace VariableRepositoryUnitTest
         }
 
         /// <summary>
-        ///CopyGroup 的测试
-        ///</summary>
-        [TestMethod()]
-        [DeploymentItem("SCADA.RTDB.Repository.dll")]
-        public void CopyGroupTest()
-        {
-            PrivateObject param0 = null; // TODO: 初始化为适当的值
-            VariableRepository_Accessor target = new VariableRepository_Accessor(param0); // TODO: 初始化为适当的值
-            VariableGroup sourse = null; // TODO: 初始化为适当的值
-            VariableGroup group = null; // TODO: 初始化为适当的值
-            uint pasteMode = 0; // TODO: 初始化为适当的值
-            target.CopyGroup(sourse, group, pasteMode);
-            Assert.Inconclusive("无法验证不返回值的方法。");
-        }
-
-        /// <summary>
         ///EditVariable 的测试
         ///</summary>
         [TestMethod()]
@@ -141,8 +125,8 @@ namespace VariableRepositoryUnitTest
         {
             string dbNameOrConnectingString = string.Empty; // TODO: 初始化为适当的值
             VariableRepository target = new VariableRepository(dbNameOrConnectingString); // TODO: 初始化为适当的值
-            VariableBase oldVariable = null; // TODO: 初始化为适当的值
-            VariableBase newVariable = null; // TODO: 初始化为适当的值
+            VariableBase oldVariable = new AnalogVariable(); // TODO: 初始化为适当的值
+            VariableBase newVariable = new AnalogVariable(); // TODO: 初始化为适当的值
             target.EditVariable(oldVariable, newVariable);
             Assert.Inconclusive("无法验证不返回值的方法。");
         }
@@ -155,8 +139,8 @@ namespace VariableRepositoryUnitTest
         {
             string dbNameOrConnectingString = string.Empty; // TODO: 初始化为适当的值
             VariableRepository target = new VariableRepository(dbNameOrConnectingString); // TODO: 初始化为适当的值
-            string fullPath = string.Empty; // TODO: 初始化为适当的值
-            VariableGroup expected = null; // TODO: 初始化为适当的值
+            string fullPath = null; // TODO: 初始化为适当的值
+            VariableGroup expected = VariableGroup.RootGroup; // TODO: 初始化为适当的值
             VariableGroup actual;
             actual = target.FindGroupById(fullPath);
             Assert.AreEqual(expected, actual);
@@ -418,5 +402,6 @@ namespace VariableRepositoryUnitTest
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("验证此测试方法的正确性。");
         }
+        
     }
 }

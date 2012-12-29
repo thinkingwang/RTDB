@@ -15,6 +15,9 @@ namespace FunctionTestProject
             InitializeComponent();
         }
 
+        //private const string Connectstring = "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666";
+        private const string Connectstring = "data source=D:\\project\\RTDB\\FunctionTestProject\\bin\\Debug\\VariableDB.sdf";
+
         #region TreeView操作方法
 
         private TreeNode _currentNode = new TreeNode();
@@ -31,11 +34,10 @@ namespace FunctionTestProject
         /// <param name="e"></param>
         private void FunctionTestFormLoad(object sender, EventArgs e)
         {
+
             _iVariableRepository =
-                new VariableRepository();
-            // "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666");
+                new VariableRepository(Connectstring);
             _iVariableRepository.DataChanged += VariableRepositoryDataChanged;
-            //listView_Variable.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
             treeView_FunctionTest.LabelEdit = false;
             RefreshTree();
 

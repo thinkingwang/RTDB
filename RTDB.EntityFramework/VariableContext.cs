@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 using SCADA.RTDB.VariableModel;
@@ -42,6 +43,7 @@ namespace SCADA.RTDB.EntityFramework
         public VariableContext(string dbNameOrConnectingString = "VariableDB", bool isLoadData = true)
             : base(dbNameOrConnectingString)
         {
+            Database.DefaultConnectionFactory = new SqlCeConnectionFactory("System.Data.SqlServerCe.4.0");
             Database.SetInitializer(
                 new DropCreateDatabaseIfModelChanges<VariableContext>());
             //加载现有集合及变量

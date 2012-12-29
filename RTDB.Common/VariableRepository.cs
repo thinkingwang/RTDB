@@ -71,6 +71,7 @@ namespace SCADA.RTDB.Repository
             return _variableContext.VariableGroupSet.Local.FirstOrDefault(curGroup => curGroup.FullPath == fullPath);
 
         }
+
         /// <summary>
         /// 根据组Id提供的路径信息，遍历树查找组节点
         /// </summary>
@@ -95,7 +96,7 @@ namespace SCADA.RTDB.Repository
         /// <returns>所有子组列表</returns>
         public IEnumerable<VariableGroup> FindGroups(string fullPath)
         {
-            VariableGroup variableGroup = FindGroupById(fullPath);
+            VariableGroup variableGroup = FindGroupByPath(fullPath);
             return variableGroup == null ? null : variableGroup.ChildGroups;
         }
 
@@ -111,7 +112,7 @@ namespace SCADA.RTDB.Repository
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupNameIsNull);
             }
 
-            VariableGroup parentVariableGroup = FindGroupById(fullPath);
+            VariableGroup parentVariableGroup = FindGroupByPath(fullPath);
             if (parentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -134,7 +135,7 @@ namespace SCADA.RTDB.Repository
         /// <param name="fullPath">要移除的组全路径</param>
         public void RemoveGroup(string fullPath)
         {
-            VariableGroup currentVariableGroup = FindGroupById(fullPath);
+            VariableGroup currentVariableGroup = FindGroupByPath(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -170,7 +171,7 @@ namespace SCADA.RTDB.Repository
             {
                 throw new Exception(Resource1.VariableGroup_ReGroupName_groupName_Is_Null);
             }
-            VariableGroup currentVariableGroup = FindGroupById(fullPath);
+            VariableGroup currentVariableGroup = FindGroupByPath(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -205,7 +206,7 @@ namespace SCADA.RTDB.Repository
                 throw new Exception(Resource1.VariableRepository_PasteGroup_SourceGroupContainDesGroup);
             }
 
-            VariableGroup desGroup = FindGroupById(fullPath);
+            VariableGroup desGroup = FindGroupByPath(fullPath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
@@ -300,7 +301,7 @@ namespace SCADA.RTDB.Repository
         /// <param name="fullPath">移除变量所属组全路径</param>
         public void RemoveVariable(string name, string fullPath)
         {
-            VariableGroup currentVariableGroup = FindGroupById(fullPath);
+            VariableGroup currentVariableGroup = FindGroupByPath(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -327,7 +328,7 @@ namespace SCADA.RTDB.Repository
         /// <param name="fullPath">要清空的组全路径</param>
         public void ClearVariable(string fullPath)
         {
-            VariableGroup currentVariableGroup = FindGroupById(fullPath);
+            VariableGroup currentVariableGroup = FindGroupByPath(fullPath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -431,7 +432,7 @@ namespace SCADA.RTDB.Repository
         /// <returns>所有变量列表</returns>
         public IEnumerable<VariableBase> FindVariables(string fullPath)
         {
-            VariableGroup variableGroup = FindGroupById(fullPath);
+            VariableGroup variableGroup = FindGroupByPath(fullPath);
             if (variableGroup == null)
             {
                 return null;
@@ -455,7 +456,7 @@ namespace SCADA.RTDB.Repository
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
             }
 
-            VariableGroup desGroup = FindGroupById(fullPath);
+            VariableGroup desGroup = FindGroupByPath(fullPath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
@@ -528,23 +529,24 @@ namespace SCADA.RTDB.Repository
         /// 复制变量组
         /// </summary>
         /// <param name="sourse">源</param>
-        /// <param name="group">目标</param>
+        /// <param name="destination">目标</param>
         /// <param name="pasteMode">粘贴模式，0：默认模式，重复则返回，1：如果重复则替换，2：如果重复则两个变量都保留，3：如果重复则放弃</param>
-        private void CopyGroup(VariableGroup sourse, VariableGroup group, uint pasteMode)
+        private void CopyGroup(VariableGroup sourse, VariableGroup destination, uint pasteMode)
         {
             if (sourse == null)
             {
                 return;
             }
             string groupName = sourse.Name;
-            if ((pasteMode == 2) && IsExistName(sourse.Name, group))//同时保留两个
+            if ((pasteMode == 2) && IsExistName(sourse.Name, destination))//同时保留两个
             {
-                groupName = GetDefaultName(group, sourse.Name);
+                groupName = GetDefaultName(destination, sourse.Name);
             }
-            AddGroup(groupName, group.FullPath);
+            AddGroup(groupName, destination.FullPath);
 
             VariableGroup var =
-                FindGroupById(group.FullPath == null ? groupName : group.FullPath + "." + groupName);
+                FindGroupByPath(destination.FullPath == null ? groupName : destination.FullPath + "." + groupName);
+            if (var == null) throw new ArgumentNullException("目标组不存在");
 
             foreach (var childVariable in sourse.ChildVariables)
             {
