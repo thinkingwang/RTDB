@@ -44,8 +44,8 @@ namespace SCADA.RTDB.EntityFramework
             : base(dbNameOrConnectingString)
         {
             Database.DefaultConnectionFactory = new SqlCeConnectionFactory("System.Data.SqlServerCe.4.0");
-            Database.SetInitializer(
-                new DropCreateDatabaseIfModelChanges<VariableContext>());
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<VariableContext>());
+
             //加载现有集合及变量
             if (isLoadData)
             {
