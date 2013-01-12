@@ -44,7 +44,7 @@ namespace SCADA.RTDB.VariableModel
     /// <summary>
     /// 变量操作属性，可读写，只读、只写
     /// </summary>
-    public enum Varoperateproperty
+    public enum VarOperateProperty
     {
         /// <summary>
         /// 可读写
@@ -67,22 +67,9 @@ namespace SCADA.RTDB.VariableModel
     public class VariableBase
     {
         private string _name;
-        private int _variableType;
-        private int _operateProperty;
-        private int _valueType;
-
-        /// <summary>
-        /// 变量组
-        /// </summary>
-        public VariableGroup ParentGroup;
         
         #region 变量基本属性
-
-        /// <summary>
-        /// 唯一标示
-        /// </summary>
-        public int UniqueId { get;set; }
-
+        
         /// <summary>
         /// 变量名称
         /// </summary>
@@ -99,45 +86,35 @@ namespace SCADA.RTDB.VariableModel
         }
 
         /// <summary>
+        /// 变量组
+        /// </summary>
+        public VariableGroup ParentGroup { get; set; }
+
+        /// <summary>
         /// 变量绝对路径
         /// </summary>
-        public virtual string AbsolutePath { get; private set; }
+        public string AbsolutePath
+        {
+            get
+            {
+                return ((ParentGroup == null) || (ParentGroup.Parent == null)) ? Name : (ParentGroup.AbsolutePath + "." + Name);
+            }
+        }
+
+        /// <summary>
+        /// 变量建立顺序
+        /// </summary>
+        //public int OrderId { get; private set; }
 
         /// <summary>
         /// 数据类型
         /// </summary>
-        public VarValuetype ValueType
-        {
-            get { return (VarValuetype)_valueType; }
-            private set { _valueType = (int)value; }
-        }
-
-        /// <summary>
-        /// 变量类型
-        /// </summary>
-        public int IntValueType
-        {
-            get { return _valueType; }
-            set { _valueType = value; }
-        }
+        public VarValuetype ValueType { get; set; }
         
         /// <summary>
         /// 变量类型
         /// </summary>
-        public VarType VariableType
-        {
-            get { return (VarType)_variableType; }
-            set { _variableType = (int)value; }
-        }
-
-        /// <summary>
-        /// 变量类型
-        /// </summary>
-        public int IntVariableType
-        {
-            get { return _variableType; }
-            set { _variableType = value; }
-        }
+        public VarType VariableType{ get; set; }
 
         /// <summary>
         /// 变量描述
@@ -167,20 +144,7 @@ namespace SCADA.RTDB.VariableModel
         /// <summary>
         /// 变量操作属性（可读写、只读、只写）
         /// </summary>
-        public Varoperateproperty OperateProperty
-        {
-            get { return (Varoperateproperty)_operateProperty; }
-            set { _operateProperty = (int)value; }
-        }
-
-        /// <summary>
-        /// 变量操作属性（可读写、只读、只写）,数据库存取
-        /// </summary>
-        public int IntOperateProperty
-        {
-            get { return _operateProperty; }
-            set { _operateProperty = value; }
-        }
+        public VarOperateProperty OperateProperty { get; set; }
 
         #endregion
 
@@ -188,27 +152,30 @@ namespace SCADA.RTDB.VariableModel
 
         protected VariableBase()
         {
-
+            
         }
 
         /// <summary>
         /// 变量构造函数
         /// </summary>
+        /// <param name="group">父祖</param>
         /// <param name="varName">变量名称</param>
         /// <param name="varValueType">变量类型</param>
-        protected VariableBase(string varName = "",
+        protected VariableBase(VariableGroup group, string varName = "",
                                VarValuetype varValueType = VarValuetype.VarDouble)
         {
             Name = varName;
             ValueType = varValueType;
             VariableType = VarType.VarNormal;
-            OperateProperty = Varoperateproperty.ReadWrite;
+            OperateProperty = VarOperateProperty.ReadWrite;
             IsAddressable = false;
             IsInitValueSaved = false;
             IsRecordEvent = false;
             IsValueSaved = true;
+            ParentGroup = group;
+            //OrderId = InitOrderId++;
         }
-
+        
         #endregion
 
     }

@@ -3,17 +3,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>
-    </ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{10094FDE-C963-4BEB-845E-7F221A4C8811}</ProjectGuid>
+    <ProjectGuid>{9A9B15FD-5B47-4A99-A430-C2B22166ABD6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VariableRepositoryUnitTest</RootNamespace>
-    <AssemblyName>VariableRepositoryUnitTest</AssemblyName>
+    <RootNamespace>SCADA.RTDB.StorageModel</RootNamespace>
+    <AssemblyName>SCADA.RTDB.StorageModel</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,43 +31,29 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework">
-      <HintPath>..\RTDB.Common\bin\Debug\EntityFramework.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System" />
-    <Reference Include="System.Core">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <CodeAnalysisDependentAssemblyPaths Condition=" '$(VS100COMNTOOLS)' != '' " Include="$(VS100COMNTOOLS)..\IDE\PrivateAssemblies">
-      <Visible>False</Visible>
-    </CodeAnalysisDependentAssemblyPaths>
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Include="AnalogVariableStorage.cs" />
+    <Compile Include="DigitalVariableStorage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VariableRepositoryTest.cs" />
+    <Compile Include="TextVariableStorage.cs" />
+    <Compile Include="VariableBaseStorage.cs" />
+    <Compile Include="VariableGroupStorage.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Shadow Include="测试引用\SCADA.RTDB.Repository.accessor" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SCADA.RTDB.Repository\SCADA.RTDB.Repository.csproj">
-      <Project>{5641C3DA-3ED3-4A18-A46F-4682432DEE48}</Project>
-      <Name>SCADA.RTDB.Repository</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SCADA.RTDB.EntityFramework\SCADA.RTDB.EntityFramework.csproj">
-      <Project>{BAF11229-2AAA-48EC-9FDA-2DD49DBE6DA8}</Project>
-      <Name>SCADA.RTDB.EntityFramework</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SCADA.RTDB.VariableModel\SCADA.RTDB.VariableModel.csproj">
       <Project>{DF863521-F414-45FA-AD64-F9D89EB46C3F}</Project>
       <Name>SCADA.RTDB.VariableModel</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -9,19 +9,16 @@ namespace SCADA.RTDB.VariableModel
 
         private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
         private string _name;
-        private List<DigitalVariable> _digitalVariables=new List<DigitalVariable>();
-        private List<AnalogVariable> _analogVariables=new List<AnalogVariable>();
-        private List<TextVariable> _textVariables=new List<TextVariable>();
         private readonly List<VariableBase> _childVariables = new List<VariableBase>();
 
         #endregion
-
-        #region 属性
-
+        
         /// <summary>
         /// 根组
         /// </summary>
         public static VariableGroup RootGroup { get; set; }
+
+        #region 属性
 
         /// <summary>
         /// 变量组名称
@@ -41,27 +38,22 @@ namespace SCADA.RTDB.VariableModel
         /// <summary>
         /// 变量组全路径
         /// </summary>
-        public string FullPath
+        public string AbsolutePath
         {
-            //get { return ParentGroup != null ? ParentGroup.fullPath + "." + Name : Name; } //带根节点
+            //get { return ParentGroup != null ? ParentGroup.absolutePath + "." + Name : Name; } //带根节点
             get //不带根节点
             {
                 if (Parent == null)
                 {
-                    return null;
+                    return string.Empty;
                 }
-                if (string.IsNullOrEmpty(Parent.FullPath))
+                if (string.IsNullOrEmpty(Parent.AbsolutePath))
                 {
                     return Name;
                 }
-                return Parent.FullPath + "." + Name;
+                return Parent.AbsolutePath + "." + Name;
             }
         }
-
-        /// <summary>
-        /// 变量组ID
-        /// </summary>
-        public int VariableGroupId { get; set; }
 
         /// <summary>
         /// 子组集合
@@ -78,34 +70,7 @@ namespace SCADA.RTDB.VariableModel
         {
             get { return _childGroups.Count; }
         }
-
-        /// <summary>
-        /// 组变量集合
-        /// </summary>
-        public List<DigitalVariable> DigitalVariables
-        {
-            get { return _digitalVariables; }
-            private set { _digitalVariables = value; }
-        }
-
-        /// <summary>
-        /// 组变量集合
-        /// </summary>
-        public List<AnalogVariable> AnalogVariables
-        {
-            get { return _analogVariables; }
-            private set { _analogVariables = value; }
-        }
-
-        /// <summary>
-        /// 组变量集合
-        /// </summary>
-        public List<TextVariable> TextVariables
-        {
-            get { return _textVariables; }
-            private set { _textVariables = value; }
-        }
-
+        
         /// <summary>
         /// 组变量集合
         /// </summary>
@@ -133,8 +98,9 @@ namespace SCADA.RTDB.VariableModel
 
         public VariableGroup()
         {
+            
         }
-
+        
         /// <summary>
         /// 组构造函数
         /// </summary>

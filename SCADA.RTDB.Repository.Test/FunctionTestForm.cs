@@ -3,24 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using SCADA.RTDB.Adaptation;
+using SCADA.RTDB.EntityFramework;
 using SCADA.RTDB.Repository.Test.Properties;
 using SCADA.RTDB.SimulationDevice;
 using SCADA.RTDB.SimulationDeviceBase;
 using SCADA.RTDB.VariableModel;
+using SCADA.RTDB.Common;
 
 namespace SCADA.RTDB.Repository.Test
 {
     public partial class FunctionTestForm : Form
     {
-        //private const string Connectstring = "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666";
-        private const string Connectstring = "data source=VariableDB.sdf;Password=666666";
+        private const string Connectstring = "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666";
+       // private const string Connectstring = "data source=VariableDB.sdf;Password=666666";
 
         public FunctionTestForm()
         {
             InitializeComponent();
         }
-
-        #region TreeView操作方法
 
         private TreeNode _currentNode = new TreeNode();
         private IVariableRepository _iVariableRepository;
@@ -36,12 +36,17 @@ namespace SCADA.RTDB.Repository.Test
         /// <param name="e"></param>
         private void FunctionTestFormLoad(object sender, EventArgs e)
         {
+            var config = new VariableRepositoryConfig {DbNameOrConnectingString = Connectstring};
+            config.DbType = DataBaseType.SqlConnectionFactory;
             _iVariableRepository =
-                new VariableRepository(Connectstring);
+                new EfVariableRepository(config);
+            _iVariableRepository.Load();
             treeView_FunctionTest.LabelEdit = false;
             RefreshTree();
 
         }
+
+        #region TreeView操作方法
 
         /// <summary>
         /// 由变量组集合生成树
@@ -95,7 +100,7 @@ namespace SCADA.RTDB.Repository.Test
         private void RefreshTree()
         {
             treeView_FunctionTest.Nodes.Clear();
-            VairableGroupToTreeView(treeView_FunctionTest, _iVariableRepository.FindGroupById(null));
+            VairableGroupToTreeView(treeView_FunctionTest, _iVariableRepository.FindGroupByPath(null));
             _currentNode = treeView_FunctionTest.TopNode;
 
             RefreshDataGridView();
@@ -155,7 +160,7 @@ namespace SCADA.RTDB.Repository.Test
             }
             string des = source.Replace('\\', '.');
             int index = des.IndexOf('.');
-            des = index >= 0 ? des.Substring(index + 1) : null;
+            des = index >= 0 ? des.Substring(index + 1) : string.Empty;
             return des;
         }
 
@@ -226,7 +231,7 @@ namespace SCADA.RTDB.Repository.Test
                         try
                         {
                             VariableGroup varGroup =
-                                _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
+                                _iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath));
                             _iVariableRepository.RenameGroup(e.Label, GetVariableGroupPath(_currentNode.FullPath));
                             if (varGroup != null)
                             {
@@ -303,7 +308,7 @@ namespace SCADA.RTDB.Repository.Test
             //dataGridView_Avaiable.DataSource = null;
             //dataGridView_Avaiable.DataSource = _iVariableRepository.FindVariables(varGroup.AbsolutePath);
             dataGridView_Avaiable.Rows.Clear();
-            foreach (VariableBase variable in _iVariableRepository.FindVariables(varGroup.FullPath))
+            foreach (VariableBase variable in _iVariableRepository.FindVariables(varGroup.AbsolutePath))
             {
                 AddVarToListview(variable);
             }
@@ -317,7 +322,7 @@ namespace SCADA.RTDB.Repository.Test
         private void DigToolStripMenuItemClick(object sender, EventArgs e)
         {
             var digitalVariable =
-                new DigitalVariable(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath)));
+                new DigitalVariable(_iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
             _iVariableRepository.AddVariable(digitalVariable);
             AddVarToListview(digitalVariable);
         }
@@ -330,7 +335,7 @@ namespace SCADA.RTDB.Repository.Test
         private void AnaToolStripMenuItemClick(object sender, EventArgs e)
         {
             var analogVariable =
-                new AnalogVariable(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath)));
+                new AnalogVariable(_iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
             _iVariableRepository.AddVariable(analogVariable);
             AddVarToListview(analogVariable);
         }
@@ -343,7 +348,7 @@ namespace SCADA.RTDB.Repository.Test
         private void StrToolStripMenuItemClick(object sender, EventArgs e)
         {
             var stringVariable =
-                new TextVariable(_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath)));
+                new TextVariable(_iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
             _iVariableRepository.AddVariable(stringVariable);
             AddVarToListview(stringVariable);
         }
@@ -463,8 +468,8 @@ namespace SCADA.RTDB.Repository.Test
                 {
                     variableStrings.Add(currentRow.Cells[i].Value == null ?  null : currentRow.Cells[i].Value.ToString());
                 }
-                
-                VariableBase oldVar = (_iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath))
+
+                VariableBase oldVar = (_iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath))
                                                            .ChildVariables.Find(
                                                                m => m.AbsolutePath == currentRow.Cells[1].Value.ToString()));
                 //修改变量值
@@ -473,15 +478,13 @@ namespace SCADA.RTDB.Repository.Test
                     if (!oldVar.SetValue(variableStrings[7]))
                     {
                         MessageBox.Show("变量值不合法，变量值设置失败");
-                        RefreshDataGridView();
                     }
                     return;
                 }
 
-                if (!_iVariableRepository.EditVariable(oldVar, variableStrings))
+                if (_iVariableRepository.EditVariable(oldVar, variableStrings) == null)
                 {
                     MessageBox.Show("修改参数不合法，变量修改失败");
-                    RefreshDataGridView();
                 }
 
             }
@@ -491,18 +494,11 @@ namespace SCADA.RTDB.Repository.Test
             }
             finally
             {
-                //如果修改变量名，刷新界面以便及时同步变量fullpath
-                if (e.ColumnIndex == 0)
-                {
-                     RefreshDataGridView();
-                }
-               
+                RefreshDataGridView();
             }
         }
 
         #endregion
-
-        
 
         /// <summary>
         /// 复制变量
@@ -520,7 +516,7 @@ namespace SCADA.RTDB.Repository.Test
             foreach (DataGridViewRow c in dataGridView_Avaiable.SelectedRows)
             {
                 VariableGroup variableGroup =
-                    _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
+                    _iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath));
                 VariableBase variable = variableGroup.ChildVariables.Find(
                     m =>
                     m.AbsolutePath == c.Cells[1].Value.ToString());
@@ -598,7 +594,7 @@ namespace SCADA.RTDB.Repository.Test
             {
                 return;
             }
-            _groupPasteBoard = _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
+            _groupPasteBoard = _iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath));
 
             if (_groupPasteBoard == null)
             {
@@ -620,7 +616,7 @@ namespace SCADA.RTDB.Repository.Test
             {
                 return;
             }
-            _groupPasteBoard = _iVariableRepository.FindGroupById(GetVariableGroupPath(_currentNode.FullPath));
+            _groupPasteBoard = _iVariableRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath));
 
             if (_groupPasteBoard == null)
             {
@@ -680,7 +676,7 @@ namespace SCADA.RTDB.Repository.Test
 
         private void 搜索ToolStripMenuItemClick(object sender, EventArgs e)
         {
-            VariableBase digitalVariable = _iVariableRepository.FindVariableById(toolStripTextBox1.Text);
+            VariableBase digitalVariable = _iVariableRepository.FindVariableByPath(toolStripTextBox1.Text);
             dataGridView_Avaiable.Rows.Clear();
             if (digitalVariable != null)
             {

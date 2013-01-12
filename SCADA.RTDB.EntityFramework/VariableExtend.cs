@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using SCADA.RTDB.EntityFramework;
 using SCADA.RTDB.VariableModel;
 
-namespace SCADA.RTDB.Repository
+namespace SCADA.RTDB.EntityFramework
 {
-    public static class Variable
+    public static class VariableExtend
     {
         /// <summary>
         /// 创建变量，变量基类扩展方法
@@ -80,7 +79,7 @@ namespace SCADA.RTDB.Repository
             try
             {
                 //变量为只读时，不允许写入
-                if (variable.OperateProperty == Varoperateproperty.ReadOnly)
+                if (variable.OperateProperty == VarOperateProperty.ReadOnly)
                 {
                     return true;
                 }
@@ -232,13 +231,13 @@ namespace SCADA.RTDB.Repository
             switch (str[9])
             {
                 case "ReadWrite":
-                    variable.OperateProperty = Varoperateproperty.ReadWrite;
+                    variable.OperateProperty = VarOperateProperty.ReadWrite;
                     break;
                 case "ReadOnly":
-                    variable.OperateProperty = Varoperateproperty.ReadOnly;
+                    variable.OperateProperty = VarOperateProperty.ReadOnly;
                     break;
                 case "WriteOnly":
-                    variable.OperateProperty = Varoperateproperty.WriteOnly;
+                    variable.OperateProperty = VarOperateProperty.WriteOnly;
                     break;
             }
             variable.IsValueSaved = str[10].Substring(0, 1).ToLower() == "t";
@@ -260,54 +259,6 @@ namespace SCADA.RTDB.Repository
         public static bool EditVariable(this VariableBase variable, VariableBase newVariable)
         {
             return variable.EditVariable(newVariable.VariableToStrings());
-        }
-
-        /// <summary>
-        /// 从变量实体集合中移除变量,变量实体集合扩展方法
-        /// </summary>
-        /// <param name="iVariableContext">变量实体集合</param>
-        /// <param name="variable">需要移除的变量</param>
-        public static void Remove(this IVariableContext iVariableContext, VariableBase variable)
-        {
-            if (variable == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableRepository_AddVar_VariableIsNull);
-            }
-            variable.ParentGroup.ChildVariables.Remove(variable);
-            switch (variable.ValueType)
-            {
-                case VarValuetype.VarBool:
-                    iVariableContext.DigitalSet.Remove((DigitalVariable) variable);
-                    break;
-                case VarValuetype.VarDouble:
-                    iVariableContext.AnalogSet.Remove((AnalogVariable)variable);
-                    break;
-                case VarValuetype.VarString:
-                    iVariableContext.TextSet.Remove((TextVariable)variable);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// 添加变量到指定组，变量组扩展方法
-        /// </summary>
-        /// <param name="variableGroup">变量组</param>
-        /// <param name="variable">变量</param>
-        public static void AddVariableToGroup(this VariableGroup variableGroup, VariableBase variable)
-        {
-            switch (variable.ValueType)
-            {
-                case VarValuetype.VarBool:
-                    variableGroup.DigitalVariables.Add((DigitalVariable)variable);
-                    break;
-                case VarValuetype.VarDouble:
-                    variableGroup.AnalogVariables.Add((AnalogVariable)variable);
-                    break;
-                case VarValuetype.VarString:
-                    variableGroup.TextVariables.Add((TextVariable)variable);
-                    break;
-            }
-            variableGroup.ChildVariables.Add(variable);
         }
 
     }

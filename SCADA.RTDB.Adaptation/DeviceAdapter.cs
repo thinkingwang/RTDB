@@ -47,7 +47,7 @@ namespace SCADA.RTDB.Adaptation
             }
 
             //如果变量为只写变量，不允许同步设备值
-            if (variable.OperateProperty == Varoperateproperty.WriteOnly)
+            if (variable.OperateProperty == VarOperateProperty.WriteOnly)
             {
                 return;
             }
@@ -136,7 +136,7 @@ namespace SCADA.RTDB.Adaptation
                     foreach (var deviceBase in DeviceDictionary)
                     {
                         //如果变量为只写变量，不允许同步设备值，跳过
-                        if (deviceBase.Key.OperateProperty == Varoperateproperty.WriteOnly)
+                        if (deviceBase.Key.OperateProperty == VarOperateProperty.WriteOnly)
                         {
                             continue;
                         }

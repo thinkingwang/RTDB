@@ -76,7 +76,7 @@
         This effectively acts as a lock that makes sure that the download operation will only happen once and all
         parallel builds will have to wait for it to complete.
         -->
-        <MsBuild Targets="_DownloadNuGet" Projects="$(MSBuildThisFileFullPath)" Properties="Configuration=NOT_IMPORTANT" />
+        <MsBuild Targets="_DownloadNuGet" Projects="$(MSBuildThisFileAbsolutePath)" Properties="Configuration=NOT_IMPORTANT" />
     </Target>
 
     <Target Name="_DownloadNuGet">
@@ -115,7 +115,7 @@
             <Code Type="Fragment" Language="cs">
                 <![CDATA[
                 try {
-                    OutputFilename = Path.GetFullPath(OutputFilename);
+                    OutputFilename = Path.GetAbsolutePath(OutputFilename);
 
                     Log.LogMessage("Downloading latest version of NuGet.exe...");
                     WebClient webClient = new WebClient();
