@@ -1,6 +1,4 @@
-﻿using System;
-using System.Reflection;
-using SCADA.RTDB.VariableModel;
+﻿using SCADA.RTDB.Core.Variable;
 
 namespace SCADA.RTDB.StorageModel
 {
@@ -12,7 +10,7 @@ namespace SCADA.RTDB.StorageModel
         /// <summary>
         /// 初始化变量顺序ID
         /// </summary>
-        private static int InitOrderId { get; set; }
+        private static int InitUniqueId { get; set; }
 
         #region 变量基本属性
 
@@ -24,7 +22,7 @@ namespace SCADA.RTDB.StorageModel
         /// <summary>
         /// 变量建立顺序
         /// </summary>
-        public int OrderId { get; set; }
+        public int UniqueId { get; set; }
 
         /// <summary>
         /// 变量类型
@@ -73,12 +71,21 @@ namespace SCADA.RTDB.StorageModel
 
         #endregion
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="isAdd">变量OrderId是否自增，从数据库加载为false，添加变量为true</param>
         protected VariableBaseStorage(bool isAdd = false)
         {
             if (isAdd)
-                OrderId = ++InitOrderId;
+                UniqueId = ++InitUniqueId;
         }
 
+        /// <summary>
+        /// 更新变量存储模型属性
+        /// </summary>
+        /// <param name="variable">变量</param>
+        /// <param name="parentGroupId">父祖Id</param>
         public virtual void PullCopyProperty(VariableBase variable, int parentGroupId)
         {
             Name = variable.Name;
@@ -93,6 +100,10 @@ namespace SCADA.RTDB.StorageModel
             OperateProperty = (int) variable.OperateProperty;
         }
 
+        /// <summary>
+        /// 更新变量的属性
+        /// </summary>
+        /// <param name="variable">需要更新的变量</param>
         public virtual void PushCopyProperty(VariableBase variable)
         {
             variable.Name = Name;
@@ -104,9 +115,9 @@ namespace SCADA.RTDB.StorageModel
             variable.ValueType = (VarValuetype)ValueType;
             variable.VariableType = (VarType)VariableType;
             variable.OperateProperty = (VarOperateProperty) OperateProperty;
-            if (OrderId > InitOrderId)
+            if (UniqueId > InitUniqueId)
             {
-                InitOrderId = OrderId;
+                InitUniqueId = UniqueId;
             }
         }
     }

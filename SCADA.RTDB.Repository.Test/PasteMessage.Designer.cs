@@ -73,7 +73,7 @@
             this.button1.TabIndex = 6;
             this.button1.Text = "移动并替换";
             this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.button1.Click += new System.EventHandler(this.Button1Click);
             // 
             // button2
             // 
@@ -84,7 +84,7 @@
             this.button2.TabIndex = 7;
             this.button2.Text = "请勿移动";
             this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.button2.Click += new System.EventHandler(this.Button2Click);
             // 
             // button3
             // 
@@ -95,7 +95,7 @@
             this.button3.TabIndex = 8;
             this.button3.Text = "移动，但保留两个文件";
             this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.button3.Click += new System.EventHandler(this.Button3Click);
             // 
             // PasteMessage
             // 
@@ -113,7 +113,6 @@
             this.Name = "PasteMessage";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PasteMessage";
-            this.Load += new System.EventHandler(this.PasteMessage_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

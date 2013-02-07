@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SCADA.RTDB.VariableModel
+namespace SCADA.RTDB.Core.Variable
 {
     #region 变量枚举类型
     /// <summary>
@@ -64,6 +64,7 @@ namespace SCADA.RTDB.VariableModel
     /// <summary>
     /// 变量基类
     /// </summary>
+    [Serializable]
     public class VariableBase
     {
         private string _name;
@@ -100,12 +101,7 @@ namespace SCADA.RTDB.VariableModel
                 return ((ParentGroup == null) || (ParentGroup.Parent == null)) ? Name : (ParentGroup.AbsolutePath + "." + Name);
             }
         }
-
-        /// <summary>
-        /// 变量建立顺序
-        /// </summary>
-        //public int OrderId { get; private set; }
-
+        
         /// <summary>
         /// 数据类型
         /// </summary>
@@ -150,6 +146,9 @@ namespace SCADA.RTDB.VariableModel
 
         #region 构造函数
 
+        /// <summary>
+        /// 默认构造函数
+        /// </summary>
         protected VariableBase()
         {
             
@@ -173,11 +172,50 @@ namespace SCADA.RTDB.VariableModel
             IsRecordEvent = false;
             IsValueSaved = true;
             ParentGroup = group;
-            //OrderId = InitOrderId++;
         }
         
         #endregion
 
+
+        /// <summary>
+        /// 获取变量值
+        /// </summary>
+        /// <returns>返回变量值</returns>
+        public virtual object GetValue()
+        {
+            return null;
+        }
+
+       
+        /// <summary>
+        /// 设置变量值
+        /// </summary>
+        /// <param name="obj">准备写入的值</param>
+        /// <returns>是否写入成功</returns>
+        public virtual bool SetValue(object obj)
+        {
+            return true;
+        }
+
+        /// <summary>
+        /// 获取变量初始值
+        /// </summary>
+        /// <returns>返回变量初始值</returns>
+        public virtual object GetInitValue()
+        {
+            return null;
+        }
+
+
+        /// <summary>
+        /// 设置变量初始值
+        /// </summary>
+        /// <param name="obj">准备写入的值</param>
+        /// <returns>是否写入成功</returns>
+        public virtual bool SetInitValue(object obj)
+        {
+            return true;
+        }
     }
 
 }

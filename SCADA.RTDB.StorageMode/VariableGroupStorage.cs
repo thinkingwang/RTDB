@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SCADA.RTDB.VariableModel;
+using SCADA.RTDB.Core.Variable;
 
 namespace SCADA.RTDB.StorageModel
 {
+    /// <summary>
+    /// 变量组存储模型
+    /// </summary>
     public sealed class VariableGroupStorage
     {
         #region 属性
@@ -26,6 +29,11 @@ namespace SCADA.RTDB.StorageModel
         
         #endregion
 
+        /// <summary>
+        /// 更新变量组存储模型属性
+        /// </summary>
+        /// <param name="variableGroup">变量组</param>
+        /// <param name="parentId">变量组父Id</param>
         public void CopyProperty(VariableGroup variableGroup, int? parentId)
         {
             Name = variableGroup.Name;

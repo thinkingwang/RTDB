@@ -3,20 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using SCADA.RTDB.Adaptation;
-using SCADA.RTDB.EntityFramework;
+using SCADA.RTDB.Core.Variable;
+using SCADA.RTDB.EntityFramework.DbConfig;
+using SCADA.RTDB.EntityFramework.ExtendMethod;
+using SCADA.RTDB.EntityFramework.Repository;
 using SCADA.RTDB.Repository.Test.Properties;
 using SCADA.RTDB.SimulationDevice;
 using SCADA.RTDB.SimulationDeviceBase;
-using SCADA.RTDB.VariableModel;
 using SCADA.RTDB.Common;
 
 namespace SCADA.RTDB.Repository.Test
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public partial class FunctionTestForm : Form
     {
-        private const string Connectstring = "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666";
-       // private const string Connectstring = "data source=VariableDB.sdf;Password=666666";
+       // private const string Connectstring = "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666";
+        private const string Connectstring = "data source=VariableDB.sdf;Password=666666";
 
+        /// <summary>
+        /// 
+        /// </summary>
         public FunctionTestForm()
         {
             InitializeComponent();
@@ -36,11 +44,15 @@ namespace SCADA.RTDB.Repository.Test
         /// <param name="e"></param>
         private void FunctionTestFormLoad(object sender, EventArgs e)
         {
-            var config = new VariableRepositoryConfig {DbNameOrConnectingString = Connectstring};
-            config.DbType = DataBaseType.SqlConnectionFactory;
+            var config = new RepositoryConfig
+                {
+                    DbNameOrConnectingString = Connectstring,
+                    DbType = DataBaseType.SqlCeConnectionFactory
+                };
             _iVariableRepository =
                 new EfVariableRepository(config);
             _iVariableRepository.Load();
+            
             treeView_FunctionTest.LabelEdit = false;
             RefreshTree();
 
@@ -54,7 +66,7 @@ namespace SCADA.RTDB.Repository.Test
         /// <param name="treeNode">树节点</param>
         /// <param name="variableGroup">树节点所属组</param>
         private void VairableGroupToTreeView(TreeNode treeNode, VariableGroup variableGroup)
-        {
+        { 
             var node = new TreeNode(variableGroup.Name)
             {
                 ContextMenuStrip = contextMenuStrip_TreeViewSub
@@ -774,9 +786,9 @@ namespace SCADA.RTDB.Repository.Test
                     dataGridView_Avaiable.Rows[i].Cells[7].Value = variable.GetValue();
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                
+                MessageBox.Show(ex.ToString());
             }
 
         }

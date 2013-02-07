@@ -8,8 +8,8 @@
     <ProjectGuid>{DF863521-F414-45FA-AD64-F9D89EB46C3F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SCADA.RTDB.VariableModel</RootNamespace>
-    <AssemblyName>SCADA.RTDB.VariableModel</AssemblyName>
+    <RootNamespace>SCADA.RTDB.Core</RootNamespace>
+    <AssemblyName>SCADA.RTDB.Core</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -21,6 +21,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\SCADA.RTDB.Core.xml</DocumentationFile>
+    <RegisterForComInterop>false</RegisterForComInterop>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,17 +40,21 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalogVariable.cs" />
-    <Compile Include="DigitalVariable.cs" />
+    <Compile Include="Alarm\AlarmBase.cs" />
+    <Compile Include="Alarm\AlarmGroup.cs" />
+    <Compile Include="Alarm\AnalogAlarm.cs" />
+    <Compile Include="Alarm\DigitalAlarm.cs" />
+    <Compile Include="Variable\AnalogVariable.cs" />
+    <Compile Include="Variable\DigitalVariable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resource1.Designer.cs">
       <DependentUpon>Resource1.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="TextVariable.cs" />
-    <Compile Include="VariableBase.cs" />
-    <Compile Include="VariableGroup.cs" />
+    <Compile Include="Variable\TextVariable.cs" />
+    <Compile Include="Variable\VariableBase.cs" />
+    <Compile Include="Variable\VariableGroup.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resource1.resx">

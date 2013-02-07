@@ -34,6 +34,22 @@
             this.contextMenuStrip_TreeView = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ToolStripMenuItemRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.dataGridView_Avaiable = new System.Windows.Forms.DataGridView();
+            this.Column_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_VariableID = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_VarType = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.Column_VarValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_InitValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_MinValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_MaxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_DeadArea = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_OperateType = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.Column_IsValueSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Column_IsParamentSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Column_IsAddressable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Column_IsEventSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.Column_ProjectUnit = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Column_Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.contextMenuStrip_Variable = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.RemoveAvariableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CMS_CopyVariable = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,22 +77,6 @@
             this.同步数据ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.停止同步数据ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
-            this.Column_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_VariableID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_VarType = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.Column_VarValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_InitValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_MinValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_MaxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_DeadArea = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_OperateType = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.Column_IsValueSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_IsParamentSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_IsAddressable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_IsEventSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_ProjectUnit = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -101,8 +101,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView_Avaiable);
-            this.splitContainer1.Size = new System.Drawing.Size(1777, 559);
-            this.splitContainer1.SplitterDistance = 234;
+            this.splitContainer1.Size = new System.Drawing.Size(1360, 559);
+            this.splitContainer1.SplitterDistance = 179;
             this.splitContainer1.TabIndex = 0;
             // 
             // treeView_FunctionTest
@@ -111,7 +111,7 @@
             this.treeView_FunctionTest.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView_FunctionTest.Location = new System.Drawing.Point(0, 0);
             this.treeView_FunctionTest.Name = "treeView_FunctionTest";
-            this.treeView_FunctionTest.Size = new System.Drawing.Size(234, 559);
+            this.treeView_FunctionTest.Size = new System.Drawing.Size(179, 559);
             this.treeView_FunctionTest.TabIndex = 0;
             this.treeView_FunctionTest.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.TreeViewFunctionTestAfterLabelEdit);
             this.treeView_FunctionTest.Click += new System.EventHandler(this.TreeViewFunctionTestClick);
@@ -157,10 +157,113 @@
             this.dataGridView_Avaiable.Location = new System.Drawing.Point(0, 0);
             this.dataGridView_Avaiable.Name = "dataGridView_Avaiable";
             this.dataGridView_Avaiable.RowTemplate.Height = 23;
-            this.dataGridView_Avaiable.Size = new System.Drawing.Size(1539, 559);
+            this.dataGridView_Avaiable.Size = new System.Drawing.Size(1177, 559);
             this.dataGridView_Avaiable.TabIndex = 1;
             this.dataGridView_Avaiable.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewAvaiableCellValueChanged);
             this.dataGridView_Avaiable.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DataGridViewAvaiableMouseDown);
+            // 
+            // Column_Name
+            // 
+            this.Column_Name.HeaderText = "变量名";
+            this.Column_Name.Name = "Column_Name";
+            // 
+            // Column_VariableID
+            // 
+            this.Column_VariableID.HeaderText = "变量绝对路径";
+            this.Column_VariableID.Name = "Column_VariableID";
+            this.Column_VariableID.ReadOnly = true;
+            // 
+            // Column_VarType
+            // 
+            this.Column_VarType.HeaderText = "变量类型";
+            this.Column_VarType.Items.AddRange(new object[] {
+            "VarNormal",
+            "VarStruct",
+            "VarRef"});
+            this.Column_VarType.Name = "Column_VarType";
+            // 
+            // Column_VarValueType
+            // 
+            this.Column_VarValueType.HeaderText = "数据类型";
+            this.Column_VarValueType.Name = "Column_VarValueType";
+            this.Column_VarValueType.ReadOnly = true;
+            this.Column_VarValueType.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Column_VarValueType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // Column_InitValue
+            // 
+            this.Column_InitValue.HeaderText = "初始值";
+            this.Column_InitValue.Name = "Column_InitValue";
+            // 
+            // Column_MinValue
+            // 
+            this.Column_MinValue.HeaderText = "最小值";
+            this.Column_MinValue.Name = "Column_MinValue";
+            // 
+            // Column_MaxValue
+            // 
+            this.Column_MaxValue.HeaderText = "最大值";
+            this.Column_MaxValue.Name = "Column_MaxValue";
+            // 
+            // Column_Value
+            // 
+            this.Column_Value.HeaderText = "值";
+            this.Column_Value.Name = "Column_Value";
+            this.Column_Value.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // Column_DeadArea
+            // 
+            this.Column_DeadArea.HeaderText = "死区";
+            this.Column_DeadArea.Name = "Column_DeadArea";
+            // 
+            // Column_OperateType
+            // 
+            this.Column_OperateType.HeaderText = "操作类型";
+            this.Column_OperateType.Items.AddRange(new object[] {
+            "ReadWrite",
+            "ReadOnly",
+            "WriteOnly"});
+            this.Column_OperateType.Name = "Column_OperateType";
+            this.Column_OperateType.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Column_OperateType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // Column_IsValueSaved
+            // 
+            this.Column_IsValueSaved.HeaderText = "是否保存值";
+            this.Column_IsValueSaved.Name = "Column_IsValueSaved";
+            this.Column_IsValueSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Column_IsValueSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // Column_IsParamentSaved
+            // 
+            this.Column_IsParamentSaved.HeaderText = "是否保存参数";
+            this.Column_IsParamentSaved.Name = "Column_IsParamentSaved";
+            this.Column_IsParamentSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Column_IsParamentSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // Column_IsAddressable
+            // 
+            this.Column_IsAddressable.HeaderText = "是否可以访问";
+            this.Column_IsAddressable.Name = "Column_IsAddressable";
+            this.Column_IsAddressable.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Column_IsAddressable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // Column_IsEventSaved
+            // 
+            this.Column_IsEventSaved.HeaderText = "是否保存事件";
+            this.Column_IsEventSaved.Name = "Column_IsEventSaved";
+            this.Column_IsEventSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.Column_IsEventSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // Column_ProjectUnit
+            // 
+            this.Column_ProjectUnit.HeaderText = "工程单位";
+            this.Column_ProjectUnit.Name = "Column_ProjectUnit";
+            // 
+            // Column_Description
+            // 
+            this.Column_Description.HeaderText = "描述";
+            this.Column_Description.Name = "Column_Description";
             // 
             // contextMenuStrip_Variable
             // 
@@ -336,7 +439,7 @@
             this.停止同步数据ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1777, 27);
+            this.menuStrip1.Size = new System.Drawing.Size(1360, 27);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -373,114 +476,11 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
             // 
-            // Column_Name
-            // 
-            this.Column_Name.HeaderText = "变量名";
-            this.Column_Name.Name = "Column_Name";
-            // 
-            // Column_VariableID
-            // 
-            this.Column_VariableID.HeaderText = "变量绝对路径";
-            this.Column_VariableID.Name = "Column_VariableID";
-            this.Column_VariableID.ReadOnly = true;
-            // 
-            // Column_VarType
-            // 
-            this.Column_VarType.HeaderText = "变量类型";
-            this.Column_VarType.Items.AddRange(new object[] {
-            "VarNormal",
-            "VarStruct",
-            "VarRef"});
-            this.Column_VarType.Name = "Column_VarType";
-            // 
-            // Column_VarValueType
-            // 
-            this.Column_VarValueType.HeaderText = "数据类型";
-            this.Column_VarValueType.Name = "Column_VarValueType";
-            this.Column_VarValueType.ReadOnly = true;
-            this.Column_VarValueType.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_VarValueType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Column_InitValue
-            // 
-            this.Column_InitValue.HeaderText = "初始值";
-            this.Column_InitValue.Name = "Column_InitValue";
-            // 
-            // Column_MinValue
-            // 
-            this.Column_MinValue.HeaderText = "最小值";
-            this.Column_MinValue.Name = "Column_MinValue";
-            // 
-            // Column_MaxValue
-            // 
-            this.Column_MaxValue.HeaderText = "最大值";
-            this.Column_MaxValue.Name = "Column_MaxValue";
-            // 
-            // Column_Value
-            // 
-            this.Column_Value.HeaderText = "值";
-            this.Column_Value.Name = "Column_Value";
-            this.Column_Value.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // Column_DeadArea
-            // 
-            this.Column_DeadArea.HeaderText = "死区";
-            this.Column_DeadArea.Name = "Column_DeadArea";
-            // 
-            // Column_OperateType
-            // 
-            this.Column_OperateType.HeaderText = "操作类型";
-            this.Column_OperateType.Items.AddRange(new object[] {
-            "ReadWrite",
-            "ReadOnly",
-            "WriteOnly"});
-            this.Column_OperateType.Name = "Column_OperateType";
-            this.Column_OperateType.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_OperateType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsValueSaved
-            // 
-            this.Column_IsValueSaved.HeaderText = "是否保存值";
-            this.Column_IsValueSaved.Name = "Column_IsValueSaved";
-            this.Column_IsValueSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsValueSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsParamentSaved
-            // 
-            this.Column_IsParamentSaved.HeaderText = "是否保存参数";
-            this.Column_IsParamentSaved.Name = "Column_IsParamentSaved";
-            this.Column_IsParamentSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsParamentSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsAddressable
-            // 
-            this.Column_IsAddressable.HeaderText = "是否可以访问";
-            this.Column_IsAddressable.Name = "Column_IsAddressable";
-            this.Column_IsAddressable.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsAddressable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsEventSaved
-            // 
-            this.Column_IsEventSaved.HeaderText = "是否保存事件";
-            this.Column_IsEventSaved.Name = "Column_IsEventSaved";
-            this.Column_IsEventSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsEventSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_ProjectUnit
-            // 
-            this.Column_ProjectUnit.HeaderText = "工程单位";
-            this.Column_ProjectUnit.Name = "Column_ProjectUnit";
-            // 
-            // Column_Description
-            // 
-            this.Column_Description.HeaderText = "描述";
-            this.Column_Description.Name = "Column_Description";
-            // 
             // FunctionTestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1777, 586);
+            this.ClientSize = new System.Drawing.Size(1360, 586);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;

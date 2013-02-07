@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
-using SCADA.RTDB.VariableModel;
+using SCADA.RTDB.Core.Variable;
 
 namespace SCADA.RTDB.Common
 {
-    public interface IVariableRepository
+    /// <summary>
+    /// 变量仓储公共接口
+    /// </summary>
+    public interface IVariableRepository 
     {
         /// <summary>
         /// 根据组Id提供的路径信息，遍历树查找组节点

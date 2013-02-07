@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SCADA.RTDB.VariableModel
+namespace SCADA.RTDB.Core.Variable
 {
+    /// <summary>
+    /// 变量分组
+    /// </summary>
+    [Serializable]
     public sealed class VariableGroup
     {
         #region 私有字段
@@ -40,7 +44,6 @@ namespace SCADA.RTDB.VariableModel
         /// </summary>
         public string AbsolutePath
         {
-            //get { return ParentGroup != null ? ParentGroup.absolutePath + "." + Name : Name; } //带根节点
             get //不带根节点
             {
                 if (Parent == null)
@@ -96,6 +99,9 @@ namespace SCADA.RTDB.VariableModel
 
         #region 构造函数
 
+        /// <summary>
+        /// 默认构造函数
+        /// </summary>
         public VariableGroup()
         {
             

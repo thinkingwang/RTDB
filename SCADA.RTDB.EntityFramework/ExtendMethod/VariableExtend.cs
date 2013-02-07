@@ -1,109 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using SCADA.RTDB.VariableModel;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
+using SCADA.RTDB.Core.Variable;
 
-namespace SCADA.RTDB.EntityFramework
+namespace SCADA.RTDB.EntityFramework.ExtendMethod
 {
+    /// <summary>
+    /// 变量扩展方法
+    /// </summary>
     public static class VariableExtend
     {
-        /// <summary>
-        /// 创建变量，变量基类扩展方法
-        /// </summary>
-        /// <param name="variable">变量基类</param>
-        /// <param name="variableGroup">新建变量的变量组</param>
-        /// <returns>返回新建的变量，失败则返回null</returns>
-        public static VariableBase CreatVariable(this VariableBase variable, VariableGroup variableGroup)
-        {
-            switch (variable.ValueType)
-            {
-                case VarValuetype.VarBool:
-                    return new DigitalVariable(variableGroup);
-                case VarValuetype.VarDouble:
-                    return new AnalogVariable(variableGroup);
-                case VarValuetype.VarString:
-                    return new TextVariable(variableGroup);
-                default:
-                    return null;
-            }
-        }
-
-        /// <summary>
-        /// 获取变量初始值，变量基类扩展方法
-        /// </summary>
-        /// <param name="variable">变量基类</param>
-        /// <returns>返回变量初始值，获取失败则返回null</returns>
-        public static object GetInitValue(this VariableBase variable)
-        {
-            switch (variable.ValueType)
-            {
-                case VarValuetype.VarBool:
-                    return ((DigitalVariable)variable).InitValue;
-                case VarValuetype.VarDouble:
-                    return ((AnalogVariable) variable).InitValue;
-                case VarValuetype.VarString:
-                    return ((TextVariable)variable).InitValue;
-                default:
-                    return null;
-            }
-        }
-
-        /// <summary>
-        /// 获取变量值，变量基类扩展方法
-        /// </summary>
-        /// <param name="variable">变量基类</param>
-        /// <returns>返回变量值，获取失败则返回null</returns>
-        public static object GetValue(this VariableBase variable)
-        {
-            switch (variable.ValueType)
-            {
-                case VarValuetype.VarBool:
-                    return ((DigitalVariable)variable).Value;
-                case VarValuetype.VarDouble:
-                    return ((AnalogVariable)variable).Value;
-                case VarValuetype.VarString:
-                    return ((TextVariable)variable).Value;
-                default:
-                    return null;
-            }
-        }
-
-        /// <summary>
-        /// 设置变量值
-        /// </summary>
-        /// <param name="variable">变量</param>
-        /// <param name="value">变量值</param>
-        /// <returns>设置成功返回ture，失败返回false，失败原因为数据类型不匹配</returns>
-        public static bool SetValue(this VariableBase variable, object value)
-        {
-            try
-            {
-                //变量为只读时，不允许写入
-                if (variable.OperateProperty == VarOperateProperty.ReadOnly)
-                {
-                    return true;
-                }
-                switch (variable.ValueType)
-                {
-                    case VarValuetype.VarBool:
-                        ((DigitalVariable)variable).Value = Convert.ToBoolean(value);
-                        break;
-                    case VarValuetype.VarDouble:
-                        ((AnalogVariable)variable).Value = Convert.ToDouble(value);
-                        break;
-                    case VarValuetype.VarString:
-                        ((TextVariable)variable).Value = Convert.ToString(value);
-                        break;
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-            
-        }
-
         /// <summary>
         /// 获取变量属性字符串列表，变量基类扩展方法
         /// 列表顺序：
@@ -186,7 +95,7 @@ namespace SCADA.RTDB.EntityFramework
         /// <param name="variable">变量</param>
         /// <param name="str">修改后的属性列表</param>
         /// <returns>修改成功返回true，修改失败返回false</returns>
-        public static bool EditVariable(this VariableBase variable, List<string> str)
+        internal static bool EditVariable(this VariableBase variable, List<string> str)
         {
             switch (variable.ValueType)
             {
@@ -256,10 +165,45 @@ namespace SCADA.RTDB.EntityFramework
         /// <param name="variable">变量</param>
         /// <param name="newVariable">修改后的变量属性</param>
         /// <returns>修改成功返回true，修改失败返回false</returns>
-        public static bool EditVariable(this VariableBase variable, VariableBase newVariable)
+        internal static bool EditVariable(this VariableBase variable, VariableBase newVariable)
         {
             return variable.EditVariable(newVariable.VariableToStrings());
         }
 
+    }
+
+    /// <summary>
+    /// 对象深拷贝
+    /// </summary>
+    public static class ObjectCopier
+    {
+        /// <summary>
+        /// Perform a deep Copy of the object.
+        /// </summary>
+        /// <typeparam name="T">The type of object being copied.</typeparam>
+        /// <param name="source">The object instance to copy.</param>
+        /// <returns>The copied object.</returns>
+        public static T Clone<T>(T source)
+        {
+            if (!typeof(T).IsSerializable)
+            {
+                throw new ArgumentException(@"The type must be serializable.", "source");
+            }
+
+            // Don't serialize a null object, simply return the default for that object
+            if (ReferenceEquals(source, null))
+            {
+                return default(T);
+            }
+
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new MemoryStream();
+            using (stream)
+            {
+                formatter.Serialize(stream, source);
+                stream.Seek(0, SeekOrigin.Begin);
+                return (T)formatter.Deserialize(stream);
+            }
+        }
     }
 }

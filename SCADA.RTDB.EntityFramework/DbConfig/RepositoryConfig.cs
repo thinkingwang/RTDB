@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace SCADA.RTDB.EntityFramework
+﻿namespace SCADA.RTDB.EntityFramework.DbConfig
 {
     /// <summary>
     /// 变量仓储模型
     /// </summary>
     public enum VariableRepositoryMode
     {
+        /// <summary>
+        /// 数据库存储模型
+        /// </summary>
         EntityFrameworkMode,
+        /// <summary>
+        /// XML存储模型
+        /// </summary>
         XmlMode
     }
 
@@ -19,15 +20,24 @@ namespace SCADA.RTDB.EntityFramework
     /// </summary>
     public enum DataBaseType
     {
+        /// <summary>
+        /// Compact
+        /// </summary>
         SqlCeConnectionFactory,
+        /// <summary>
+        /// sql
+        /// </summary>
         SqlConnectionFactory,
+        /// <summary>
+        /// local db
+        /// </summary>
         LocalDbConnectionFactory
     }
 
     /// <summary>
     /// 变量仓储配置信息类
     /// </summary>
-    public class VariableRepositoryConfig
+    public class RepositoryConfig
     {
         /// <summary>
         /// 数据库类型
@@ -54,8 +64,10 @@ namespace SCADA.RTDB.EntityFramework
         /// </summary>
         public VariableRepositoryMode RepositoryMode { get; set; }
 
-
-        public VariableRepositoryConfig()
+        /// <summary>
+        /// 默认构造函数
+        /// </summary>
+        public RepositoryConfig()
         {
             DbNameOrConnectingString = "VariableDataBase";
             RepositoryMode = VariableRepositoryMode.EntityFrameworkMode;
@@ -63,7 +75,15 @@ namespace SCADA.RTDB.EntityFramework
             DbType = DataBaseType.SqlCeConnectionFactory;
         }
 
-        public VariableRepositoryConfig(string dbNameOrConnectingString, VariableRepositoryMode variableRepositoryMode,
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="dbNameOrConnectingString">变量仓储数据库连接字符串</param>
+        /// <param name="variableRepositoryMode">变量存储方式（XML或EF）</param>
+        /// <param name="dbType">变量仓储数据库类型</param>
+        /// <param name="localDbVersion">本地数据库版本信息</param>
+        /// <param name="providerInvariantName">Compact有效信息名称</param>
+        public RepositoryConfig(string dbNameOrConnectingString, VariableRepositoryMode variableRepositoryMode,
                                         DataBaseType dbType, string localDbVersion,
                                         string providerInvariantName = "System.Data.SqlServerCe.4.0")
         {

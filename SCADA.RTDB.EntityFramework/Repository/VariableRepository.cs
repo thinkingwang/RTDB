@@ -2,34 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using SCADA.RTDB.Common;
-using SCADA.RTDB.VariableModel;
+using SCADA.RTDB.Core.Variable;
+using SCADA.RTDB.EntityFramework.Context;
+using SCADA.RTDB.EntityFramework.DbConfig;
+using SCADA.RTDB.EntityFramework.ExtendMethod;
 
-namespace SCADA.RTDB.EntityFramework
+namespace SCADA.RTDB.EntityFramework.Repository
 {
-    public class VariableRepositoryBase : IVariableRepository
+    /// <summary>
+    /// 变量仓储基类
+    /// </summary>
+    public class VariableRepository : RealTimeRepositoryBase, IVariableRepository
     {
-        protected static VariableContext VariableDbContext { get; private set; }
-        
         #region 构造函数
-
         /// <summary>
         /// 构造函数
         /// </summary>
-        /// <param name="variableRepositoryConfig">变量仓储配置信息类</param>
-        protected VariableRepositoryBase(VariableRepositoryConfig variableRepositoryConfig)
+        /// <param name="repositoryConfig">仓储配置信息类</param>
+        protected VariableRepository(RepositoryConfig repositoryConfig)
+            : base(new RealTimeDbContext(repositoryConfig ?? new RepositoryConfig()))
         {
-            //实体存在不需要再次创建，直接返回
-            if (VariableDbContext != null)
-            {
-                return;
-            }
-
-            if (variableRepositoryConfig == null)
-            {
-                variableRepositoryConfig = new VariableRepositoryConfig();
-            }
-
-            VariableDbContext = new VariableContext(variableRepositoryConfig);
         }
 
         #endregion
@@ -159,15 +151,16 @@ namespace SCADA.RTDB.EntityFramework
                 throw new Exception(Resource1.VariableRepository_PasteGroup_SourceGroupContainDesGroup);
             }
             VariableGroup source = FindGroupByPath(groupAbsolutePath);
+            if (source == null)
+            {
+                throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
+            }
             //根组不能复制
             if (source.Parent == null)
             {
                 throw new Exception("需要粘贴的组为根组，不能粘贴");
             }
-            if (source == null)
-            {
-                throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
-            }
+            
             VariableGroup desGroup = FindGroupByPath(desAbsolutePath);
             if (desGroup == null)
             {
@@ -193,16 +186,17 @@ namespace SCADA.RTDB.EntityFramework
         public virtual string PasteGroup(VariableGroup source, string absolutePath, bool isCopy,
                                   uint pasteMode = 0)
         {
-            //根组不能复制
-            if (source.Parent == null)
-            {
-                throw new Exception("需要粘贴的组为根组，不能粘贴");
-            }
             if (source == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
             }
 
+            //根组不能复制
+            if (source.Parent == null)
+            {
+                throw new Exception("需要粘贴的组为根组，不能粘贴");
+            }
+           
             //目标组是源文件的子文件组，不允许粘贴
             if ((source.AbsolutePath == null) || (absolutePath != null && absolutePath.Contains(source.AbsolutePath)))
             {
@@ -474,8 +468,8 @@ namespace SCADA.RTDB.EntityFramework
                 }
                 if (isCopy)
                 {
-                    VariableBase var = source.CreatVariable(desGroup);
-                    var.EditVariable(source);
+                    VariableBase var = ObjectCopier.Clone(source);
+                    var.ParentGroup = desGroup;
 
                     if (pasteMode == 2) //同时保留两个
                     {
@@ -504,7 +498,7 @@ namespace SCADA.RTDB.EntityFramework
         /// </summary>
         public virtual void ExitWithSaving()
         {
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
         }
 
         /// <summary>

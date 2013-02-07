@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
-using System.Reflection;
+using SCADA.RTDB.Core.Alarm;
+using SCADA.RTDB.Core.Variable;
+using SCADA.RTDB.EntityFramework.DbConfig;
 using SCADA.RTDB.StorageModel;
-using SCADA.RTDB.VariableModel;
 
-namespace SCADA.RTDB.EntityFramework
+namespace SCADA.RTDB.EntityFramework.Context
 {
-    public class VariableContext : DbContext, IConvention
+    /// <summary>
+    /// 实时数据的实体集合
+    /// </summary>
+    public class RealTimeDbContext : DbContext, IConvention
     {
         #region 变量集合和组集合
 
@@ -34,6 +36,16 @@ namespace SCADA.RTDB.EntityFramework
         /// </summary>
         public IDbSet<TextVariableStorage> TextSet { get; set; }
 
+        /// <summary>
+        /// 变量组集合
+        /// </summary>
+        public IDbSet<AlarmGroup> AlarmGroupSet { get; set; }
+
+        /// <summary>
+        /// 变量报警集合
+        /// </summary>
+        public IDbSet<AlarmBase> AlarmSet { get; set; }
+
 
         #endregion
 
@@ -43,7 +55,7 @@ namespace SCADA.RTDB.EntityFramework
         /// 变量实体集构造函数
         /// </summary>
         /// <param name="variableRepositoryConfig">变量仓储配置信息类</param>
-        public VariableContext(VariableRepositoryConfig variableRepositoryConfig)
+        internal RealTimeDbContext(RepositoryConfig variableRepositoryConfig)
             : base(variableRepositoryConfig.DbNameOrConnectingString)
         {
             switch (variableRepositoryConfig.DbType)
@@ -61,14 +73,12 @@ namespace SCADA.RTDB.EntityFramework
                     break;
             }
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<VariableContext>());
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<RealTimeDbContext>());
 
             VariableGroupStorage rootGroup = VariableGroupSet.FirstOrDefault(root => root.ParentId == null);
             if (rootGroup == null)
             {
-                rootGroup = new VariableGroupStorage();
-                rootGroup.Name = VariableGroup.RootGroup.Name;
-                rootGroup.ParentId = null;
+                rootGroup = new VariableGroupStorage {Name = VariableGroup.RootGroup.Name, ParentId = null};
                 VariableGroupSet.Add(rootGroup);
                 base.SaveChanges();
             }
@@ -77,22 +87,23 @@ namespace SCADA.RTDB.EntityFramework
 
         #endregion
 
-        #region 加载数据库资料到set集合
-
-
-        #endregion
-
         #region 保存set集合到数据库
 
         /// <summary>
         /// 保存集合更改
         /// </summary>
-        public void SaveAllChanges()
+        internal void SaveAllChanges()
         {
             base.SaveChanges();
         }
         
         #endregion
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AlarmBase>().Ignore(m=>m.Variable);
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }
 

@@ -1,5 +1,5 @@
-﻿using SCADA.RTDB.SimulationDeviceBase;
-using SCADA.RTDB.VariableModel;
+﻿using SCADA.RTDB.Core.Variable;
+using SCADA.RTDB.SimulationDeviceBase;
 
 namespace SCADA.RTDB.Adaptation
 {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using SCADA.RTDB.Core.Variable;
 using SCADA.RTDB.SimulationDeviceBase;
-using SCADA.RTDB.VariableModel;
 using System.Threading;
 using System.Data.Entity.ModelConfiguration.Conventions;
 

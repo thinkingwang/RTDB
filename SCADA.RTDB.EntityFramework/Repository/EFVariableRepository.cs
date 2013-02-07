@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using SCADA.RTDB.Core.Variable;
+using SCADA.RTDB.EntityFramework.DbConfig;
 using SCADA.RTDB.StorageModel;
-using SCADA.RTDB.VariableModel;
 
-namespace SCADA.RTDB.EntityFramework
+namespace SCADA.RTDB.EntityFramework.Repository
 {
-    public class EfVariableRepository : VariableRepositoryBase
+    /// <summary>
+    /// entityFrameWork仓储
+    /// </summary>
+    public class EfVariableRepository : VariableRepository
     {
         private readonly Dictionary<string, VariableGroupStorage> _groupStorages = new Dictionary<string, VariableGroupStorage>();
         private readonly Dictionary<string, VariableBaseStorage> _variableBaseStorages = new Dictionary<string, VariableBaseStorage>();
@@ -18,9 +22,10 @@ namespace SCADA.RTDB.EntityFramework
         /// 构造函数
         /// </summary>
         /// <param name="variableRepositoryConfig">变量仓储配置信息类</param>
-        public EfVariableRepository(VariableRepositoryConfig variableRepositoryConfig):base(variableRepositoryConfig)
+        public EfVariableRepository(RepositoryConfig variableRepositoryConfig)
+            : base(variableRepositoryConfig)
         {
-            
+
         }
 
         #endregion
@@ -36,9 +41,9 @@ namespace SCADA.RTDB.EntityFramework
             VariableGroup variableGroup = base.AddGroup(name, absolutePath);
             var variableGroupStoage = new VariableGroupStorage();
             variableGroupStoage.CopyProperty(variableGroup, _groupStorages[absolutePath].VariableGroupStorageId);
-            VariableDbContext.VariableGroupSet.Add(variableGroupStoage);
+            RtDbContext.VariableGroupSet.Add(variableGroupStoage);
             _groupStorages.Add(variableGroup.AbsolutePath, variableGroupStoage);
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
             return variableGroup;
         }
 
@@ -49,9 +54,16 @@ namespace SCADA.RTDB.EntityFramework
         public override void RemoveGroup(string absolutePath)
         {
             base.RemoveGroup(absolutePath);
-            VariableDbContext.VariableGroupSet.Remove(_groupStorages[absolutePath]);
-            _groupStorages.Remove(absolutePath);
-            VariableDbContext.SaveAllChanges();
+            
+            //移除所有包含组路径的项
+            var removeKeys = _groupStorages.Keys.Where(p => p.StartsWith(absolutePath)).ToArray();
+            foreach (var removeKey in removeKeys)
+            {
+                RtDbContext.VariableGroupSet.Remove(_groupStorages[removeKey]);
+                _groupStorages.Remove(removeKey);
+            }
+           
+            RtDbContext.SaveAllChanges();
         }
         
         /// <summary>
@@ -63,9 +75,22 @@ namespace SCADA.RTDB.EntityFramework
         {
             VariableGroup variableGroup = base.RenameGroup(name, absolutePath);
             _groupStorages[absolutePath].Name = name;
-            _groupStorages.Add(variableGroup.AbsolutePath, _groupStorages[absolutePath]);
-            _groupStorages.Remove(absolutePath);
-            VariableDbContext.SaveAllChanges();
+            //修改变量组字典的所有键值
+            var removeKeys = _groupStorages.Keys.Where(p => p.StartsWith(absolutePath)).ToArray();
+            foreach (var removeKey in removeKeys)
+            {
+                _groupStorages.Add(variableGroup.AbsolutePath + removeKey.Substring(absolutePath.Length), _groupStorages[removeKey]);
+                _groupStorages.Remove(removeKey);
+            }
+
+            //修改变量字典的所有键值
+            removeKeys = _variableBaseStorages.Keys.Where(p => p.StartsWith(absolutePath)).ToArray();
+            foreach (var removeKey in removeKeys)
+            {
+                _variableBaseStorages.Add(variableGroup.AbsolutePath + removeKey.Substring(absolutePath.Length), _variableBaseStorages[removeKey]);
+                _variableBaseStorages.Remove(removeKey);
+            }
+            RtDbContext.SaveAllChanges();
             return variableGroup;
         }
 
@@ -83,16 +108,28 @@ namespace SCADA.RTDB.EntityFramework
             }
             VariableGroup source = FindGroupByPath(groupAbsolutePath);
             VariableGroup desGroup = FindGroupByPath(desAbsolutePath);
-            VariableGroupStorage variableGroupStorage = _groupStorages[groupAbsolutePath];
 
             source.Parent.ChildGroups.Remove(source);
             source.Parent = desGroup;
             desGroup.ChildGroups.Add(source);
 
-            _groupStorages.Remove(groupAbsolutePath);
-            _groupStorages.Add(source.AbsolutePath, variableGroupStorage);
+            //修改变量组字典的所有键值
+            var removeKeys = _groupStorages.Keys.Where(p => p.StartsWith(groupAbsolutePath)).ToArray();
+            foreach (var removeKey in removeKeys)
+            {
+                _groupStorages.Add(source.AbsolutePath + removeKey.Substring(groupAbsolutePath.Length), _groupStorages[removeKey]);
+                _groupStorages.Remove(removeKey);
+            }
+
+            //修改变量字典的所有键值
+            removeKeys = _variableBaseStorages.Keys.Where(p => p.StartsWith(groupAbsolutePath)).ToArray();
+            foreach (var removeKey in removeKeys)
+            {
+                _variableBaseStorages.Add(source.AbsolutePath + removeKey.Substring(groupAbsolutePath.Length), _variableBaseStorages[removeKey]);
+                _variableBaseStorages.Remove(removeKey);
+            }
             _groupStorages[source.AbsolutePath].ParentId = _groupStorages[desAbsolutePath].VariableGroupStorageId;
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
             return true;
         }
         #endregion
@@ -114,7 +151,7 @@ namespace SCADA.RTDB.EntityFramework
                     variableBaseStorage.PullCopyProperty(variableBase,
                                                          _groupStorages[variableBase.ParentGroup.AbsolutePath]
                                                              .VariableGroupStorageId);
-                    VariableDbContext.DigitalSet.Add((DigitalVariableStorage)variableBaseStorage);
+                    RtDbContext.DigitalSet.Add((DigitalVariableStorage)variableBaseStorage);
                     
                     break;
                     case VarValuetype.VarDouble:
@@ -122,18 +159,18 @@ namespace SCADA.RTDB.EntityFramework
                     variableBaseStorage.PullCopyProperty(variableBase,
                                                          _groupStorages[variableBase.ParentGroup.AbsolutePath]
                                                              .VariableGroupStorageId);
-                    VariableDbContext.AnalogSet.Add((AnalogVariableStorage)variableBaseStorage);
+                    RtDbContext.AnalogSet.Add((AnalogVariableStorage)variableBaseStorage);
                     break;
                     case VarValuetype.VarString:
                     variableBaseStorage = new TextVariableStorage(true);
                     variableBaseStorage.PullCopyProperty(variableBase,
                                                          _groupStorages[variableBase.ParentGroup.AbsolutePath]
                                                              .VariableGroupStorageId);
-                    VariableDbContext.TextSet.Add((TextVariableStorage)variableBaseStorage);
+                    RtDbContext.TextSet.Add((TextVariableStorage)variableBaseStorage);
                     break;
             }
             _variableBaseStorages.Add(variableBase.AbsolutePath, variableBaseStorage);
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
             return variableBase;
         }
 
@@ -152,7 +189,7 @@ namespace SCADA.RTDB.EntityFramework
                                                             .VariableGroupStorageId);
             _variableBaseStorages.Remove(variable.AbsolutePath);
             _variableBaseStorages.Add(variableBase.AbsolutePath, variableBaseStorage);
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
             return variableBase;
         }
 
@@ -171,7 +208,7 @@ namespace SCADA.RTDB.EntityFramework
                                                             .VariableGroupStorageId);
             _variableBaseStorages.Remove(variable.AbsolutePath);
             _variableBaseStorages.Add(variableBase.AbsolutePath, variableBaseStorage);
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
             return variableBase;
         }
 
@@ -198,18 +235,18 @@ namespace SCADA.RTDB.EntityFramework
             switch (variableBaseStorage.ValueType)
             {
                 case (int)VarValuetype.VarBool:
-                    VariableDbContext.DigitalSet.Remove((DigitalVariableStorage)variableBaseStorage);
+                    RtDbContext.DigitalSet.Remove((DigitalVariableStorage)variableBaseStorage);
 
                     break;
                 case (int)VarValuetype.VarDouble:
-                    VariableDbContext.AnalogSet.Remove((AnalogVariableStorage)variableBaseStorage);
+                    RtDbContext.AnalogSet.Remove((AnalogVariableStorage)variableBaseStorage);
                     break;
                 case (int)VarValuetype.VarString:
-                    VariableDbContext.TextSet.Remove((TextVariableStorage)variableBaseStorage);
+                    RtDbContext.TextSet.Remove((TextVariableStorage)variableBaseStorage);
                     break;
             }
             _variableBaseStorages.Remove(curVariable.AbsolutePath);
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
         }
         
         #endregion
@@ -243,7 +280,7 @@ namespace SCADA.RTDB.EntityFramework
                         break;
                 }
             }
-            VariableDbContext.SaveAllChanges();
+            RtDbContext.SaveAllChanges();
         }
 
         
@@ -253,14 +290,15 @@ namespace SCADA.RTDB.EntityFramework
         public override void Load()
         {
             //遍历数据库变量组数据到set集合
-            VariableDbContext.VariableGroupSet.Load();
-            VariableDbContext.DigitalSet.Load();
-            VariableDbContext.AnalogSet.Load();
-            VariableDbContext.TextSet.Load();
+            RtDbContext.VariableGroupSet.Load();
+            RtDbContext.DigitalSet.Load();
+            RtDbContext.AnalogSet.Load();
+            RtDbContext.TextSet.Load();
+            //RtDbContext.AlarmSet.Load();
 
             //同步组
             VariableGroupStorage rootGroup =
-                VariableDbContext.VariableGroupSet.FirstOrDefault(root => root.ParentId == null);
+                RtDbContext.VariableGroupSet.FirstOrDefault(root => root.ParentId == null);
 
             if (rootGroup != null)
             {
@@ -269,11 +307,11 @@ namespace SCADA.RTDB.EntityFramework
                 _groupStorages.Add(VariableGroup.RootGroup.AbsolutePath, rootGroup);
             }
             LoadVariable(VariableGroup.RootGroup, rootGroup);
+           
         }
 
         #endregion
-
-
+        
         /// <summary>
         /// 数据库加载组信息以及变量信息
         /// </summary>
@@ -283,7 +321,7 @@ namespace SCADA.RTDB.EntityFramework
         {
             #region 加载变量
 
-            var analogVariables = VariableDbContext.AnalogSet.Local.ToList()
+            var analogVariables = RtDbContext.AnalogSet.Local.ToList()
                                                    .FindAll(m => m.ParentId == parentGroupStorage.VariableGroupStorageId);
             //同步变量集合
             foreach (var variableStorage in analogVariables)
@@ -293,7 +331,7 @@ namespace SCADA.RTDB.EntityFramework
                 variablegroup.ChildVariables.Add(variable);
                 _variableBaseStorages.Add(variable.AbsolutePath, variableStorage);
             }
-            var digitalVariables = VariableDbContext.DigitalSet.Local.ToList()
+            var digitalVariables = RtDbContext.DigitalSet.Local.ToList()
                                                    .FindAll(m => m.ParentId == parentGroupStorage.VariableGroupStorageId);
             foreach (var variableStorage in digitalVariables)
             {
@@ -302,7 +340,7 @@ namespace SCADA.RTDB.EntityFramework
                 variablegroup.ChildVariables.Add(variable);
                 _variableBaseStorages.Add(variable.AbsolutePath, variableStorage);
             }
-            var textVariables = VariableDbContext.TextSet.Local.ToList()
+            var textVariables = RtDbContext.TextSet.Local.ToList()
                                                    .FindAll(m => m.ParentId == parentGroupStorage.VariableGroupStorageId);
             foreach (var variableStorage in textVariables)
             {
@@ -315,11 +353,11 @@ namespace SCADA.RTDB.EntityFramework
             //对变量进行排序
             variablegroup.ChildVariables.Sort(
                 (x, y) =>
-                _variableBaseStorages[x.AbsolutePath].OrderId.CompareTo(_variableBaseStorages[y.AbsolutePath].OrderId));
+                _variableBaseStorages[x.AbsolutePath].UniqueId.CompareTo(_variableBaseStorages[y.AbsolutePath].UniqueId));
 
             #endregion
 
-            var groupStorages = VariableDbContext.VariableGroupSet.Local.ToList()
+            var groupStorages = RtDbContext.VariableGroupSet.Local.ToList()
                                                  .FindAll(m => m.ParentId == parentGroupStorage.VariableGroupStorageId);
             //同步子组
             foreach (var groupStorage in groupStorages)
@@ -330,6 +368,6 @@ namespace SCADA.RTDB.EntityFramework
                 LoadVariable(element, groupStorage);
             }
         }
-        
+
     }
 }
