@@ -36,8 +36,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IAlarmRepository.cs" />
-    <Compile Include="IVariableRepository.cs" />
+    <Compile Include="Design\IAlarmDesignRepository.cs" />
+    <Compile Include="Design\IVariableDesignRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -45,6 +45,9 @@
       <Project>{DF863521-F414-45FA-AD64-F9D89EB46C3F}</Project>
       <Name>SCADA.RTDB.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Runtime\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

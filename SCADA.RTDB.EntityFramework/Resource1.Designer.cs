@@ -61,6 +61,15 @@ namespace SCADA.RTDB.EntityFramework {
         }
         
         /// <summary>
+        ///   查找类似 变量报警为空 的本地化字符串。
+        /// </summary>
+        internal static string AlarmRepository_AddAlarm_alarm {
+            get {
+                return ResourceManager.GetString("AlarmRepository_AddAlarm_alarm", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   查找类似 组名称已存在，不能重复加载 的本地化字符串。
         /// </summary>
         internal static string CVariableGroup_AddGroup_GroupeNameIsExist {

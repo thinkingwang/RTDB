@@ -1,4 +1,6 @@
-﻿namespace SCADA.RTDB.Repository.Test
+﻿using System.Windows.Forms;
+
+namespace SCADA.RTDB.Repository.Test
 {
     partial class FunctionTestForm
     {
@@ -29,9 +31,10 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView_FunctionTest = new System.Windows.Forms.TreeView();
-            this.contextMenuStrip_TreeView = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.Cms_TreeView = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ToolStripMenuItemRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.dataGridView_Avaiable = new System.Windows.Forms.DataGridView();
             this.Column_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -50,7 +53,7 @@
             this.Column_IsEventSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.Column_ProjectUnit = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Column_Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.contextMenuStrip_Variable = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.Cms_VariableControl = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.RemoveAvariableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CMS_CopyVariable = new System.Windows.Forms.ToolStripMenuItem();
             this.CMS_CutVariable = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,7 +61,7 @@
             this.关联设备ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.取消关联设备ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.刷新数据ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.contextMenuStrip_TreeViewSub = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.Cms_VariableGroup = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ToolStripMenuItemCreateGroup = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemDeleteGroup = new System.Windows.Forms.ToolStripMenuItem();
             this.ToolStripMenuItemCreateVariable = new System.Windows.Forms.ToolStripMenuItem();
@@ -77,15 +80,31 @@
             this.同步数据ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.停止同步数据ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.alarm_name = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.alram_variable = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.alarm_config = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.alarm_Level = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.alarm_Group = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.alarm_description = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.alarmGroup_description = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.alarmGroup_name = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Cms_AlarmControl = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.新建报警ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.删除报警ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.Cms_AlarmGroupControl = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.新建报警组ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.删除报警组ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.contextMenuStrip_TreeView.SuspendLayout();
+            this.Cms_TreeView.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Avaiable)).BeginInit();
-            this.contextMenuStrip_Variable.SuspendLayout();
-            this.contextMenuStrip_TreeViewSub.SuspendLayout();
+            this.Cms_VariableControl.SuspendLayout();
+            this.Cms_VariableGroup.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.Cms_AlarmControl.SuspendLayout();
+            this.Cms_AlarmGroupControl.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -101,33 +120,32 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView_Avaiable);
-            this.splitContainer1.Size = new System.Drawing.Size(1360, 559);
-            this.splitContainer1.SplitterDistance = 179;
+            this.splitContainer1.Size = new System.Drawing.Size(1227, 559);
+            this.splitContainer1.SplitterDistance = 161;
             this.splitContainer1.TabIndex = 0;
             // 
             // treeView_FunctionTest
             // 
-            this.treeView_FunctionTest.ContextMenuStrip = this.contextMenuStrip_TreeView;
+            this.treeView_FunctionTest.ContextMenuStrip = this.Cms_TreeView;
             this.treeView_FunctionTest.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeView_FunctionTest.Location = new System.Drawing.Point(0, 0);
             this.treeView_FunctionTest.Name = "treeView_FunctionTest";
-            this.treeView_FunctionTest.Size = new System.Drawing.Size(179, 559);
+            this.treeView_FunctionTest.Size = new System.Drawing.Size(161, 559);
             this.treeView_FunctionTest.TabIndex = 0;
             this.treeView_FunctionTest.AfterLabelEdit += new System.Windows.Forms.NodeLabelEditEventHandler(this.TreeViewFunctionTestAfterLabelEdit);
-            this.treeView_FunctionTest.Click += new System.EventHandler(this.TreeViewFunctionTestClick);
             this.treeView_FunctionTest.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TreeViewFunctionTestMouseDown);
             // 
-            // contextMenuStrip_TreeView
+            // Cms_TreeView
             // 
-            this.contextMenuStrip_TreeView.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Cms_TreeView.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ToolStripMenuItemRefresh});
-            this.contextMenuStrip_TreeView.Name = "contextMenuStrip_TreeView";
-            this.contextMenuStrip_TreeView.Size = new System.Drawing.Size(101, 26);
+            this.Cms_TreeView.Name = "contextMenuStrip_TreeView";
+            this.Cms_TreeView.Size = new System.Drawing.Size(101, 26);
             // 
             // ToolStripMenuItemRefresh
             // 
             this.ToolStripMenuItemRefresh.Name = "ToolStripMenuItemRefresh";
-            this.ToolStripMenuItemRefresh.Size = new System.Drawing.Size(100, 22);
+            this.ToolStripMenuItemRefresh.Size = new System.Drawing.Size(152, 22);
             this.ToolStripMenuItemRefresh.Text = "刷新";
             this.ToolStripMenuItemRefresh.Click += new System.EventHandler(this.ToolStripMenuItemRefreshClick);
             // 
@@ -135,6 +153,14 @@
             // 
             this.dataGridView_Avaiable.AllowUserToAddRows = false;
             this.dataGridView_Avaiable.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_Avaiable.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dataGridView_Avaiable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView_Avaiable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Column_Name,
@@ -157,8 +183,10 @@
             this.dataGridView_Avaiable.Location = new System.Drawing.Point(0, 0);
             this.dataGridView_Avaiable.Name = "dataGridView_Avaiable";
             this.dataGridView_Avaiable.RowTemplate.Height = 23;
-            this.dataGridView_Avaiable.Size = new System.Drawing.Size(1177, 559);
+            this.dataGridView_Avaiable.Size = new System.Drawing.Size(1062, 559);
             this.dataGridView_Avaiable.TabIndex = 1;
+            this.dataGridView_Avaiable.CellBeginEdit += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dataGridView_Avaiable_CellBeginEdit);
+            this.dataGridView_Avaiable.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewAvaiableCellClick);
             this.dataGridView_Avaiable.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewAvaiableCellValueChanged);
             this.dataGridView_Avaiable.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DataGridViewAvaiableMouseDown);
             // 
@@ -265,9 +293,9 @@
             this.Column_Description.HeaderText = "描述";
             this.Column_Description.Name = "Column_Description";
             // 
-            // contextMenuStrip_Variable
+            // Cms_VariableControl
             // 
-            this.contextMenuStrip_Variable.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Cms_VariableControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.RemoveAvariableToolStripMenuItem,
             this.CMS_CopyVariable,
             this.CMS_CutVariable,
@@ -275,8 +303,8 @@
             this.关联设备ToolStripMenuItem,
             this.取消关联设备ToolStripMenuItem,
             this.刷新数据ToolStripMenuItem});
-            this.contextMenuStrip_Variable.Name = "contextMenuStrip_Variable";
-            this.contextMenuStrip_Variable.Size = new System.Drawing.Size(149, 158);
+            this.Cms_VariableControl.Name = "contextMenuStrip_Variable";
+            this.Cms_VariableControl.Size = new System.Drawing.Size(149, 158);
             // 
             // RemoveAvariableToolStripMenuItem
             // 
@@ -328,9 +356,9 @@
             this.刷新数据ToolStripMenuItem.Text = "刷新数据";
             this.刷新数据ToolStripMenuItem.Click += new System.EventHandler(this.刷新数据ToolStripMenuItemClick);
             // 
-            // contextMenuStrip_TreeViewSub
+            // Cms_VariableGroup
             // 
-            this.contextMenuStrip_TreeViewSub.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.Cms_VariableGroup.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.ToolStripMenuItemCreateGroup,
             this.ToolStripMenuItemDeleteGroup,
             this.ToolStripMenuItemCreateVariable,
@@ -338,8 +366,8 @@
             this.CMS_CopyVariableGroup,
             this.CMS_CutVariableGroup,
             this.CMS_PasteVariableGroup});
-            this.contextMenuStrip_TreeViewSub.Name = "contextMenuStrip_TreeViewSub";
-            this.contextMenuStrip_TreeViewSub.Size = new System.Drawing.Size(125, 158);
+            this.Cms_VariableGroup.Name = "contextMenuStrip_TreeViewSub";
+            this.Cms_VariableGroup.Size = new System.Drawing.Size(125, 158);
             // 
             // ToolStripMenuItemCreateGroup
             // 
@@ -439,7 +467,7 @@
             this.停止同步数据ToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1360, 27);
+            this.menuStrip1.Size = new System.Drawing.Size(1227, 27);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -476,11 +504,111 @@
             // 
             this.timer1.Tick += new System.EventHandler(this.Timer1Tick);
             // 
+            // alarm_name
+            // 
+            this.alarm_name.HeaderText = "报警名称";
+            this.alarm_name.Name = "alarm_name";
+            this.alarm_name.Width = 200;
+            // 
+            // alram_variable
+            // 
+            this.alram_variable.HeaderText = "报警变量";
+            this.alram_variable.Name = "alram_variable";
+            this.alram_variable.Width = 200;
+            // 
+            // alarm_config
+            // 
+            this.alarm_config.HeaderText = "报警配置";
+            this.alarm_config.Name = "alarm_config";
+            this.alarm_config.ReadOnly = true;
+            this.alarm_config.Width = 400;
+            // 
+            // alarm_Level
+            // 
+            this.alarm_Level.DisplayStyle = System.Windows.Forms.DataGridViewComboBoxDisplayStyle.ComboBox;
+            this.alarm_Level.HeaderText = "报警等级";
+            this.alarm_Level.Items.AddRange(new object[] {
+            "特急",
+            "紧急",
+            "一般",
+            "不急"});
+            this.alarm_Level.Name = "alarm_Level";
+            this.alarm_Level.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            // 
+            // alarm_Group
+            // 
+            this.alarm_Group.HeaderText = "报警组";
+            this.alarm_Group.Name = "alarm_Group";
+            this.alarm_Group.ReadOnly = true;
+            this.alarm_Group.Width = 200;
+            // 
+            // alarm_description
+            // 
+            this.alarm_description.HeaderText = "报警描述";
+            this.alarm_description.Name = "alarm_description";
+            this.alarm_description.Width = 300;
+            // 
+            // alarmGroup_description
+            // 
+            this.alarmGroup_description.HeaderText = "报警组描述";
+            this.alarmGroup_description.Name = "alarmGroup_description";
+            this.alarmGroup_description.Width = 200;
+            // 
+            // alarmGroup_name
+            // 
+            this.alarmGroup_name.HeaderText = "报警组名称";
+            this.alarmGroup_name.Name = "alarmGroup_name";
+            this.alarmGroup_name.Width = 200;
+            // 
+            // Cms_AlarmControl
+            // 
+            this.Cms_AlarmControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.新建报警ToolStripMenuItem,
+            this.删除报警ToolStripMenuItem});
+            this.Cms_AlarmControl.Name = "Cms_AlarmControl";
+            this.Cms_AlarmControl.Size = new System.Drawing.Size(125, 48);
+            // 
+            // 新建报警ToolStripMenuItem
+            // 
+            this.新建报警ToolStripMenuItem.Name = "新建报警ToolStripMenuItem";
+            this.新建报警ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.新建报警ToolStripMenuItem.Text = "新建报警";
+            this.新建报警ToolStripMenuItem.Click += new System.EventHandler(this.新建报警ToolStripMenuItemClick);
+            // 
+            // 删除报警ToolStripMenuItem
+            // 
+            this.删除报警ToolStripMenuItem.Name = "删除报警ToolStripMenuItem";
+            this.删除报警ToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.删除报警ToolStripMenuItem.Text = "删除报警";
+            this.删除报警ToolStripMenuItem.Click += new System.EventHandler(this.删除报警ToolStripMenuItem_Click);
+            // 
+            // Cms_AlarmGroupControl
+            // 
+            this.Cms_AlarmGroupControl.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.新建报警组ToolStripMenuItem,
+            this.删除报警组ToolStripMenuItem});
+            this.Cms_AlarmGroupControl.Name = "Cms_AlarmGroupControl";
+            this.Cms_AlarmGroupControl.Size = new System.Drawing.Size(153, 70);
+            // 
+            // 新建报警组ToolStripMenuItem
+            // 
+            this.新建报警组ToolStripMenuItem.Name = "新建报警组ToolStripMenuItem";
+            this.新建报警组ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.新建报警组ToolStripMenuItem.Text = "新建报警组";
+            this.新建报警组ToolStripMenuItem.Click += new System.EventHandler(this.新建报警组ToolStripMenuItem_Click);
+            // 
+            // 删除报警组ToolStripMenuItem
+            // 
+            this.删除报警组ToolStripMenuItem.Name = "删除报警组ToolStripMenuItem";
+            this.删除报警组ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.删除报警组ToolStripMenuItem.Text = "删除报警组";
+            this.删除报警组ToolStripMenuItem.Click += new System.EventHandler(this.删除报警组ToolStripMenuItem_Click);
+            // 
             // FunctionTestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1360, 586);
+            this.ClientSize = new System.Drawing.Size(1227, 586);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -493,12 +621,14 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.contextMenuStrip_TreeView.ResumeLayout(false);
+            this.Cms_TreeView.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView_Avaiable)).EndInit();
-            this.contextMenuStrip_Variable.ResumeLayout(false);
-            this.contextMenuStrip_TreeViewSub.ResumeLayout(false);
+            this.Cms_VariableControl.ResumeLayout(false);
+            this.Cms_VariableGroup.ResumeLayout(false);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.Cms_AlarmControl.ResumeLayout(false);
+            this.Cms_AlarmGroupControl.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -508,8 +638,8 @@
 
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TreeView treeView_FunctionTest;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_TreeView;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_TreeViewSub;
+        private System.Windows.Forms.ContextMenuStrip Cms_TreeView;
+        private System.Windows.Forms.ContextMenuStrip Cms_VariableGroup;
         private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItemRefresh;
         private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItemCreateGroup;
         private System.Windows.Forms.ToolStripMenuItem ToolStripMenuItemDeleteGroup;
@@ -518,13 +648,13 @@
         private System.Windows.Forms.ToolStripMenuItem Dig_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem Ana_ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem Str_ToolStripMenuItem;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip_Variable;
+        private System.Windows.Forms.ContextMenuStrip Cms_VariableControl;
         private System.Windows.Forms.ToolStripMenuItem RemoveAvariableToolStripMenuItem;
         private System.Windows.Forms.DataGridView dataGridView_Avaiable;
         private System.Windows.Forms.ToolStripMenuItem CMS_CopyVariable;
         private System.Windows.Forms.ToolStripMenuItem CMS_CutVariable;
-        private System.Windows.Forms.ToolStripMenuItem CMS_PasteVariable;
         private System.Windows.Forms.ToolStripMenuItem CMS_CopyVariableGroup;
+        private System.Windows.Forms.ToolStripMenuItem CMS_PasteVariable;
         private System.Windows.Forms.ToolStripMenuItem CMS_CutVariableGroup;
         private System.Windows.Forms.ToolStripMenuItem CMS_PasteVariableGroup;
         private System.Windows.Forms.MenuStrip menuStrip1;
@@ -554,6 +684,20 @@
         private System.Windows.Forms.DataGridViewCheckBoxColumn Column_IsEventSaved;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column_ProjectUnit;
         private System.Windows.Forms.DataGridViewTextBoxColumn Column_Description;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alarm_name;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alram_variable;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alarm_config;
+        private System.Windows.Forms.DataGridViewComboBoxColumn alarm_Level;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alarm_Group;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alarm_description;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alarmGroup_name;
+        private System.Windows.Forms.DataGridViewTextBoxColumn alarmGroup_description;
+        private System.Windows.Forms.ContextMenuStrip Cms_AlarmControl;
+        private System.Windows.Forms.ToolStripMenuItem 新建报警ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 删除报警ToolStripMenuItem;
+        private ContextMenuStrip Cms_AlarmGroupControl;
+        private ToolStripMenuItem 新建报警组ToolStripMenuItem;
+        private ToolStripMenuItem 删除报警组ToolStripMenuItem;
     }
 }
 

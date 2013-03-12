@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SCADA.RTDB.Common;
+using SCADA.RTDB.Common.Design;
 using SCADA.RTDB.Core.Variable;
 using SCADA.RTDB.EntityFramework.Context;
 using SCADA.RTDB.EntityFramework.DbConfig;
@@ -12,14 +13,14 @@ namespace SCADA.RTDB.EntityFramework.Repository
     /// <summary>
     /// 变量仓储基类
     /// </summary>
-    public class VariableRepository : RealTimeRepositoryBase, IVariableRepository
+    public class VariableDesignRepository : RealTimeRepositoryBase, IVariableDesignRepository
     {
         #region 构造函数
         /// <summary>
         /// 构造函数
         /// </summary>
         /// <param name="repositoryConfig">仓储配置信息类</param>
-        protected VariableRepository(RepositoryConfig repositoryConfig)
+        protected VariableDesignRepository(RepositoryConfig repositoryConfig)
             : base(new RealTimeDbContext(repositoryConfig ?? new RepositoryConfig()))
         {
         }

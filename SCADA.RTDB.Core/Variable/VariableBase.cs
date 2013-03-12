@@ -194,6 +194,11 @@ namespace SCADA.RTDB.Core.Variable
         /// <returns>是否写入成功</returns>
         public virtual bool SetValue(object obj)
         {
+            //只读变量不允许修改
+            if (OperateProperty == VarOperateProperty.ReadOnly)
+            {
+                return false;
+            }
             return true;
         }
 

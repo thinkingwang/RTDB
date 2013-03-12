@@ -14,6 +14,7 @@ namespace SCADA.RTDB.EntityFramework.Context
     /// </summary>
     public class RealTimeDbContext : DbContext, IConvention
     {
+        private static string _connectionStr;
         #region 变量集合和组集合
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace SCADA.RTDB.EntityFramework.Context
         public IDbSet<TextVariableStorage> TextSet { get; set; }
 
         /// <summary>
-        /// 变量组集合
+        /// 报警组集合
         /// </summary>
         public IDbSet<AlarmGroup> AlarmGroupSet { get; set; }
 
@@ -50,6 +51,13 @@ namespace SCADA.RTDB.EntityFramework.Context
         #endregion
 
         #region 构造函数
+        /// <summary>
+        /// 
+        /// </summary>
+        public RealTimeDbContext()
+            : base(_connectionStr)
+        {
+        }
 
         /// <summary>
         /// 变量实体集构造函数
@@ -58,6 +66,7 @@ namespace SCADA.RTDB.EntityFramework.Context
         internal RealTimeDbContext(RepositoryConfig variableRepositoryConfig)
             : base(variableRepositoryConfig.DbNameOrConnectingString)
         {
+            _connectionStr = variableRepositoryConfig.DbNameOrConnectingString;
             switch (variableRepositoryConfig.DbType)
             {
                 case DataBaseType.SqlCeConnectionFactory:
@@ -73,7 +82,9 @@ namespace SCADA.RTDB.EntityFramework.Context
                     break;
             }
 
-            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<RealTimeDbContext>());
+           // Database.SetInitializer(new DropCreateDatabaseIfModelChanges<RealTimeDbContext>());
+            Database.SetInitializer(
+                new MigrateDatabaseToLatestVersion<RealTimeDbContext, MigrateDataBaseConfig<RealTimeDbContext>>());
 
             VariableGroupStorage rootGroup = VariableGroupSet.FirstOrDefault(root => root.ParentId == null);
             if (rootGroup == null)
@@ -99,6 +110,10 @@ namespace SCADA.RTDB.EntityFramework.Context
         
         #endregion
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AlarmBase>().Ignore(m=>m.Variable);

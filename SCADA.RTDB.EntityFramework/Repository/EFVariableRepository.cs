@@ -11,7 +11,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
     /// <summary>
     /// entityFrameWork仓储
     /// </summary>
-    public class EfVariableRepository : VariableRepository
+    public class EfVariableDesignRepository : VariableDesignRepository
     {
         private readonly Dictionary<string, VariableGroupStorage> _groupStorages = new Dictionary<string, VariableGroupStorage>();
         private readonly Dictionary<string, VariableBaseStorage> _variableBaseStorages = new Dictionary<string, VariableBaseStorage>();
@@ -22,7 +22,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// 构造函数
         /// </summary>
         /// <param name="variableRepositoryConfig">变量仓储配置信息类</param>
-        public EfVariableRepository(RepositoryConfig variableRepositoryConfig)
+        public EfVariableDesignRepository(RepositoryConfig variableRepositoryConfig)
             : base(variableRepositoryConfig)
         {
 
@@ -294,7 +294,6 @@ namespace SCADA.RTDB.EntityFramework.Repository
             RtDbContext.DigitalSet.Load();
             RtDbContext.AnalogSet.Load();
             RtDbContext.TextSet.Load();
-            //RtDbContext.AlarmSet.Load();
 
             //同步组
             VariableGroupStorage rootGroup =
@@ -306,6 +305,8 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 VariableGroup.RootGroup.Name = rootGroup.Name;
                 _groupStorages.Add(VariableGroup.RootGroup.AbsolutePath, rootGroup);
             }
+            VariableGroup.RootGroup.ChildGroups.Clear();
+            VariableGroup.RootGroup.ChildVariables.Clear();
             LoadVariable(VariableGroup.RootGroup, rootGroup);
            
         }

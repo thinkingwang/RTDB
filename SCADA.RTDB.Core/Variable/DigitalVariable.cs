@@ -62,6 +62,10 @@ namespace SCADA.RTDB.Core.Variable
         /// <returns>是否写入成功</returns>
         public override bool SetValue(object obj)
         {
+            if (!base.SetValue(obj))
+            {
+                return false;
+            }
             bool value;
             if (!bool.TryParse(obj.ToString(), out value))
             {

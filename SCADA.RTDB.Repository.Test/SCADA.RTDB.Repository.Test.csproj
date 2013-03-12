@@ -93,6 +93,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AlarmGroupList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AlarmGroupList.Designer.cs">
+      <DependentUpon>AlarmGroupList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DataGridViewCellButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="FunctionTestForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -107,6 +116,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AlarmGroupList.resx">
+      <DependentUpon>AlarmGroupList.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FunctionTestForm.resx">
       <DependentUpon>FunctionTestForm.cs</DependentUpon>
     </EmbeddedResource>

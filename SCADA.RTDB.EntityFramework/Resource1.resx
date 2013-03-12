@@ -193,4 +193,7 @@
   <data name="VariableRepository_CopyGroup_destinationIsNotExist" xml:space="preserve">
     <value>目标组不存在</value>
   </data>
+  <data name="AlarmRepository_AddAlarm_alarm" xml:space="preserve">
+    <value>变量报警为空</value>
+  </data>
 </root>
