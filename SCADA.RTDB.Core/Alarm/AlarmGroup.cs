@@ -8,6 +8,7 @@ namespace SCADA.RTDB.Core.Alarm
     /// </summary>
     /// <param name="name"></param>
     public delegate bool AlarmGroupVerifyTheUniquenessEventHandler(string name);
+
     /// <summary>
     /// 报警组模型
     /// </summary>
@@ -15,11 +16,13 @@ namespace SCADA.RTDB.Core.Alarm
     public class AlarmGroup
     {
         private string _name;
+        private DateTime _createTime;
 
         /// <summary>
         /// 报警变量组名改变之前触发的事件
         /// </summary>
         public static event AlarmGroupVerifyTheUniquenessEventHandler VerifyTheUniqueness;
+
         /// <summary>
         /// 报警组Id
         /// </summary>
@@ -53,5 +56,20 @@ namespace SCADA.RTDB.Core.Alarm
         /// 报警组报警列表
         /// </summary>
         public List<AlarmBase> Alarms { get; set; }
+
+        /// <summary>
+        /// 变量组建立时间
+        /// </summary>
+        public DateTime CreateTime
+        {
+            get { return _createTime; }
+            set
+            {
+                if (_createTime == new DateTime())
+                {
+                    _createTime = value;
+                }
+            }
+        }
     }
 }

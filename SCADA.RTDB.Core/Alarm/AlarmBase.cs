@@ -8,22 +8,22 @@ namespace SCADA.RTDB.Core.Alarm
     /// </summary>
     /// <param name="name"></param>
     public delegate bool AlarmVerifyTheUniquenessEventHandler(string name);
-
-
+    
     /// <summary>
     /// 报警基类模型
     /// </summary>
     [Serializable]
     public class AlarmBase
     {
+        private VariableBase _variable;
+        private string _name;
+        private string _absolutePath;
+        private DateTime _createTime;
+
         /// <summary>
         /// 报警变量名改变之前触发的事件
         /// </summary>
         public static event AlarmVerifyTheUniquenessEventHandler VerifyTheUniqueness;
-
-        private VariableBase _variable;
-        private string _name;
-        private string _absolutePath;
 
         /// <summary>
         /// 报警Id
@@ -86,6 +86,21 @@ namespace SCADA.RTDB.Core.Alarm
         /// 报警描述
         /// </summary>
         public string Description { get; set; }
+        
+        /// <summary>
+        /// 变量组建立时间
+        /// </summary>
+        public DateTime CreateTime
+        {
+            get { return _createTime; }
+            set
+            {
+                if (_createTime == new DateTime())
+                {
+                    _createTime = value;
+                }
+            }
+        }
 
         protected AlarmBase()
         {

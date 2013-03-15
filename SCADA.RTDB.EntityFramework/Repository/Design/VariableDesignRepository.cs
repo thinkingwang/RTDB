@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SCADA.RTDB.Common;
 using SCADA.RTDB.Common.Base;
 using SCADA.RTDB.Common.Design;
 using SCADA.RTDB.Core.Variable;

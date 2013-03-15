@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
-using SCADA.RTDB.Common;
 using SCADA.RTDB.Common.Base;
 using SCADA.RTDB.Common.Design;
 using SCADA.RTDB.Core.Alarm;
@@ -80,6 +78,7 @@ namespace SCADA.RTDB.EntityFramework.Repository.Design
             {
                 throw new Exception("变量报警名称已存在");
             }
+            alarm.CreateTime = DateTime.Now;
             RealTimeRepositoryBase.RtDbContext.AlarmSet.Add(alarm);
             RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
         }
@@ -227,8 +226,20 @@ namespace SCADA.RTDB.EntityFramework.Repository.Design
         /// <param name="alarmGroup">待增加的报警组</param>
         public void AddAlarmGroup(AlarmGroup alarmGroup)
         {
-            CheckAlarmGroupSetIsNull();
+            if (alarmGroup == null)
+            {
+                throw new ArgumentNullException(Resource1.AlarmRepository_AddAlarm_alarm);
+            }
+            CheckAlarmSetIsNull();
+
+            //判断报警名称是否存在
+            if (IsExistAlarmGroupName(alarmGroup.Name))
+            {
+                throw new Exception("变量报警组名称已存在");
+            }
+            alarmGroup.CreateTime = DateTime.Now;
             RealTimeRepositoryBase.RtDbContext.AlarmGroupSet.Add(alarmGroup);
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
         }
 
         /// <summary>
@@ -240,6 +251,7 @@ namespace SCADA.RTDB.EntityFramework.Repository.Design
             CheckAlarmGroupSetIsNull();
             AlarmGroup alarmGroup = FindAlarmGroupByName(alarmGroupName);
             RealTimeRepositoryBase.RtDbContext.AlarmGroupSet.Remove(alarmGroup);
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
         }
 
         /// <summary>

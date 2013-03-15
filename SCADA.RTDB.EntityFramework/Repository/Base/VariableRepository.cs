@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using SCADA.RTDB.Common;
 using SCADA.RTDB.Common.Base;
 using SCADA.RTDB.Core.Variable;
 using SCADA.RTDB.EntityFramework.Context;
@@ -16,9 +15,9 @@ namespace SCADA.RTDB.EntityFramework.Repository.Base
     public class VariableRepository :  IVariableRepository
     {
         /// <summary>
-        /// 
+        /// 构造函数
         /// </summary>
-        /// <param name="repositoryConfig"></param>
+        /// <param name="repositoryConfig">仓储配置信息</param>
         public VariableRepository(RepositoryConfig repositoryConfig)
         {
             RealTimeRepositoryBase.Initialize(RealTimeRepositoryBase.RtDbContext ??
@@ -53,7 +52,25 @@ namespace SCADA.RTDB.EntityFramework.Repository.Base
                 variable.ParentGroup = FindGroupByPath(variable.ParentGroupPath);
                 variable.ParentGroup.ChildVariables.Add(variable);
             }
-            
+            //变量组排序
+            if (VariableGroup.RootGroup != null)
+                SortGroups(VariableGroup.RootGroup);
+        }
+
+        /// <summary>
+        /// 对变量组进行排序
+        /// </summary>
+        /// <param name="vGroup">需要排序的组</param>
+        private static void SortGroups(VariableGroup vGroup)
+        {
+            if (vGroup.ChildGroups != null)
+            {
+                vGroup.ChildGroups.Sort((x, y) => x.CreateTime.CompareTo(y.CreateTime));
+                foreach (var childGroups in vGroup.ChildGroups)
+                {
+                    SortGroups(childGroups);
+                }
+            }
         }
 
         #endregion

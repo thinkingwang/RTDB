@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
-using SCADA.RTDB.Common;
 using SCADA.RTDB.Common.Base;
 using SCADA.RTDB.Core.Alarm;
 using SCADA.RTDB.EntityFramework.DbConfig;
@@ -28,7 +27,6 @@ namespace SCADA.RTDB.EntityFramework.Repository.Base
             _iVariableRepository = new VariableRepository(config);
         }
 
-
         /// <summary>
         ///     报警组数据加载
         /// </summary>
@@ -41,7 +39,6 @@ namespace SCADA.RTDB.EntityFramework.Repository.Base
                 alarm.Variable = _iVariableRepository.FindVariableByPath(alarm.AbsolutePath);
             }
         }
-
 
         /// <summary>
         ///     根据变量绝对路径，查找指定变量的报警对象
