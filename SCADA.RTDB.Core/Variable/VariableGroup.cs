@@ -11,9 +11,10 @@ namespace SCADA.RTDB.Core.Variable
     {
         #region 私有字段
 
-        private readonly List<VariableGroup> _childGroups = new List<VariableGroup>();
+        private List<VariableGroup> _childGroups = new List<VariableGroup>();
         private string _name;
         private readonly List<VariableBase> _childVariables = new List<VariableBase>();
+        private DateTime _createTime;
 
         #endregion
         
@@ -23,6 +24,11 @@ namespace SCADA.RTDB.Core.Variable
         public static VariableGroup RootGroup { get; set; }
 
         #region 属性
+
+        /// <summary>
+        /// Id
+        /// </summary>
+        public int VariableGroupId { get; set; }
 
         /// <summary>
         /// 变量组名称
@@ -64,16 +70,9 @@ namespace SCADA.RTDB.Core.Variable
         public List<VariableGroup> ChildGroups
         {
             get { return _childGroups; }
+            set { _childGroups = value; }
         }
 
-        /// <summary>
-        /// 当前组的子组数量
-        /// </summary>
-        public int GroupsCount
-        {
-            get { return _childGroups.Count; }
-        }
-        
         /// <summary>
         /// 组变量集合
         /// </summary>
@@ -83,17 +82,24 @@ namespace SCADA.RTDB.Core.Variable
         }
 
         /// <summary>
-        /// 当前组的变量数量
-        /// </summary>
-        public int VariablesCount
-        {
-            get { return _childVariables.Count; }
-        }
-
-        /// <summary>
         /// 父节点
         /// </summary>
         public VariableGroup Parent { get; set; }
+
+        /// <summary>
+        /// 变量组建立时间
+        /// </summary>
+        public DateTime CreateTime
+        {
+            get { return _createTime; }
+            set
+            {
+                if (_createTime == new DateTime())
+                {
+                    _createTime = value;
+                }
+            }
+        }
 
         #endregion
 
@@ -104,7 +110,6 @@ namespace SCADA.RTDB.Core.Variable
         /// </summary>
         public VariableGroup()
         {
-            
         }
         
         /// <summary>
@@ -120,6 +125,7 @@ namespace SCADA.RTDB.Core.Variable
             }
             _name = name;
             Parent = parent;
+            CreateTime = DateTime.Now;
 
         }
 

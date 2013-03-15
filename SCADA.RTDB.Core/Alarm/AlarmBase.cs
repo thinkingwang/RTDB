@@ -49,12 +49,7 @@ namespace SCADA.RTDB.Core.Alarm
                 
             }
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //public int Test { get; set; }
-
+        
         /// <summary>
         /// 报警的变量
         /// </summary>

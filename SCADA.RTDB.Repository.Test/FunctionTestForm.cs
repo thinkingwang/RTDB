@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using SCADA.RTDB.Adaptation;
@@ -7,15 +8,14 @@ using SCADA.RTDB.Common.Design;
 using SCADA.RTDB.Core.Alarm;
 using SCADA.RTDB.Core.Variable;
 using SCADA.RTDB.EntityFramework.DbConfig;
-using SCADA.RTDB.EntityFramework.ExtendMethod;
-using SCADA.RTDB.EntityFramework.Repository;
+using SCADA.RTDB.EntityFramework.Repository.Design;
 using SCADA.RTDB.Repository.Test.Properties;
 using SCADA.RTDB.SimulationDevice;
 using SCADA.RTDB.SimulationDeviceBase;
 
 namespace SCADA.RTDB.Repository.Test
 {
-    enum Displaytype
+    internal enum Displaytype
     {
         Variable,
         Alarm,
@@ -23,35 +23,34 @@ namespace SCADA.RTDB.Repository.Test
     }
 
     /// <summary>
-    /// 
     /// </summary>
-    public partial class FunctionTestForm : Form
+    public partial class FunctionTestForm : FormBase
     {
         #region 私有变量
 
         // private const string Connectstring = "Data Source=cnwj6iapc006\\sqlexpress;Initial Catalog=VariableDB;User ID=sa;Password=666666";
         private const string Connectstring = "data source=VariableDB.sdf;Password=666666";
-        private IVariableDesignRepository _iVariableDesignRepository;
-        private IAlarmDesignRepository _iAalarmDesignRepository;
-        private string _nameTemp; //临时存放修改名称前的名称
+        private readonly List<string> AddButtonColumList = new List<string>();
 
-        private TreeNode _currentNode = new TreeNode();
+
         private readonly List<VariableBase> _variablePasteBoard = new List<VariableBase>();
-        private VariableGroup _groupPasteBoard = new VariableGroup();
-        private bool _iscopy;
-        private readonly List<string> AddButtonColumList = new List<string>(); 
 
         /// <summary>
-        /// 控制datagridview显示内容状态标志
+        ///     控制datagridview显示内容状态标志
         /// </summary>
         private Displaytype _displayState = Displaytype.Variable;
+
+        private VariableGroup _groupPasteBoard = new VariableGroup();
+        private IAlarmDesignRepository _iAalarmDesignRepository;
         
+        private bool _iscopy;
+        private string _nameTemp; //临时存放修改名称前的名称
+
         #endregion
 
         #region 界面相关
 
         /// <summary>
-        /// 
         /// </summary>
         public FunctionTestForm()
         {
@@ -59,7 +58,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 窗体初始化加载函数
+        ///     窗体初始化加载函数
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -74,22 +73,22 @@ namespace SCADA.RTDB.Repository.Test
 
             //初始化变量字典
             _iVariableDesignRepository =
-                new EfVariableDesignRepository(config);
+                new VariableDesignRepository(config);
             _iVariableDesignRepository.Load();
 
             //初始化变量报警
-            _iAalarmDesignRepository = new AlarmDesignRepository(_iVariableDesignRepository); 
+            _iAalarmDesignRepository = new AlarmDesignRepository(config);
             _iAalarmDesignRepository.Load();
 
             //初始化界面
             treeView_FunctionTest.LabelEdit = false;
 
             //初始化datagridView需要添加按钮的列
-            AddButtonColumList.Add("报警变量"); 
+            AddButtonColumList.Add("报警变量");
             AddButtonColumList.Add("报警配置");
             AddButtonColumList.Add("报警组");
+            _ContextMenuStrip = Cms_VariableGroup;
             RefreshTree();
-            
         }
 
         private void FunctionTestFormFormClosing(object sender, FormClosingEventArgs e)
@@ -115,42 +114,53 @@ namespace SCADA.RTDB.Repository.Test
             {
                 for (int i = 0; i < dataGridView_Avaiable.Rows.Count; i++)
                 {
-                    var variable =
-                        _iVariableDesignRepository.FindVariableByPath(dataGridView_Avaiable.Rows[i].Cells[1].Value.ToString());
-                    dataGridView_Avaiable.Rows[i].Cells[7].Value = variable.GetValue();
+                    VariableBase variable =
+                        _iVariableDesignRepository.FindVariableByPath(
+                            dataGridView_Avaiable.Rows[i].Cells[1].Value.ToString());
+                    if (variable.ValueType == VarValuetype.VarBool)
+                    {
+                        dataGridView_Avaiable.Rows[i].Cells[7].Value = ((DigitalVariable)variable).Value;
+                    }
+                    else if (variable.ValueType == VarValuetype.VarDouble)
+                    {
+                        dataGridView_Avaiable.Rows[i].Cells[7].Value = ((AnalogVariable)variable).Value;
+                    }
+                    else
+                    {
+                        dataGridView_Avaiable.Rows[i].Cells[7].Value = ((TextVariable)variable).Value;
+                    }
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
             }
-
         }
 
         #endregion
-        
+
         #region TreeView操作方法
 
         #region 变量组右键菜单
 
         /// <summary>
-        /// 增加组节点
+        ///     增加组节点
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void ToolStripMenuItemCreateGroupClick(object sender, EventArgs e)
         {
             var node = new TreeNode(GetInitVarName(_currentNode))
-            {
-                ContextMenuStrip = Cms_VariableGroup
-            };
+                {
+                    ContextMenuStrip = Cms_VariableGroup
+                };
             _currentNode.Nodes.Add(node);
             _iVariableDesignRepository.AddGroup(node.Text, GetVariableGroupPath(node.Parent.FullPath));
             treeView_FunctionTest.ExpandAll();
         }
 
         /// <summary>
-        /// 获取指定变量组的变量默认名称
+        ///     获取指定变量组的变量默认名称
         /// </summary>
         /// <param name="curNode">指定变量组</param>
         /// <returns>返回指定变量组的变量默认名称</returns>
@@ -173,25 +183,9 @@ namespace SCADA.RTDB.Repository.Test
             }
         }
 
-        /// <summary>
-        /// 获取节点的组路径
-        /// </summary>
-        /// <param name="source"></param>
-        /// <returns></returns>
-        private string GetVariableGroupPath(string source)
-        {
-            if (source == null)
-            {
-                throw new ArgumentNullException(Resources.FunctionTestForm_GetVariableGroupPath_sourceIsNull);
-            }
-            string des = source.Replace('\\', '.');
-            int index = des.IndexOf('.');
-            des = index >= 0 ? des.Substring(index + 1) : string.Empty;
-            return des;
-        }
 
         /// <summary>
-        /// 删除指定组
+        ///     删除指定组
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -209,7 +203,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 重命名指定组
+        ///     重命名指定组
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -219,33 +213,35 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 添加离散变量
+        ///     添加离散变量
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void DigToolStripMenuItemClick(object sender, EventArgs e)
         {
             var digitalVariable =
-                new DigitalVariable(_iVariableDesignRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
+                new DigitalVariable(
+                    _iVariableDesignRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
             _iVariableDesignRepository.AddVariable(digitalVariable);
-            AddVarToListview(digitalVariable);
+            AddVarToListview(digitalVariable, dataGridView_Avaiable);
         }
 
         /// <summary>
-        /// 添加模拟变量
+        ///     添加模拟变量
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void AnaToolStripMenuItemClick(object sender, EventArgs e)
         {
             var analogVariable =
-                new AnalogVariable(_iVariableDesignRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
+                new AnalogVariable(
+                    _iVariableDesignRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
             _iVariableDesignRepository.AddVariable(analogVariable);
-            AddVarToListview(analogVariable);
+            AddVarToListview(analogVariable, dataGridView_Avaiable);
         }
 
         /// <summary>
-        /// 添加字符串变量
+        ///     添加字符串变量
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -254,11 +250,11 @@ namespace SCADA.RTDB.Repository.Test
             var stringVariable =
                 new TextVariable(_iVariableDesignRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath)));
             _iVariableDesignRepository.AddVariable(stringVariable);
-            AddVarToListview(stringVariable);
+            AddVarToListview(stringVariable, dataGridView_Avaiable);
         }
 
         /// <summary>
-        /// 复制变量组
+        ///     复制变量组
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -280,7 +276,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 剪切变量组
+        ///     剪切变量组
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -304,43 +300,7 @@ namespace SCADA.RTDB.Repository.Test
         #endregion
 
         /// <summary>
-        /// 由变量组集合生成树
-        /// </summary>
-        /// <param name="treeNode">树节点</param>
-        /// <param name="variableGroup">树节点所属组</param>
-        private void VairableGroupToTreeView(TreeNode treeNode, VariableGroup variableGroup)
-        { 
-            var node = new TreeNode(variableGroup.Name)
-            {
-                ContextMenuStrip = Cms_VariableGroup
-            };
-            if (treeNode != null) treeNode.Nodes.Add(node);
-            foreach (var variable in variableGroup.ChildGroups)
-            {
-                VairableGroupToTreeView(node, variable);
-            }
-        }
-
-        /// <summary>
-        /// 由变量组集合生成树
-        /// </summary>
-        /// <param name="treeNode">树</param>
-        /// <param name="variableGroup">树节点所属组</param>
-        private void VairableGroupToTreeView(TreeView treeNode, VariableGroup variableGroup)
-        {
-            var node = new TreeNode(variableGroup.Name)
-            {
-                ContextMenuStrip = Cms_VariableGroup
-            };
-            if (treeNode != null) treeNode.Nodes.Add(node);
-            foreach (var variable in variableGroup.ChildGroups)
-            {
-                VairableGroupToTreeView(node, variable);
-            }
-        }
-        
-        /// <summary>
-        /// 组节点进入可编辑状态
+        ///     组节点进入可编辑状态
         /// </summary>
         private void BiginEdit()
         {
@@ -358,11 +318,10 @@ namespace SCADA.RTDB.Repository.Test
                 MessageBox.Show(Resources.FunctionTestForm_ToolStripMenuItemRenameGroupClick_,
                                 Resources.FunctionTestForm_BiginEdit_Invalid_selection);
             }
-
         }
 
         /// <summary>
-        /// 组节点退出编辑状态
+        ///     组节点退出编辑状态
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -373,7 +332,7 @@ namespace SCADA.RTDB.Repository.Test
             {
                 if (e.Label.Length > 0)
                 {
-                    if (e.Label.IndexOfAny(new[] { '@', '.', ',', '!' }) == -1)
+                    if (e.Label.IndexOfAny(new[] {'@', '.', ',', '!'}) == -1)
                     {
                         try
                         {
@@ -383,15 +342,14 @@ namespace SCADA.RTDB.Repository.Test
                             if (varGroup != null)
                             {
                                 dataGridView_Avaiable.Rows.Clear();
-                                foreach (var variable in varGroup.ChildVariables)
+                                foreach (VariableBase variable in varGroup.ChildVariables)
                                 {
-                                    AddVarToListview(variable);
+                                    AddVarToListview(variable, dataGridView_Avaiable);
                                 }
                             }
 
                             // Stop editing without canceling the label change.
                             e.Node.EndEdit(false);
-
                         }
                         catch
                         {
@@ -401,7 +359,6 @@ namespace SCADA.RTDB.Repository.Test
                                 Resources.FunctionTestForm_TreeViewFunctionTestAfterLabelEdit_Node_Label_Edit);
                             e.Node.BeginEdit();
                         }
-
                     }
                     else
                     {
@@ -424,12 +381,11 @@ namespace SCADA.RTDB.Repository.Test
                 }
 
                 treeView_FunctionTest.LabelEdit = true;
-
             }
         }
 
         /// <summary>
-        /// 树点击事件处理函数
+        ///     树点击事件处理函数
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -442,7 +398,7 @@ namespace SCADA.RTDB.Repository.Test
                 return;
             }
 
-            if (node.Text=="变量报警")
+            if (node.Text == "变量报警")
             {
                 InitVariableUi(Displaytype.Alarm);
             }
@@ -455,7 +411,7 @@ namespace SCADA.RTDB.Repository.Test
                 InitVariableUi(Displaytype.Variable);
                 _currentNode = node;
             }
-            
+
             RefreshDataGridView();
         }
 
@@ -465,7 +421,7 @@ namespace SCADA.RTDB.Repository.Test
             {
                 case Displaytype.Alarm:
                     dataGridView_Avaiable.Rows.Clear();
-                    foreach (var alarmBase in _iAalarmDesignRepository.FindAllAlarm())
+                    foreach (AlarmBase alarmBase in _iAalarmDesignRepository.FindAlarms())
                     {
                         var alarmGridViewRow = new DataGridViewRow();
                         alarmGridViewRow.CreateCells(dataGridView_Avaiable);
@@ -480,7 +436,7 @@ namespace SCADA.RTDB.Repository.Test
                     break;
                 case Displaytype.AlarmGroup:
                     dataGridView_Avaiable.Rows.Clear();
-                    foreach (var alarmGroup in _iAalarmDesignRepository.FindAllAlarmGroup())
+                    foreach (AlarmGroup alarmGroup in _iAalarmDesignRepository.FindAlarmGroups())
                     {
                         var alarmGridViewRow = new DataGridViewRow();
                         alarmGridViewRow.CreateCells(dataGridView_Avaiable);
@@ -500,17 +456,16 @@ namespace SCADA.RTDB.Repository.Test
                     dataGridView_Avaiable.Rows.Clear();
                     foreach (VariableBase variable in _iVariableDesignRepository.FindVariables(varGroup.AbsolutePath))
                     {
-                        AddVarToListview(variable);
+                        AddVarToListview(variable, dataGridView_Avaiable);
                     }
                     break;
             }
-
         }
 
         #region 树形控件右键菜单
 
         /// <summary>
-        /// 更新树
+        ///     更新树
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -520,13 +475,12 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 更新树方法体
+        ///     更新树方法体
         /// </summary>
         private void RefreshTree()
         {
-            treeView_FunctionTest.Nodes.Clear();
             //添加变量组
-            VairableGroupToTreeView(treeView_FunctionTest, _iVariableDesignRepository.FindGroupByPath(null));
+            RefreshTreeView(treeView_FunctionTest, _iVariableDesignRepository.FindGroupByPath(null));
             _currentNode = treeView_FunctionTest.TopNode;
 
             RefreshDataGridView();
@@ -539,7 +493,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         #endregion
-        
+
         #endregion
 
         #region DataGridView操作变量的方法
@@ -575,52 +529,36 @@ namespace SCADA.RTDB.Repository.Test
                 case Displaytype.Variable:
                     dataGridView_Avaiable.Columns.AddRange(new DataGridViewColumn[]
                         {
-                            Column_Name,
-                            Column_VariableID,
-                            Column_VarType,
-                            Column_VarValueType,
-                            Column_InitValue,
-                            Column_MinValue,
-                            Column_MaxValue,
-                            Column_Value,
-                            Column_DeadArea,
-                            Column_OperateType,
-                            Column_IsValueSaved,
-                            Column_IsParamentSaved,
-                            Column_IsAddressable,
-                            Column_IsEventSaved,
-                            Column_ProjectUnit,
-                            Column_Description
+                            name,
+                            AbsolutePath,
+                            VariableType,
+                            ValueType,
+                            InitValue,
+                            MinValue,
+                            MaxValue,
+                            Value,
+                            DeadBand,
+                            OperateProperty,
+                            IsValueSaved,
+                            IsInitValueSaved,
+                            IsAddressable,
+                            IsRecordEvent,
+                            EngineeringUnit,
+                            Description
                         });
                     break;
             }
-
         }
 
+
         /// <summary>
-        /// 添加变量到DataGridView
-        /// </summary>
-        /// <param name="variable">变量</param>
-        private void AddVarToListview(VariableBase variable)
-        {
-            var row = new DataGridViewRow();
-            row.CreateCells(dataGridView_Avaiable);
-            List<string> tableList = variable.VariableToStrings();
-            for (int i = 0; i < 16; i++)
-            {
-                row.Cells[i].Value = tableList[i];
-            }
-            dataGridView_Avaiable.Rows.Add(row); //增加一个新行
-        }
-        
-        /// <summary>
-        /// DataGridView鼠标点击事件
+        ///     DataGridView鼠标点击事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void DataGridViewAvaiableMouseDown(object sender, MouseEventArgs e)
         {
-            dataGridView_Avaiable.Controls.Clear();//移除所有控件   
+            dataGridView_Avaiable.Controls.Clear(); //移除所有控件   
             if (e.Button != MouseButtons.Right)
             {
                 return;
@@ -628,14 +566,12 @@ namespace SCADA.RTDB.Repository.Test
             //报警的相关操作
             if (_displayState == Displaytype.Alarm)
             {
-                
                 Cms_AlarmControl.Show(MousePosition);
                 return;
             }
             //报警组的相关操作
             if (_displayState == Displaytype.AlarmGroup)
             {
-
                 Cms_AlarmGroupControl.Show(MousePosition);
                 return;
             }
@@ -657,14 +593,13 @@ namespace SCADA.RTDB.Repository.Test
                 CMS_CutVariable.Enabled = true;
                 RemoveAvariableToolStripMenuItem.Enabled = true;
             }
-            // ReSharper disable EmptyGeneralCatchClause
+                // ReSharper disable EmptyGeneralCatchClause
             catch
-            // ReSharper restore EmptyGeneralCatchClause
+                // ReSharper restore EmptyGeneralCatchClause
             {
                 CMS_CopyVariable.Enabled = false;
                 CMS_CutVariable.Enabled = false;
                 RemoveAvariableToolStripMenuItem.Enabled = false;
-
             }
             finally
             {
@@ -673,7 +608,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 单元格内容改变出发的事件处理函数
+        ///     单元格内容改变出发的事件处理函数
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -697,7 +632,6 @@ namespace SCADA.RTDB.Repository.Test
                         if (ChangeVariableProperty(e)) return;
                         break;
                 }
-
             }
             catch (Exception ex)
             {
@@ -708,7 +642,7 @@ namespace SCADA.RTDB.Repository.Test
 
 
         /// <summary>
-        /// 修改变量报警属性
+        ///     修改变量报警属性
         /// </summary>
         /// <param name="e">需要修改的单元</param>
         /// <returns>不需要刷新界面dataGridView返回true，需要刷新界面dataGridView返回false</returns>
@@ -722,12 +656,12 @@ namespace SCADA.RTDB.Repository.Test
                 switch (e.ColumnIndex)
                 {
                     case 0: //name
-                        _iAalarmDesignRepository.EditAlarmGroup(_nameTemp, "Name",
-                                                           currentRow.Cells[e.ColumnIndex].Value.ToString());
+                        _iAalarmDesignRepository.EditAlarmGroup(_nameTemp, "name",
+                                                                currentRow.Cells[e.ColumnIndex].Value.ToString());
                         break;
                     case 1: //descript
                         _iAalarmDesignRepository.EditAlarmGroup(currentRow.Cells[0].Value.ToString(), "Description",
-                                                           currentRow.Cells[e.ColumnIndex].Value.ToString());
+                                                                currentRow.Cells[e.ColumnIndex].Value.ToString());
                         break;
                 }
             }
@@ -740,7 +674,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 修改变量报警属性
+        ///     修改变量报警属性
         /// </summary>
         /// <param name="e">需要修改的单元</param>
         /// <returns>不需要刷新界面dataGridView返回true，需要刷新界面dataGridView返回false</returns>
@@ -754,17 +688,17 @@ namespace SCADA.RTDB.Repository.Test
                 switch (e.ColumnIndex)
                 {
                     case 0: //name
-                        _iAalarmDesignRepository.EditAlarm(_nameTemp, "Name",
+                        _iAalarmDesignRepository.EditAlarm(_nameTemp, "name",
                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
                         break;
                     case 1: //variable
-                        var variable = currentRow.Cells[e.ColumnIndex].Value;
+                        object variable = currentRow.Cells[e.ColumnIndex].Value;
                         if (variable == null)
                         {
                             _iAalarmDesignRepository.EditAlarm(currentRow.Cells[0].Value.ToString(), "Variable", null);
                             return false;
                         }
-                        var alarm = _iVariableDesignRepository.FindVariableByPath(variable.ToString());
+                        VariableBase alarm = _iVariableDesignRepository.FindVariableByPath(variable.ToString());
                         if (alarm == null)
                         {
                             MessageBox.Show("当前变量不存在");
@@ -792,12 +726,12 @@ namespace SCADA.RTDB.Repository.Test
             {
                 MessageBox.Show(ex.Message);
             }
-            
+
             return false;
         }
 
         /// <summary>
-        /// 修改变量属性
+        ///     修改变量属性
         /// </summary>
         /// <param name="e">需要修改的单元</param>
         /// <returns>不需要刷新界面dataGridView返回true，需要刷新界面dataGridView返回false</returns>
@@ -805,36 +739,76 @@ namespace SCADA.RTDB.Repository.Test
         {
             DataGridViewCell currentCell = dataGridView_Avaiable.SelectedCells[0];
             DataGridViewRow currentRow = dataGridView_Avaiable.Rows[currentCell.RowIndex];
-
-            var variableStrings = new List<string>();
-            for (int i = 0; i < 16; i++)
+            switch (e.ColumnIndex)
             {
-                variableStrings.Add(currentRow.Cells[i].Value == null ? null : currentRow.Cells[i].Value.ToString());
+                case 0: //name
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "Name",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 2: //variableType
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "VariableType",
+                                                            VariableType.Items.IndexOf(
+                                                                currentRow.Cells[e.ColumnIndex].Value.ToString()));
+                    break;
+                case 3: //valueType
+                    break;
+                case 4: //initValue
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "InitValue",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 5: //minValue
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "MinValue",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 6: //maxValue
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "MaxValue",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 7: //value
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "Value",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 8: //deadbaud
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "DeadBand",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 9: //operateType
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "OperateProperty",
+                                                            OperateProperty.Items.IndexOf(
+                                                                currentRow.Cells[e.ColumnIndex].Value.ToString()));
+                    break;
+                case 10: //IsValueSaved
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "IsValueSaved",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 11: //IsInitValueSaved
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "IsInitValueSaved",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 12: //是否允许访问
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "IsAddressable",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 13: //是否保存事件
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "IsRecordEvent",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 14: //工程单位
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "EngineeringUnit",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
+                case 15: //描述
+                    _iVariableDesignRepository.EditVariable(currentRow.Cells[1].Value.ToString(), "Description",
+                                                            currentRow.Cells[e.ColumnIndex].Value.ToString());
+                    break;
             }
-
-            VariableBase oldVar = (_iVariableDesignRepository.FindGroupByPath(GetVariableGroupPath(_currentNode.FullPath))
-                                                       .ChildVariables.Find(
-                                                           m => m.AbsolutePath == currentRow.Cells[1].Value.ToString()));
-            //修改变量值,不需要刷新界面，直接返回true
-            if (!timer1.Enabled && e.ColumnIndex == 7)
-            {
-                if (!oldVar.SetValue(variableStrings[7]))
-                {
-                    MessageBox.Show("变量值不合法，变量值设置失败");
-                }
-                return true;
-            }
-
-            if (_iVariableDesignRepository.EditVariable(oldVar, variableStrings) == null)
-            {
-                MessageBox.Show("修改参数不合法，变量修改失败");
-            }
+            
             return false;
         }
 
         private void DataGridViewAvaiableCellClick(object sender, DataGridViewCellEventArgs e)
         {
-            dataGridView_Avaiable.Controls.Clear();//移除所有控件   
+            dataGridView_Avaiable.Controls.Clear(); //移除所有控件   
 
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0 &&
                 AddButtonColumList.Contains(dataGridView_Avaiable.Columns[e.ColumnIndex].HeaderText))
@@ -852,10 +826,9 @@ namespace SCADA.RTDB.Repository.Test
 
                 //设置btn显示位置 
                 btn.Location =
-                    new System.Drawing.Point(
+                    new Point(
                         ((dataGridView_Avaiable.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, true).Right) -
                          (btn.Width)), dataGridView_Avaiable.GetCellDisplayRectangle(e.ColumnIndex, e.RowIndex, true).Y);
-
             }
         }
 
@@ -869,7 +842,7 @@ namespace SCADA.RTDB.Repository.Test
         #region 变量操作右键菜单
 
         /// <summary>
-        /// 从DataGridView中移除指定变量
+        ///     从DataGridView中移除指定变量
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -881,7 +854,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 移除变量的方法体
+        ///     移除变量的方法体
         /// </summary>
         /// <param name="collenction"></param>
         private void RemoveAvariale(IEnumerable<DataGridViewRow> collenction)
@@ -889,13 +862,13 @@ namespace SCADA.RTDB.Repository.Test
             foreach (DataGridViewRow row in collenction)
             {
                 _iVariableDesignRepository.RemoveVariable(row.Cells[0].Value.ToString(),
-                                                    GetVariableGroupPath(_currentNode.FullPath));
+                                                          GetVariableGroupPath(_currentNode.FullPath));
                 dataGridView_Avaiable.Rows.Remove(row);
             }
         }
 
         /// <summary>
-        /// 复制变量
+        ///     复制变量
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -929,7 +902,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 剪切变量
+        ///     剪切变量
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -939,7 +912,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 粘贴变量
+        ///     粘贴变量
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -947,23 +920,24 @@ namespace SCADA.RTDB.Repository.Test
         {
             foreach (VariableBase variableBase in _variablePasteBoard)
             {
-
                 string str = _iVariableDesignRepository.PasteVariable(variableBase,
-                                                                GetVariableGroupPath(_currentNode.FullPath),
-                                                                _iscopy);
+                                                                      GetVariableGroupPath(_currentNode.FullPath),
+                                                                      _iscopy);
                 if (str != variableBase.Name)
                 {
                     switch ((new PasteMessage(str)).ShowDialog())
                     {
                         case DialogResult.Yes: //移动并替换
-                            _iVariableDesignRepository.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath),
-                                                               _iscopy,
-                                                               1);
+                            _iVariableDesignRepository.PasteVariable(variableBase,
+                                                                     GetVariableGroupPath(_currentNode.FullPath),
+                                                                     _iscopy,
+                                                                     1);
                             break;
                         case DialogResult.OK: //移动，但保留两个文件
-                            _iVariableDesignRepository.PasteVariable(variableBase, GetVariableGroupPath(_currentNode.FullPath),
-                                                               _iscopy,
-                                                               2);
+                            _iVariableDesignRepository.PasteVariable(variableBase,
+                                                                     GetVariableGroupPath(_currentNode.FullPath),
+                                                                     _iscopy,
+                                                                     2);
                             break;
                     }
                 }
@@ -980,7 +954,7 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// 粘贴变量组
+        ///     粘贴变量组
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -992,10 +966,9 @@ namespace SCADA.RTDB.Repository.Test
             }
             try
             {
-
                 string str = _iVariableDesignRepository.PasteGroup(_groupPasteBoard,
-                                                             GetVariableGroupPath(_currentNode.FullPath),
-                                                             _iscopy);
+                                                                   GetVariableGroupPath(_currentNode.FullPath),
+                                                                   _iscopy);
 
                 if (str != _groupPasteBoard.Name)
                 {
@@ -1003,13 +976,13 @@ namespace SCADA.RTDB.Repository.Test
                     {
                         case DialogResult.Yes: //移动并替换
                             _iVariableDesignRepository.PasteGroup(_groupPasteBoard,
-                                                            GetVariableGroupPath(_currentNode.FullPath),
-                                                            _iscopy, 1);
+                                                                  GetVariableGroupPath(_currentNode.FullPath),
+                                                                  _iscopy, 1);
                             break;
                         case DialogResult.OK: //移动，但保留两个文件
                             _iVariableDesignRepository.PasteGroup(_groupPasteBoard,
-                                                            GetVariableGroupPath(_currentNode.FullPath),
-                                                            _iscopy, 2);
+                                                                  GetVariableGroupPath(_currentNode.FullPath),
+                                                                  _iscopy, 2);
                             break;
                     }
                 }
@@ -1039,7 +1012,8 @@ namespace SCADA.RTDB.Repository.Test
             }
             DeviceBase deviceBase = new RandomDevice();
             DeviceAdapter.AddMap(
-                _iVariableDesignRepository.FindVariableByPath(dataGridView_Avaiable.SelectedRows[0].Cells[1].Value.ToString()),
+                _iVariableDesignRepository.FindVariableByPath(
+                    dataGridView_Avaiable.SelectedRows[0].Cells[1].Value.ToString()),
                 deviceBase);
         }
 
@@ -1051,7 +1025,8 @@ namespace SCADA.RTDB.Repository.Test
                 return;
             }
             DeviceAdapter.RemoveMap(
-                _iVariableDesignRepository.FindVariableByPath(dataGridView_Avaiable.SelectedRows[0].Cells[1].Value.ToString()));
+                _iVariableDesignRepository.FindVariableByPath(
+                    dataGridView_Avaiable.SelectedRows[0].Cells[1].Value.ToString()));
         }
 
         private void 刷新数据ToolStripMenuItemClick(object sender, EventArgs e)
@@ -1072,9 +1047,8 @@ namespace SCADA.RTDB.Repository.Test
             dataGridView_Avaiable.Rows.Clear();
             if (digitalVariable != null)
             {
-                AddVarToListview(digitalVariable);
+                AddVarToListview(digitalVariable, dataGridView_Avaiable);
             }
-
         }
 
         private void 按组搜索ToolStripMenuItemClick(object sender, EventArgs e)
@@ -1084,7 +1058,7 @@ namespace SCADA.RTDB.Repository.Test
             dataGridView_Avaiable.Rows.Clear();
             if (digitalVariable != null)
             {
-                AddVarToListview(digitalVariable);
+                AddVarToListview(digitalVariable, dataGridView_Avaiable);
             }
         }
 
@@ -1097,9 +1071,8 @@ namespace SCADA.RTDB.Repository.Test
             dataGridView_Avaiable.Rows.Clear();
             foreach (VariableBase variableBase in digitalVariable)
             {
-                AddVarToListview(variableBase);
+                AddVarToListview(variableBase, dataGridView_Avaiable);
             }
-
         }
 
         private void 同步数据ToolStripMenuItemClick(object sender, EventArgs e)
@@ -1119,21 +1092,21 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         #endregion
-        
+
         private void 新建报警ToolStripMenuItemClick(object sender, EventArgs e)
         {
             var alarmGridViewRow = new DataGridViewRow();
             alarmGridViewRow.CreateCells(dataGridView_Avaiable);
-            string name;
+            string value;
             for (int i = 1;; i++)
             {
                 if (!_iAalarmDesignRepository.IsExistAlarmName("变量报警" + i))
                 {
-                    name = "变量报警" + i;
+                    value = "变量报警" + i;
                     break;
                 }
             }
-            alarmGridViewRow.Cells[0].Value = name;
+            alarmGridViewRow.Cells[0].Value = value;
             alarmGridViewRow.Cells[3].Value = "一般";
             dataGridView_Avaiable.Rows.Add(alarmGridViewRow);
             _iAalarmDesignRepository.AddAlarm(new AnalogAlarm
@@ -1158,15 +1131,27 @@ namespace SCADA.RTDB.Repository.Test
         }
 
         /// <summary>
-        /// dataGridView的按钮事件
+        ///     dataGridView的按钮事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void BtnClick(object sender, EventArgs e)
         {
-            switch (((DataGridViewCellButton)sender).HeaderText)
+            DialogResult dialog;
+            switch (((DataGridViewCellButton) sender).HeaderText)
             {
                 case "报警变量":
+                    dialog = (new VariableList(_iVariableDesignRepository)).ShowDialog();
+                    if (dialog != DialogResult.OK || SelectVariable == null)
+                    {
+                        return;
+                    }
+                    _iAalarmDesignRepository.EditAlarm(
+                        dataGridView_Avaiable.Rows[((DataGridViewCellButton)sender).Cell.RowIndex].Cells[0]
+                            .Value
+                            .ToString
+                            (), "Variable",SelectVariable);
+                    RefreshDataGridView();
                     break;
                 case "报警配置":
                     break;
@@ -1174,10 +1159,10 @@ namespace SCADA.RTDB.Repository.Test
                     string selectAlarmName =
                         dataGridView_Avaiable.Rows[((DataGridViewCellButton) sender).Cell.RowIndex].Cells[0].Value
                                                                                                             .ToString();
-                    DialogResult dialog = (new AlarmGroupList(_iAalarmDesignRepository, selectAlarmName)).ShowDialog();
+                    dialog = (new AlarmGroupList(_iAalarmDesignRepository, selectAlarmName)).ShowDialog();
                     if (dialog == DialogResult.OK)
                     {
-                        var alarm = _iAalarmDesignRepository.FindAlarmByName(selectAlarmName);
+                        AlarmBase alarm = _iAalarmDesignRepository.FindAlarmByName(selectAlarmName);
                         if (alarm != null)
                         {
                             dataGridView_Avaiable.Rows[((DataGridViewCellButton) sender).Cell.RowIndex].Cells[4]
@@ -1193,23 +1178,23 @@ namespace SCADA.RTDB.Repository.Test
         {
             var alarmGridViewRow = new DataGridViewRow();
             alarmGridViewRow.CreateCells(dataGridView_Avaiable);
-            string name;
-            for (int i = 1; ; i++)
+            string value;
+            for (int i = 1;; i++)
             {
-                if (!_iAalarmDesignRepository.IsExistAlarmName("变量报警组" + i))
+                if (!_iAalarmDesignRepository.IsExistAlarmGroupName("变量报警组" + i))
                 {
-                    name = "变量报警组" + i;
+                    value = "变量报警组" + i;
                     break;
                 }
             }
-            alarmGridViewRow.Cells[0].Value = name;
+            alarmGridViewRow.Cells[0].Value = value;
             alarmGridViewRow.Cells[1].Value = "";
             dataGridView_Avaiable.Rows.Add(alarmGridViewRow);
             _iAalarmDesignRepository.AddAlarmGroup(new AlarmGroup
                 {
-                Name = alarmGridViewRow.Cells[0].Value.ToString(),
-                Description = alarmGridViewRow.Cells[1].Value.ToString()
-            });
+                    Name = alarmGridViewRow.Cells[0].Value.ToString(),
+                    Description = alarmGridViewRow.Cells[1].Value.ToString()
+                });
         }
 
         private void 删除报警组ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1225,9 +1210,5 @@ namespace SCADA.RTDB.Repository.Test
             }
             RefreshDataGridView();
         }
-
-
     }
-
-
 }

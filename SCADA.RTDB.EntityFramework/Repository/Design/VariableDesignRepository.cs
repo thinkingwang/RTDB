@@ -2,48 +2,73 @@
 using System.Collections.Generic;
 using System.Linq;
 using SCADA.RTDB.Common;
+using SCADA.RTDB.Common.Base;
 using SCADA.RTDB.Common.Design;
 using SCADA.RTDB.Core.Variable;
-using SCADA.RTDB.EntityFramework.Context;
 using SCADA.RTDB.EntityFramework.DbConfig;
 using SCADA.RTDB.EntityFramework.ExtendMethod;
+using SCADA.RTDB.EntityFramework.Repository.Base;
 
-namespace SCADA.RTDB.EntityFramework.Repository
+namespace SCADA.RTDB.EntityFramework.Repository.Design
 {
     /// <summary>
-    /// 变量仓储基类
+    /// 变量设计仓储类
     /// </summary>
-    public class VariableDesignRepository : RealTimeRepositoryBase, IVariableDesignRepository
+    public class VariableDesignRepository :  IVariableDesignRepository
     {
+        private readonly IVariableRepository VariableRepository;
+
         #region 构造函数
+
         /// <summary>
         /// 构造函数
         /// </summary>
-        /// <param name="repositoryConfig">仓储配置信息类</param>
-        protected VariableDesignRepository(RepositoryConfig repositoryConfig)
-            : base(new RealTimeDbContext(repositoryConfig ?? new RepositoryConfig()))
+        /// <param name="config">仓库配置信息</param>
+        public VariableDesignRepository(RepositoryConfig config)
         {
+            VariableRepository = new VariableRepository(config);
         }
 
         #endregion
 
-        #region 组公共方法
+        #region 变量仓储方法重载
+
+        /// <summary>
+        /// 加载参数
+        /// </summary>
+        public void Load()
+        {
+            VariableRepository.Load();
+        }
+
+        /// <summary>
+        /// 根据变量Id提供的路径信息，遍历树查找变量
+        /// </summary>
+        /// <param name="absolutePath">变量全路径</param>
+        /// <returns>返回变量对象，未找到返回null</returns>
+        public VariableBase FindVariableByPath(string absolutePath)
+        {
+            return VariableRepository.FindVariableByPath(absolutePath);
+        }
+
+        /// <summary>
+        /// 查询组路径下面所有变量
+        /// </summary>
+        /// <param name="absolutePath">组路径</param>
+        /// <returns>所有变量列表</returns>
+        public IEnumerable<VariableBase> FindVariables(string absolutePath)
+        {
+            return VariableRepository.FindVariables(absolutePath);
+        }
 
         /// <summary>
         /// 根据组Id提供的路径信息，遍历树查找组节点
         /// </summary>
         /// <param name="absolutePath">组全路径，等于null或为空字符返回根组</param>
         /// <returns>返回组对象，未找到返回null</returns>
-        public virtual VariableGroup FindGroupByPath(string absolutePath)
+        public VariableGroup FindGroupByPath(string absolutePath)
         {
-            //等于null或为空字符返回根组
-            if (String.IsNullOrEmpty(absolutePath))
-            {
-                return VariableGroup.RootGroup;
-            }
-
-            return findRecursion(VariableGroup.RootGroup, absolutePath);
-
+            return VariableRepository.FindGroupByPath(absolutePath);
         }
 
         /// <summary>
@@ -51,11 +76,22 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// </summary>
         /// <param name="absolutePath">组路径</param>
         /// <returns>所有子组列表</returns>
-        public virtual IEnumerable<VariableGroup> FindGroups(string absolutePath)
+        public IEnumerable<VariableGroup> FindGroups(string absolutePath)
         {
-            VariableGroup variableGroup = FindGroupByPath(absolutePath);
-            return variableGroup == null ? null : variableGroup.ChildGroups;
+            return VariableRepository.FindGroups(absolutePath);
         }
+
+        /// <summary>
+        /// 退出时保存变量当前以便程序复位
+        /// </summary>
+        public void ExitWithSaving()
+        {
+            VariableRepository.ExitWithSaving();
+        }
+
+        #endregion
+
+        #region 组公共方法
 
         /// <summary>
         /// 向当前组添加子组
@@ -69,7 +105,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupNameIsNull);
             }
 
-            VariableGroup parentVariableGroup = FindGroupByPath(absolutePath);
+            VariableGroup parentVariableGroup = VariableRepository.FindGroupByPath(absolutePath);
             if (parentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -82,6 +118,8 @@ namespace SCADA.RTDB.EntityFramework.Repository
             }
 
             parentVariableGroup.ChildGroups.Add(newGroup);
+            RealTimeRepositoryBase.RtDbContext.VariableGroupSet.Add(newGroup);
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
             return newGroup;
         }
 
@@ -91,7 +129,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// <param name="absolutePath">要移除的组全路径</param>
         public virtual void RemoveGroup(string absolutePath)
         {
-            VariableGroup currentVariableGroup = FindGroupByPath(absolutePath);
+            VariableGroup currentVariableGroup = VariableRepository.FindGroupByPath(absolutePath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -112,6 +150,8 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 throw new Exception(Resource1.VariableGroup_RemoveGroup_DeleteGroup_Is_RootGroup);
             }
             currentVariableGroup.Parent.ChildGroups.Remove(currentVariableGroup);
+            RealTimeRepositoryBase.RtDbContext.VariableGroupSet.Remove(currentVariableGroup);
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
         }
 
         /// <summary>
@@ -125,7 +165,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
             {
                 throw new Exception(Resource1.VariableGroup_ReGroupName_groupName_Is_Null);
             }
-            VariableGroup currentVariableGroup = FindGroupByPath(absolutePath);
+            VariableGroup currentVariableGroup = VariableRepository.FindGroupByPath(absolutePath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -135,6 +175,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 throw new Exception(Resource1.CVariableGroup_AddGroup_GroupeNameIsExist);
             }
             currentVariableGroup.Name = name;
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
             return currentVariableGroup;
         }
 
@@ -151,7 +192,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
             {
                 throw new Exception(Resource1.VariableRepository_PasteGroup_SourceGroupContainDesGroup);
             }
-            VariableGroup source = FindGroupByPath(groupAbsolutePath);
+            VariableGroup source = VariableRepository.FindGroupByPath(groupAbsolutePath);
             if (source == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
@@ -162,7 +203,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 throw new Exception("需要粘贴的组为根组，不能粘贴");
             }
             
-            VariableGroup desGroup = FindGroupByPath(desAbsolutePath);
+            VariableGroup desGroup = VariableRepository.FindGroupByPath(desAbsolutePath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
@@ -173,6 +214,11 @@ namespace SCADA.RTDB.EntityFramework.Repository
                  return false; 
             }
 
+            source.Parent.ChildGroups.Remove(source);
+            source.Parent = desGroup;
+            desGroup.ChildGroups.Add(source);
+
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
             return true;
         }
 
@@ -204,7 +250,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 throw new Exception(Resource1.VariableRepository_PasteGroup_SourceGroupContainDesGroup);
             }
 
-            VariableGroup desGroup = FindGroupByPath(absolutePath);
+            VariableGroup desGroup = VariableRepository.FindGroupByPath(absolutePath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
@@ -224,7 +270,14 @@ namespace SCADA.RTDB.EntityFramework.Repository
                     {
                         return source.Name;
                     }
-                    RemoveGroup(desGroup.AbsolutePath + "." + source.Name);
+                    if (desGroup.AbsolutePath == "")
+                    {
+                        RemoveGroup(desGroup.AbsolutePath + "." + source.Name);
+                    }
+                    else
+                    {
+                        RemoveGroup(source.Name);
+                    }
                 }
 
                 if (isCopy)
@@ -269,24 +322,25 @@ namespace SCADA.RTDB.EntityFramework.Repository
             {
                 throw new Exception(Resource1.VariableGroup_addVariable_variableName_is_Exist);
             }
-            variable.ParentGroup.ChildVariables.Add(variable);
-            return variable;
-        }
-
-        /// <summary>
-        /// 修改变量属性
-        /// </summary>
-        /// <param name="variable">修改前变量</param>
-        /// <param name="variableStrings">修改后变量属性字符串序列</param>
-        /// <returns>修改后的变量</returns>
-        public virtual VariableBase EditVariable(VariableBase variable, List<string> variableStrings)
-        {
-            if (variable.Name != variableStrings[0] && IsExistName(variableStrings[0], variable.ParentGroup))
+            if (variable.CreateTime == new DateTime())
             {
-                throw new Exception(Resource1.VariableUnitOfWork_EditVariable_AvarialeNameExist);
+                variable.CreateTime = DateTime.Now;
             }
-            return variable.EditVariable(variableStrings) ? variable : null;
-
+            variable.ParentGroup.ChildVariables.Add(variable);
+            switch (variable.ValueType)
+            {
+                case VarValuetype.VarBool:
+                    RealTimeRepositoryBase.RtDbContext.DigitalSet.Add((DigitalVariable)variable);
+                    break;
+                case VarValuetype.VarDouble:
+                    RealTimeRepositoryBase.RtDbContext.AnalogSet.Add((AnalogVariable)variable);
+                    break;
+                case VarValuetype.VarString:
+                    RealTimeRepositoryBase.RtDbContext.TextSet.Add((TextVariable)variable);
+                    break;
+            }
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
+            return variable;
         }
 
         /// <summary>
@@ -301,29 +355,36 @@ namespace SCADA.RTDB.EntityFramework.Repository
             {
                 throw new Exception(Resource1.VariableUnitOfWork_EditVariable_AvarialeNameExist);
             }
-            return variable.EditVariable(newVariable) ? variable : null;
+            ObjectCopier.CopyProperties(variable,newVariable);
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
+            return variable;
         }
 
         /// <summary>
-        /// 设置变量值
+        /// 根据变量的属性名称修改变量的该项属性
         /// </summary>
-        /// <param name="variable">变量</param>
-        /// <param name="value">变量值</param>
-        /// <returns>设置成功返回true，失败返回false</returns>
-        public virtual bool SetVariableValue(VariableBase variable, object value)
+        /// <param name="absolutePath">变量绝对路径名</param>
+        /// <param name="propertyName">要被修改的变量的属性名</param>
+        /// <param name="value">修改的值</param>
+        public virtual VariableBase EditVariable(string absolutePath, string propertyName, object value)
         {
-            if (!variable.SetValue(value))
+            VariableBase variable = VariableRepository.FindVariableByPath(absolutePath);
+            if (variable == null)
             {
-                return false;
+                throw new Exception("需要修改的变量不存在");
             }
-            //是否需要保存历史记录
-            //if (variable.IsInitValueSaved)
-            //{
-            //    SaveAllChanges();
-            //}
-            return true;
+            if (propertyName == "Name")
+            {
+                if (IsExistName(propertyName, variable.ParentGroup))
+                {
+                    throw new Exception("变量名称已存在，不能修改");
+                }
+            }
+            ObjectCopier.CopyProperty(variable, propertyName, value);
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
+            return variable;
         }
-
+        
         /// <summary>
         /// 删除指定变量
         /// </summary>
@@ -331,7 +392,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// <param name="absolutePath">移除变量所属组全路径</param>
         public virtual void RemoveVariable(string name, string absolutePath)
         {
-            VariableGroup currentVariableGroup = FindGroupByPath(absolutePath);
+            VariableGroup currentVariableGroup = VariableRepository.FindGroupByPath(absolutePath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -342,6 +403,19 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 return;
             }
             curVariable.ParentGroup.ChildVariables.Remove(curVariable);
+            switch (curVariable.ValueType)
+            {
+                case VarValuetype.VarBool:
+                    RealTimeRepositoryBase.RtDbContext.DigitalSet.Remove((DigitalVariable)curVariable);
+                    break;
+                case VarValuetype.VarDouble:
+                    RealTimeRepositoryBase.RtDbContext.AnalogSet.Remove((AnalogVariable)curVariable);
+                    break;
+                case VarValuetype.VarString:
+                    RealTimeRepositoryBase.RtDbContext.TextSet.Remove((TextVariable)curVariable);
+                    break;
+            }
+            RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
         }
 
         /// <summary>
@@ -350,7 +424,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// <param name="absolutePath">要清空的组全路径</param>
         public virtual void ClearVariable(string absolutePath)
         {
-            VariableGroup currentVariableGroup = FindGroupByPath(absolutePath);
+            VariableGroup currentVariableGroup = VariableRepository.FindGroupByPath(absolutePath);
             if (currentVariableGroup == null)
             {
                 throw new ArgumentNullException(Resource1.UnitofWork_AddGroup_currentVariableGroup);
@@ -361,46 +435,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 RemoveVariable(currentVariableGroup.ChildVariables[0].Name, absolutePath);
             }
         }
-
-        /// <summary>
-        /// 根据变量Id提供的路径信息，遍历树查找变量
-        /// </summary>
-        /// <param name="absolutePath">变量全路径</param>
-        /// <returns>返回变量对象，未找到返回null</returns>
-        public virtual VariableBase FindVariableByPath(string absolutePath)
-        {
-            if (String.IsNullOrEmpty(absolutePath))
-            {
-                return null;
-            }
-
-            if (!absolutePath.Contains('.'))
-            {
-                return VariableGroup.RootGroup.ChildVariables.Find(m => m.AbsolutePath == absolutePath);
-            }
-            var variableGroup = findRecursion(VariableGroup.RootGroup,
-                                                        absolutePath.Substring(0, absolutePath.LastIndexOf('.')));
-
-            return variableGroup == null
-                       ? null
-                       : variableGroup.ChildVariables.Find(m => m.AbsolutePath == absolutePath);
-        }
         
-        /// <summary>
-        /// 查询组路径下面所有变量
-        /// </summary>
-        /// <param name="absolutePath">组路径</param>
-        /// <returns>所有变量列表</returns>
-        public virtual IEnumerable<VariableBase> FindVariables(string absolutePath)
-        {
-            VariableGroup variableGroup = FindGroupByPath(absolutePath);
-            if (variableGroup == null)
-            {
-                return null;
-            }
-            return variableGroup.ChildVariables;
-        }
-
         /// <summary>
         /// 移动当前变量
         /// </summary>
@@ -409,12 +444,12 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// <returns>移动成功返回true</returns>
         public virtual bool MoveVariable(string variableAbsolutePath, string desAbsolutePath)
         {
-            VariableBase source = FindVariableByPath(variableAbsolutePath);
+            VariableBase source = VariableRepository.FindVariableByPath(variableAbsolutePath);
             if (source == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
             }
-            VariableGroup desGroup = FindGroupByPath(desAbsolutePath);
+            VariableGroup desGroup = VariableRepository.FindGroupByPath(desAbsolutePath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
@@ -445,7 +480,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_sourceVariable);
             }
 
-            VariableGroup desGroup = FindGroupByPath(absolutePath);
+            VariableGroup desGroup = VariableRepository.FindGroupByPath(absolutePath);
             if (desGroup == null)
             {
                 throw new ArgumentNullException(Resource1.VariableRepository_PasteVariable_desGroup);
@@ -491,26 +526,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
         }
 
         #endregion
-
-        #region 保存改变
         
-        /// <summary>
-        /// 退出时保存变量当前以便程序复位
-        /// </summary>
-        public virtual void ExitWithSaving()
-        {
-            RtDbContext.SaveAllChanges();
-        }
-
-        /// <summary>
-        /// 加载参数
-        /// </summary>
-        public virtual void Load()
-        {
-        }
-
-        #endregion
-
         #region 私有方法
 
         /// <summary>
@@ -533,7 +549,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
             AddGroup(groupName, destination.AbsolutePath);
 
             VariableGroup var =
-                FindGroupByPath(destination.AbsolutePath == null ? groupName : destination.AbsolutePath + "." + groupName);
+                VariableRepository.FindGroupByPath(destination.AbsolutePath == null ? groupName : destination.AbsolutePath + "." + groupName);
 
             if (var == null)
             {
@@ -543,7 +559,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
             foreach (var childVariable in sourse.ChildVariables)
             {
                 var varVariable = new AnalogVariable(var);
-                varVariable.EditVariable(childVariable);
+                ObjectCopier.CopyProperties(varVariable, childVariable);
                 AddVariable(varVariable);
             }
 
@@ -599,26 +615,6 @@ namespace SCADA.RTDB.EntityFramework.Repository
             //如果父组包含groupName相同的组或者相同的变量，则返回不添加
             return group.ChildGroups.Any(curGroup => curGroup.Name == name)
                    || group.ChildVariables.Any(curVariable => curVariable.Name == name);
-        }
-
-        /// <summary>
-        /// 递归查找组内部方法
-        /// </summary>
-        /// <param name="group"></param>
-        /// <param name="absolutePath"></param>
-        /// <returns></returns>
-        private VariableGroup findRecursion(VariableGroup group, string absolutePath)
-        {
-            if (group == null)
-            {
-                return null;
-            }
-            if (!absolutePath.Contains('.'))
-            {
-                return group.ChildGroups.FirstOrDefault(m => m.Name == absolutePath);
-            }
-            return findRecursion(group.ChildGroups.FirstOrDefault(m => m.Name == absolutePath.Split('.')[0]),
-                     absolutePath.Substring(absolutePath.IndexOf('.') + 1));
         }
 
         #endregion

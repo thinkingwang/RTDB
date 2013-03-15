@@ -63,7 +63,7 @@ namespace SCADA.RTDB.Repository.Test
 
         private void AlarmGroupList_Load(object sender, EventArgs e)
         {
-            var alarmGroups = _iAlarmDesignRepository.FindAllAlarmGroup();
+            var alarmGroups = _iAlarmDesignRepository.FindAlarmGroups();
             dataGridView1.Rows.Clear();
             foreach (var alarmGroup in alarmGroups)
             {

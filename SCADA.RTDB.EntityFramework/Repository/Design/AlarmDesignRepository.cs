@@ -2,35 +2,38 @@
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using SCADA.RTDB.Common;
+using SCADA.RTDB.Common.Base;
 using SCADA.RTDB.Common.Design;
 using SCADA.RTDB.Core.Alarm;
+using SCADA.RTDB.EntityFramework.DbConfig;
 using SCADA.RTDB.EntityFramework.ExtendMethod;
+using SCADA.RTDB.EntityFramework.Repository.Base;
 
-namespace SCADA.RTDB.EntityFramework.Repository
+namespace SCADA.RTDB.EntityFramework.Repository.Design
 {
     /// <summary>
-    ///     报警仓储
+    ///     报警设计仓储类
     /// </summary>
     public class AlarmDesignRepository : IAlarmDesignRepository
     {
         /// <summary>
         /// 变量仓库引用
         /// </summary>
-        private readonly IVariableDesignRepository _iVariableDesignRepository;
+        private readonly IAlarmRepository _iAlarmRepository;
 
         /// <summary>
         ///     构造函数
         /// </summary>
-        /// <param name="variableDesignRepository">变量仓储</param>
-        public AlarmDesignRepository(IVariableDesignRepository variableDesignRepository)
+        /// <param name="config">仓库配置信息</param>
+        public AlarmDesignRepository(RepositoryConfig config)
         {
-            _iVariableDesignRepository = variableDesignRepository;
+            _iAlarmRepository = new AlarmRepository(config);
 
             //注册报警变量或者报警组修改时触发的事件
             AlarmBase.VerifyTheUniqueness+=AlarmBase_VerifyTheUniqueness;
             AlarmGroup.VerifyTheUniqueness+=AlarmGroup_VerifyTheUniqueness;
         }
-
 
         #region 修改报警或者报警组名称之前的事件处理函数
 
@@ -86,14 +89,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// </summary>
         public void Load()
         {
-            CheckAlarmGroupSetIsNull();
-            RealTimeRepositoryBase.RtDbContext.AlarmGroupSet.Load();
-            CheckAlarmSetIsNull();
-            RealTimeRepositoryBase.RtDbContext.AlarmSet.Load();
-            foreach (AlarmBase alarm in RealTimeRepositoryBase.RtDbContext.AlarmSet.Local)
-            {
-                alarm.Variable = _iVariableDesignRepository.FindVariableByPath(alarm.AbsolutePath);
-            }
+            _iAlarmRepository.Load();
         }
 
         /// <summary>
@@ -162,8 +158,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
             ObjectCopier.CopyProperty(alarm, propertyName, value);
             RealTimeRepositoryBase.RtDbContext.SaveAllChanges();
         }
-
-
+        
         /// <summary>
         ///     根据变量绝对路径，查找指定变量的报警对象
         /// </summary>
@@ -171,8 +166,7 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// <returns>找到的首个符合条件的报警，为找到返回null</returns>
         public AlarmBase FindAlarmByVariable(string variablePath)
         {
-            CheckAlarmSetIsNull();
-            return RealTimeRepositoryBase.RtDbContext.AlarmSet.FirstOrDefault(a => a.Variable.Name == variablePath);
+            return _iAlarmRepository.FindAlarmByVariable(variablePath);
         }
 
         /// <summary>
@@ -182,45 +176,25 @@ namespace SCADA.RTDB.EntityFramework.Repository
         /// <returns>返回找到的报警，未找到则返回null</returns>
         public AlarmBase FindAlarmByName(string name)
         {
-            CheckAlarmSetIsNull();
-            return RealTimeRepositoryBase.RtDbContext.AlarmSet.FirstOrDefault(a => a.Name == name);
+            return _iAlarmRepository.FindAlarmByName(name);
         }
 
         /// <summary>
         ///     查找所有报警对象
         /// </summary>
         /// <returns></returns>
-        public List<AlarmBase> FindAllAlarm()
+        public List<AlarmBase> FindAlarms()
         {
-            CheckAlarmSetIsNull();
-            if (RealTimeRepositoryBase.RtDbContext.AlarmSet == null)
-            {
-                throw new Exception("RealTimeRepositoryBase.RtDbContext.AlarmSet is null");
-            }
-            if (RealTimeRepositoryBase.RtDbContext.AlarmSet.Local == null)
-            {
-                throw new Exception("RealTimeRepositoryBase.RtDbContext.AlarmSet.Local is null");
-            }
-            return RealTimeRepositoryBase.RtDbContext.AlarmSet.Local.ToList();
+            return _iAlarmRepository.FindAlarms();
         }
-
-
+        
         /// <summary>
         ///     查找所有报警对象
         /// </summary>
         /// <returns></returns>
         public List<AlarmBase> FindAlarmByGroup(AlarmGroup group)
         {
-            CheckAlarmSetIsNull();
-            if (RealTimeRepositoryBase.RtDbContext.AlarmSet == null)
-            {
-                throw new Exception("RealTimeRepositoryBase.RtDbContext.AlarmSet is null");
-            }
-            if (RealTimeRepositoryBase.RtDbContext.AlarmSet.Local == null)
-            {
-                throw new Exception("RealTimeRepositoryBase.RtDbContext.AlarmSet.Local is null");
-            }
-            return RealTimeRepositoryBase.RtDbContext.AlarmSet.Local.ToList().FindAll(m => m.Group == group);
+            return _iAlarmRepository.FindAlarmByGroup(group);
         }
         
         /// <summary>
@@ -244,7 +218,6 @@ namespace SCADA.RTDB.EntityFramework.Repository
         }
 
         #endregion
-
 
         #region 报警组
 
@@ -307,21 +280,22 @@ namespace SCADA.RTDB.EntityFramework.Repository
         }
 
         /// <summary>
+        ///     根据报警名查找抱紧对象
+        /// </summary>
+        /// <param name="name">报警名称</param>
+        /// <returns>返回找到的报警，未找到则返回null</returns>
+        public AlarmGroup FindAlarmGroupByName(string name)
+        {
+            return _iAlarmRepository.FindAlarmGroupByName(name);
+        }
+
+        /// <summary>
         /// 查找所有报警组对象
         /// </summary>
         /// <returns></returns>
-        public List<AlarmGroup> FindAllAlarmGroup()
+        public List<AlarmGroup> FindAlarmGroups()
         {
-            CheckAlarmGroupSetIsNull();
-            if (RealTimeRepositoryBase.RtDbContext.AlarmGroupSet == null)
-            {
-                throw new Exception("RealTimeRepositoryBase.RtDbContext.AlarmSet is null");
-            }
-            if (RealTimeRepositoryBase.RtDbContext.AlarmGroupSet.Local == null)
-            {
-                throw new Exception("RealTimeRepositoryBase.RtDbContext.AlarmSet.Local is null");
-            }
-            return RealTimeRepositoryBase.RtDbContext.AlarmGroupSet.Local.ToList();
+            return _iAlarmRepository.FindAlarmGroups();
         }
 
         private static void CheckAlarmGroupSetIsNull()
@@ -342,17 +316,6 @@ namespace SCADA.RTDB.EntityFramework.Repository
             CheckAlarmSetIsNull();
             var item = RealTimeRepositoryBase.RtDbContext.AlarmGroupSet.FirstOrDefault(a => a.Name == name);
             return item != null;
-        }
-
-        /// <summary>
-        ///     根据报警名查找抱紧对象
-        /// </summary>
-        /// <param name="name">报警名称</param>
-        /// <returns>返回找到的报警，未找到则返回null</returns>
-        public AlarmGroup FindAlarmGroupByName(string name)
-        {
-            CheckAlarmSetIsNull();
-            return RealTimeRepositoryBase.RtDbContext.AlarmGroupSet.FirstOrDefault(a => a.Name == name);
         }
 
         /// <summary>

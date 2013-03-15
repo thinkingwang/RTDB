@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SCADA.RTDB.Core.Variable
 {
@@ -8,12 +9,22 @@ namespace SCADA.RTDB.Core.Variable
     [Serializable]
     public class TextVariable : VariableBase
     {
+        private string _value;
+
         #region 属性
-        
+        /// <summary>
+        /// Id
+        /// </summary>
+        public int TextVariableId { get; set; }
+
         /// <summary>
         /// 变量值
         /// </summary>
-        public string Value { get; set; }
+        public string Value
+        {
+            get { return _value; }
+            set { _value = value; }
+        }
 
         /// <summary>
         /// 变量初始值
@@ -29,7 +40,7 @@ namespace SCADA.RTDB.Core.Variable
         /// </summary>
         public TextVariable()
         {
-            
+            ValueType = VarValuetype.VarString;
         }
 
         /// <summary>
@@ -45,49 +56,6 @@ namespace SCADA.RTDB.Core.Variable
         }
 
         #endregion
-        /// <summary>
-        /// 获取变量值
-        /// </summary>
-        /// <returns>返回变量值</returns>
-        public override object GetValue()
-        {
-            return Value;
-        }
 
-        /// <summary>
-        /// 设置变量值
-        /// </summary>
-        /// <param name="obj">准备写入的值</param>
-        /// <returns>是否写入成功</returns>
-        public override bool SetValue(object obj)
-        {
-            if (!base.SetValue(obj))
-            {
-                return false;
-            }
-            Value = Convert.ToString(obj);
-            return true;
-        }
-
-        /// <summary>
-        /// 获取变量初始值
-        /// </summary>
-        /// <returns>返回变量初始值</returns>
-        public override object GetInitValue()
-        {
-            return InitValue;
-        }
-
-
-        /// <summary>
-        /// 设置变量初始值
-        /// </summary>
-        /// <param name="obj">准备写入的值</param>
-        /// <returns>是否写入成功</returns>
-        public override bool SetInitValue(object obj)
-        {
-            InitValue = Convert.ToString(obj);
-            return true;
-        }
     }
 }

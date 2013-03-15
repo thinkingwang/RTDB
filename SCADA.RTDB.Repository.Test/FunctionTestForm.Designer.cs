@@ -31,28 +31,12 @@ namespace SCADA.RTDB.Repository.Test
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.treeView_FunctionTest = new System.Windows.Forms.TreeView();
             this.Cms_TreeView = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.ToolStripMenuItemRefresh = new System.Windows.Forms.ToolStripMenuItem();
             this.dataGridView_Avaiable = new System.Windows.Forms.DataGridView();
-            this.Column_Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_VariableID = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_VarType = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.Column_VarValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_InitValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_MinValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_MaxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_DeadArea = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_OperateType = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.Column_IsValueSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_IsParamentSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_IsAddressable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_IsEventSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-            this.Column_ProjectUnit = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Column_Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Cms_VariableControl = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.RemoveAvariableToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CMS_CopyVariable = new System.Windows.Forms.ToolStripMenuItem();
@@ -94,6 +78,22 @@ namespace SCADA.RTDB.Repository.Test
             this.Cms_AlarmGroupControl = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.新建报警组ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.删除报警组ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.AbsolutePath = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.VariableType = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.ValueType = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.InitValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MinValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MaxValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Value = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DeadBand = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.OperateProperty = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.IsValueSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.IsInitValueSaved = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.IsAddressable = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.IsRecordEvent = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+            this.EngineeringUnit = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Description = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -153,32 +153,32 @@ namespace SCADA.RTDB.Repository.Test
             // 
             this.dataGridView_Avaiable.AllowUserToAddRows = false;
             this.dataGridView_Avaiable.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle2.BackColor = System.Drawing.SystemColors.Control;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView_Avaiable.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.BackColor = System.Drawing.SystemColors.Control;
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("宋体", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dataGridView_Avaiable.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
             this.dataGridView_Avaiable.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView_Avaiable.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.Column_Name,
-            this.Column_VariableID,
-            this.Column_VarType,
-            this.Column_VarValueType,
-            this.Column_InitValue,
-            this.Column_MinValue,
-            this.Column_MaxValue,
-            this.Column_Value,
-            this.Column_DeadArea,
-            this.Column_OperateType,
-            this.Column_IsValueSaved,
-            this.Column_IsParamentSaved,
-            this.Column_IsAddressable,
-            this.Column_IsEventSaved,
-            this.Column_ProjectUnit,
-            this.Column_Description});
+            this.name,
+            this.AbsolutePath,
+            this.VariableType,
+            this.ValueType,
+            this.InitValue,
+            this.MinValue,
+            this.MaxValue,
+            this.Value,
+            this.DeadBand,
+            this.OperateProperty,
+            this.IsValueSaved,
+            this.IsInitValueSaved,
+            this.IsAddressable,
+            this.IsRecordEvent,
+            this.EngineeringUnit,
+            this.Description});
             this.dataGridView_Avaiable.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView_Avaiable.Location = new System.Drawing.Point(0, 0);
             this.dataGridView_Avaiable.Name = "dataGridView_Avaiable";
@@ -189,109 +189,6 @@ namespace SCADA.RTDB.Repository.Test
             this.dataGridView_Avaiable.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewAvaiableCellClick);
             this.dataGridView_Avaiable.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.DataGridViewAvaiableCellValueChanged);
             this.dataGridView_Avaiable.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DataGridViewAvaiableMouseDown);
-            // 
-            // Column_Name
-            // 
-            this.Column_Name.HeaderText = "变量名";
-            this.Column_Name.Name = "Column_Name";
-            // 
-            // Column_VariableID
-            // 
-            this.Column_VariableID.HeaderText = "变量绝对路径";
-            this.Column_VariableID.Name = "Column_VariableID";
-            this.Column_VariableID.ReadOnly = true;
-            // 
-            // Column_VarType
-            // 
-            this.Column_VarType.HeaderText = "变量类型";
-            this.Column_VarType.Items.AddRange(new object[] {
-            "VarNormal",
-            "VarStruct",
-            "VarRef"});
-            this.Column_VarType.Name = "Column_VarType";
-            // 
-            // Column_VarValueType
-            // 
-            this.Column_VarValueType.HeaderText = "数据类型";
-            this.Column_VarValueType.Name = "Column_VarValueType";
-            this.Column_VarValueType.ReadOnly = true;
-            this.Column_VarValueType.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_VarValueType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
-            // 
-            // Column_InitValue
-            // 
-            this.Column_InitValue.HeaderText = "初始值";
-            this.Column_InitValue.Name = "Column_InitValue";
-            // 
-            // Column_MinValue
-            // 
-            this.Column_MinValue.HeaderText = "最小值";
-            this.Column_MinValue.Name = "Column_MinValue";
-            // 
-            // Column_MaxValue
-            // 
-            this.Column_MaxValue.HeaderText = "最大值";
-            this.Column_MaxValue.Name = "Column_MaxValue";
-            // 
-            // Column_Value
-            // 
-            this.Column_Value.HeaderText = "值";
-            this.Column_Value.Name = "Column_Value";
-            this.Column_Value.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
-            // 
-            // Column_DeadArea
-            // 
-            this.Column_DeadArea.HeaderText = "死区";
-            this.Column_DeadArea.Name = "Column_DeadArea";
-            // 
-            // Column_OperateType
-            // 
-            this.Column_OperateType.HeaderText = "操作类型";
-            this.Column_OperateType.Items.AddRange(new object[] {
-            "ReadWrite",
-            "ReadOnly",
-            "WriteOnly"});
-            this.Column_OperateType.Name = "Column_OperateType";
-            this.Column_OperateType.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_OperateType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsValueSaved
-            // 
-            this.Column_IsValueSaved.HeaderText = "是否保存值";
-            this.Column_IsValueSaved.Name = "Column_IsValueSaved";
-            this.Column_IsValueSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsValueSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsParamentSaved
-            // 
-            this.Column_IsParamentSaved.HeaderText = "是否保存参数";
-            this.Column_IsParamentSaved.Name = "Column_IsParamentSaved";
-            this.Column_IsParamentSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsParamentSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsAddressable
-            // 
-            this.Column_IsAddressable.HeaderText = "是否可以访问";
-            this.Column_IsAddressable.Name = "Column_IsAddressable";
-            this.Column_IsAddressable.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsAddressable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_IsEventSaved
-            // 
-            this.Column_IsEventSaved.HeaderText = "是否保存事件";
-            this.Column_IsEventSaved.Name = "Column_IsEventSaved";
-            this.Column_IsEventSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-            this.Column_IsEventSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-            // 
-            // Column_ProjectUnit
-            // 
-            this.Column_ProjectUnit.HeaderText = "工程单位";
-            this.Column_ProjectUnit.Name = "Column_ProjectUnit";
-            // 
-            // Column_Description
-            // 
-            this.Column_Description.HeaderText = "描述";
-            this.Column_Description.Name = "Column_Description";
             // 
             // Cms_VariableControl
             // 
@@ -604,6 +501,109 @@ namespace SCADA.RTDB.Repository.Test
             this.删除报警组ToolStripMenuItem.Text = "删除报警组";
             this.删除报警组ToolStripMenuItem.Click += new System.EventHandler(this.删除报警组ToolStripMenuItem_Click);
             // 
+            // name
+            // 
+            this.name.HeaderText = "变量名";
+            this.name.Name = "Name";
+            // 
+            // AbsolutePath
+            // 
+            this.AbsolutePath.HeaderText = "变量绝对路径";
+            this.AbsolutePath.Name = "AbsolutePath";
+            this.AbsolutePath.ReadOnly = true;
+            // 
+            // VariableType
+            // 
+            this.VariableType.HeaderText = "变量类型";
+            this.VariableType.Items.AddRange(new object[] {
+            "VarNormal",
+            "VarStruct",
+            "VarRef"});
+            this.VariableType.Name = "VariableType";
+            // 
+            // ValueType
+            // 
+            this.ValueType.HeaderText = "数据类型";
+            this.ValueType.Name = "ValueType";
+            this.ValueType.ReadOnly = true;
+            this.ValueType.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.ValueType.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+            // 
+            // InitValue
+            // 
+            this.InitValue.HeaderText = "初始值";
+            this.InitValue.Name = "InitValue";
+            // 
+            // MinValue
+            // 
+            this.MinValue.HeaderText = "最小值";
+            this.MinValue.Name = "MinValue";
+            // 
+            // MaxValue
+            // 
+            this.MaxValue.HeaderText = "最大值";
+            this.MaxValue.Name = "MaxValue";
+            // 
+            // Value
+            // 
+            this.Value.HeaderText = "值";
+            this.Value.Name = "Value";
+            this.Value.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Programmatic;
+            // 
+            // DeadBand
+            // 
+            this.DeadBand.HeaderText = "死区";
+            this.DeadBand.Name = "DeadBand";
+            // 
+            // OperateProperty
+            // 
+            this.OperateProperty.HeaderText = "操作类型";
+            this.OperateProperty.Items.AddRange(new object[] {
+            "ReadWrite",
+            "ReadOnly",
+            "WriteOnly"});
+            this.OperateProperty.Name = "OperateProperty";
+            this.OperateProperty.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.OperateProperty.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // IsValueSaved
+            // 
+            this.IsValueSaved.HeaderText = "是否保存值";
+            this.IsValueSaved.Name = "IsValueSaved";
+            this.IsValueSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.IsValueSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // IsInitValueSaved
+            // 
+            this.IsInitValueSaved.HeaderText = "是否保存参数";
+            this.IsInitValueSaved.Name = "IsInitValueSaved";
+            this.IsInitValueSaved.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.IsInitValueSaved.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // IsAddressable
+            // 
+            this.IsAddressable.HeaderText = "是否可以访问";
+            this.IsAddressable.Name = "IsAddressable";
+            this.IsAddressable.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.IsAddressable.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // IsRecordEvent
+            // 
+            this.IsRecordEvent.HeaderText = "是否保存事件";
+            this.IsRecordEvent.Name = "IsRecordEvent";
+            this.IsRecordEvent.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+            this.IsRecordEvent.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+            // 
+            // EngineeringUnit
+            // 
+            this.EngineeringUnit.HeaderText = "工程单位";
+            this.EngineeringUnit.Name = "EngineeringUnit";
+            // 
+            // Description
+            // 
+            this.Description.HeaderText = "描述";
+            this.Description.Name = "Description";
+            // 
             // FunctionTestForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -668,22 +668,6 @@ namespace SCADA.RTDB.Repository.Test
         private System.Windows.Forms.ToolStripMenuItem 停止同步数据ToolStripMenuItem;
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.ToolStripMenuItem 刷新数据ToolStripMenuItem;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_Name;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_VariableID;
-        private System.Windows.Forms.DataGridViewComboBoxColumn Column_VarType;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_VarValueType;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_InitValue;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_MinValue;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_MaxValue;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_Value;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_DeadArea;
-        private System.Windows.Forms.DataGridViewComboBoxColumn Column_OperateType;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Column_IsValueSaved;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Column_IsParamentSaved;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Column_IsAddressable;
-        private System.Windows.Forms.DataGridViewCheckBoxColumn Column_IsEventSaved;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_ProjectUnit;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Column_Description;
         private System.Windows.Forms.DataGridViewTextBoxColumn alarm_name;
         private System.Windows.Forms.DataGridViewTextBoxColumn alram_variable;
         private System.Windows.Forms.DataGridViewTextBoxColumn alarm_config;
@@ -698,6 +682,22 @@ namespace SCADA.RTDB.Repository.Test
         private ContextMenuStrip Cms_AlarmGroupControl;
         private ToolStripMenuItem 新建报警组ToolStripMenuItem;
         private ToolStripMenuItem 删除报警组ToolStripMenuItem;
+        private DataGridViewTextBoxColumn name;
+        private DataGridViewTextBoxColumn AbsolutePath;
+        private DataGridViewComboBoxColumn VariableType;
+        private DataGridViewTextBoxColumn ValueType;
+        private DataGridViewTextBoxColumn InitValue;
+        private DataGridViewTextBoxColumn MinValue;
+        private DataGridViewTextBoxColumn MaxValue;
+        private DataGridViewTextBoxColumn Value;
+        private DataGridViewTextBoxColumn DeadBand;
+        private DataGridViewComboBoxColumn OperateProperty;
+        private DataGridViewCheckBoxColumn IsValueSaved;
+        private DataGridViewCheckBoxColumn IsInitValueSaved;
+        private DataGridViewCheckBoxColumn IsAddressable;
+        private DataGridViewCheckBoxColumn IsRecordEvent;
+        private DataGridViewTextBoxColumn EngineeringUnit;
+        private DataGridViewTextBoxColumn Description;
     }
 }
 

@@ -4,10 +4,29 @@ using SCADA.RTDB.Core.Variable;
 namespace SCADA.RTDB.Common.Design
 {
     /// <summary>
-    /// 变量仓储公共接口
+    /// 变量设计仓储接口
     /// </summary>
-    public interface IVariableDesignRepository 
+    public interface IVariableDesignRepository
     {
+        /// <summary>
+        /// 加载参数
+        /// </summary>
+        void Load();
+
+        /// <summary>
+        /// 根据变量Id提供的路径信息，遍历树查找变量
+        /// </summary>
+        /// <param name="absolutePath">变量全路径</param>
+        /// <returns>返回变量对象，未找到返回null</returns>
+        VariableBase FindVariableByPath(string absolutePath);
+
+        /// <summary>
+        /// 查询组路径下面所有变量
+        /// </summary>
+        /// <param name="absolutePath">组路径</param>
+        /// <returns>所有变量列表</returns>
+        IEnumerable<VariableBase> FindVariables(string absolutePath);
+
         /// <summary>
         /// 根据组Id提供的路径信息，遍历树查找组节点
         /// </summary>
@@ -21,6 +40,11 @@ namespace SCADA.RTDB.Common.Design
         /// <param name="absolutePath">组路径</param>
         /// <returns>所有子组列表</returns>
         IEnumerable<VariableGroup> FindGroups(string absolutePath);
+
+        /// <summary>
+        /// 退出时保存变量当前以便程序复位
+        /// </summary>
+        void ExitWithSaving();
 
         /// <summary>
         /// 向当前组添加子组
@@ -66,14 +90,15 @@ namespace SCADA.RTDB.Common.Design
         /// </summary>
         /// <param name="variable">需要添加的变量</param>
         VariableBase AddVariable(VariableBase variable);
-
+        
         /// <summary>
-        /// 修改变量属性
+        /// 根据变量的属性名称修改变量的该项属性
         /// </summary>
-        /// <param name="variable">修改前变量</param>
-        /// <param name="variableStrings">修改后变量属性字符串序列</param>
-        /// <returns>修改成功返回true，修改失败返回false</returns>
-        VariableBase EditVariable(VariableBase variable, List<string> variableStrings);
+        /// <param name="absolutePath">变量绝对路径名</param>
+        /// <param name="propertyName">要被修改的变量的属性名</param>
+        /// <param name="value">修改的值</param>
+        VariableBase EditVariable(string absolutePath, string propertyName, object value);
+        
 
         /// <summary>
         /// 修改变量属性
@@ -82,15 +107,7 @@ namespace SCADA.RTDB.Common.Design
         /// <param name="newVariable">修改后变量</param>
         /// <returns>修改成功返回true，修改失败返回false</returns>
         VariableBase EditVariable(VariableBase variable, VariableBase newVariable);
-
-        /// <summary>
-        /// 设置变量值
-        /// </summary>
-        /// <param name="variable">变量</param>
-        /// <param name="value">变量值</param>
-        /// <returns>设置成功返回true，失败返回false</returns>
-        bool SetVariableValue(VariableBase variable, object value);
-
+        
         /// <summary>
         /// 删除指定变量
         /// </summary>
@@ -104,20 +121,6 @@ namespace SCADA.RTDB.Common.Design
         /// <param name="absolutePath">要清空的组全路径</param>
         void ClearVariable(string absolutePath);
         
-        /// <summary>
-        /// 根据变量Id提供的路径信息，遍历树查找变量
-        /// </summary>
-        /// <param name="absolutePath">变量全路径</param>
-        /// <returns>返回变量对象，未找到返回null</returns>
-        VariableBase FindVariableByPath(string absolutePath);
-
-        /// <summary>
-        /// 查询组路径下面所有变量
-        /// </summary>
-        /// <param name="absolutePath">组路径</param>
-        /// <returns>所有变量列表</returns>
-        IEnumerable<VariableBase> FindVariables(string absolutePath);
-
         /// <summary>
         /// 移动当前变量
         /// </summary>
@@ -137,14 +140,5 @@ namespace SCADA.RTDB.Common.Design
         string PasteVariable(VariableBase source, string absolutePath, bool isCopy,
                              uint pasteMode = 0);
 
-        /// <summary>
-        /// 退出时保存变量当前以便程序复位
-        /// </summary>
-        void ExitWithSaving();
-
-        /// <summary>
-        /// 加载参数
-        /// </summary>
-        void Load();
     }
 }

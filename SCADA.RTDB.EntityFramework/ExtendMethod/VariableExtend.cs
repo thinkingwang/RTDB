@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using SCADA.RTDB.Core.Variable;
@@ -35,141 +37,12 @@ namespace SCADA.RTDB.EntityFramework.ExtendMethod
         /// </summary>
         /// <param name="variable">变量基类</param>
         /// <returns>返回变量属性字符串列表</returns>
-        public static List<string> VariableToStrings(this VariableBase variable)
+        public static Dictionary<string, string> VariableToDictionary(this VariableBase variable)
         {
-            var tableValueList= new List<string>();
-            switch (variable.ValueType)
-            {
-                case VarValuetype.VarBool:
-                case VarValuetype.VarString:
-                    tableValueList.AddRange(new[]
-                        {
-                            variable.Name,
-                            variable.AbsolutePath,
-                            variable.VariableType.ToString(),
-                            variable.ValueType.ToString(),
-                            variable.GetInitValue().ToString(),
-                            "N/A",
-                            "N/A",
-                            variable.GetValue().ToString(),
-                            "N/A",
-                            variable.OperateProperty.ToString(),
-                            variable.IsValueSaved.ToString(),
-                            variable.IsInitValueSaved.ToString(),
-                            variable.IsAddressable.ToString(),
-                            variable.IsRecordEvent.ToString(),
-                            "N/A",
-                            variable.Description
-                        });
-                    return tableValueList;
-                case VarValuetype.VarDouble:
-                     tableValueList.AddRange(new[]
-                        {
-                            variable.Name,
-                            variable.AbsolutePath,
-                            variable.VariableType.ToString(),
-                            variable.ValueType.ToString(),
-                            variable.GetInitValue().ToString(),
-                            ((AnalogVariable)variable).MinValue.ToString(CultureInfo.InvariantCulture),
-                            ((AnalogVariable)variable).MaxValue.ToString(CultureInfo.InvariantCulture),
-                            variable.GetValue().ToString(),
-                            ((AnalogVariable)variable).DeadBand.ToString(CultureInfo.InvariantCulture),
-                            variable.OperateProperty.ToString(),
-                            variable.IsValueSaved.ToString(),
-                            variable.IsInitValueSaved.ToString(),
-                            variable.IsAddressable.ToString(),
-                            variable.IsRecordEvent.ToString(),
-                            ((AnalogVariable)variable).EngineeringUnit,
-                            variable.Description
-                        });
-                    return tableValueList;
-                
-                default:
-                    return null;
-            }
+            var t = variable.GetType();
+            var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            return props.ToDictionary(prop => prop.Name.ToLower(), prop => prop.GetValue(variable, null) != null ? prop.GetValue(variable, null).ToString() : string.Empty);
         }
-
-        /// <summary>
-        /// 修改变量属性，变量基类扩展方法
-        /// </summary>
-        /// <param name="variable">变量</param>
-        /// <param name="str">修改后的属性列表</param>
-        /// <returns>修改成功返回true，修改失败返回false</returns>
-        internal static bool EditVariable(this VariableBase variable, List<string> str)
-        {
-            switch (variable.ValueType)
-            {
-                case VarValuetype.VarBool:
-                    ((DigitalVariable) variable).InitValue = str[4].Substring(0, 1).ToLower() == "t";
-                    break;
-                case VarValuetype.VarDouble:
-                    double deadArea;
-                    double initValue;
-                    double minValue;
-                    double maxValue;
-                    if (!double.TryParse(str[4], out initValue) ||
-                        !double.TryParse(str[5], out minValue) ||
-                        !double.TryParse(str[6], out maxValue) ||
-                        !double.TryParse(str[8], out deadArea))
-                    {
-                        return false;
-                    }
-                    ((AnalogVariable) variable).InitValue = initValue;
-                    ((AnalogVariable) variable).MinValue = minValue;
-                    ((AnalogVariable) variable).MaxValue = maxValue;
-                    ((AnalogVariable) variable).DeadBand = deadArea;
-                    ((AnalogVariable) variable).EngineeringUnit = str[14];
-                    break;
-                case VarValuetype.VarString:
-                    ((TextVariable) variable).InitValue = str[4];
-                    break;
-            }
-            variable.Name = str[0];
-            switch (str[2])
-            {
-                case "VarNormal":
-                    variable.VariableType = VarType.VarNormal;
-                    break;
-                case "VarStruct":
-                    variable.VariableType = VarType.VarStruct;
-                    break;
-                case "VarRef":
-                    variable.VariableType = VarType.VarRef;
-                    break;
-            }
-            switch (str[9])
-            {
-                case "ReadWrite":
-                    variable.OperateProperty = VarOperateProperty.ReadWrite;
-                    break;
-                case "ReadOnly":
-                    variable.OperateProperty = VarOperateProperty.ReadOnly;
-                    break;
-                case "WriteOnly":
-                    variable.OperateProperty = VarOperateProperty.WriteOnly;
-                    break;
-            }
-            variable.IsValueSaved = str[10].Substring(0, 1).ToLower() == "t";
-            variable.IsInitValueSaved = str[11].Substring(0, 1).ToLower() == "t";
-            variable.IsAddressable = str[12].Substring(0, 1).ToLower() == "t";
-            variable.IsRecordEvent = str[13].Substring(0, 1).ToLower() == "t";
-            variable.Description = str[15];
-
-            return true;
-
-        }
-
-        /// <summary>
-        /// 修改变量属性，变量基类扩展方法
-        /// </summary>
-        /// <param name="variable">变量</param>
-        /// <param name="newVariable">修改后的变量属性</param>
-        /// <returns>修改成功返回true，修改失败返回false</returns>
-        internal static bool EditVariable(this VariableBase variable, VariableBase newVariable)
-        {
-            return variable.EditVariable(newVariable.VariableToStrings());
-        }
-
     }
 
 }

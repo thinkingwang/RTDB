@@ -5,7 +5,7 @@ using SCADA.RTDB.Core.Variable;
 namespace SCADA.RTDB.Common.Design
 {
     /// <summary>
-    /// 报警仓储公共接口
+    /// 报警设计仓储接口
     /// </summary>
     public interface IAlarmDesignRepository
     {
@@ -62,7 +62,7 @@ namespace SCADA.RTDB.Common.Design
         ///     查找所有报警对象
         /// </summary>
         /// <returns></returns>
-        List<AlarmBase> FindAllAlarm();
+        List<AlarmBase> FindAlarms();
 
         /// <summary>
         ///     查找所有报警对象
@@ -106,7 +106,7 @@ namespace SCADA.RTDB.Common.Design
         /// 查找所有报警组对象
         /// </summary>
         /// <returns></returns>
-        List<AlarmGroup> FindAllAlarmGroup();
+        List<AlarmGroup> FindAlarmGroups();
 
         /// <summary>
         /// 检查变量报警名称是否存在

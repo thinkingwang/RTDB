@@ -68,7 +68,10 @@ namespace SCADA.RTDB.Core.Variable
     public class VariableBase
     {
         private string _name;
-        
+        private VariableGroup _parentGroup;
+        private string _parentGroupPath;
+        private DateTime _createTime;
+
         #region 变量基本属性
         
         /// <summary>
@@ -89,7 +92,24 @@ namespace SCADA.RTDB.Core.Variable
         /// <summary>
         /// 变量组
         /// </summary>
-        public VariableGroup ParentGroup { get; set; }
+        public VariableGroup ParentGroup
+        {
+            get { return _parentGroup; }
+            set
+            {
+                _parentGroup = value;
+                ParentGroupPath = _parentGroup != null ? _parentGroup.AbsolutePath : string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ParentGroupPath
+        {
+            get { return _parentGroup == null ? _parentGroupPath : _parentGroup.AbsolutePath; }
+            set { _parentGroupPath = value; }
+        }
 
         /// <summary>
         /// 变量绝对路径
@@ -141,6 +161,21 @@ namespace SCADA.RTDB.Core.Variable
         /// 变量操作属性（可读写、只读、只写）
         /// </summary>
         public VarOperateProperty OperateProperty { get; set; }
+        
+        /// <summary>
+        /// 变量建立时间
+        /// </summary>
+        public DateTime CreateTime
+        {
+            get { return _createTime; }
+            set
+            {
+                if (_createTime == new DateTime())
+                {
+                    _createTime = value;
+                }
+            }
+        }
 
         #endregion
 
@@ -151,7 +186,6 @@ namespace SCADA.RTDB.Core.Variable
         /// </summary>
         protected VariableBase()
         {
-            
         }
 
         /// <summary>
@@ -172,55 +206,11 @@ namespace SCADA.RTDB.Core.Variable
             IsRecordEvent = false;
             IsValueSaved = true;
             ParentGroup = group;
+            CreateTime = DateTime.Now;
         }
         
         #endregion
 
-
-        /// <summary>
-        /// 获取变量值
-        /// </summary>
-        /// <returns>返回变量值</returns>
-        public virtual object GetValue()
-        {
-            return null;
-        }
-
-       
-        /// <summary>
-        /// 设置变量值
-        /// </summary>
-        /// <param name="obj">准备写入的值</param>
-        /// <returns>是否写入成功</returns>
-        public virtual bool SetValue(object obj)
-        {
-            //只读变量不允许修改
-            if (OperateProperty == VarOperateProperty.ReadOnly)
-            {
-                return false;
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// 获取变量初始值
-        /// </summary>
-        /// <returns>返回变量初始值</returns>
-        public virtual object GetInitValue()
-        {
-            return null;
-        }
-
-
-        /// <summary>
-        /// 设置变量初始值
-        /// </summary>
-        /// <param name="obj">准备写入的值</param>
-        /// <returns>是否写入成功</returns>
-        public virtual bool SetInitValue(object obj)
-        {
-            return true;
-        }
     }
 
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using SCADA.RTDB.Core.Alarm;
 using SCADA.RTDB.Core.Variable;
 using SCADA.RTDB.EntityFramework.DbConfig;
-using SCADA.RTDB.StorageModel;
 
 namespace SCADA.RTDB.EntityFramework.Context
 {
@@ -20,22 +19,22 @@ namespace SCADA.RTDB.EntityFramework.Context
         /// <summary>
         /// 变量组集合
         /// </summary>
-        public IDbSet<VariableGroupStorage> VariableGroupSet { get; set; }
+        public IDbSet<VariableGroup> VariableGroupSet { get; set; }
         
         /// <summary>
         /// 数字变量集合
         /// </summary>
-        public IDbSet<DigitalVariableStorage> DigitalSet { get; set; }
+        public IDbSet<DigitalVariable> DigitalSet { get; set; }
 
         /// <summary>
         /// 模拟变量集合
         /// </summary>
-        public IDbSet<AnalogVariableStorage> AnalogSet { get; set; }
+        public IDbSet<AnalogVariable> AnalogSet { get; set; }
 
         /// <summary>
         /// 字符变量集合
         /// </summary>
-        public IDbSet<TextVariableStorage> TextSet { get; set; }
+        public IDbSet<TextVariable> TextSet { get; set; }
 
         /// <summary>
         /// 报警组集合
@@ -86,10 +85,10 @@ namespace SCADA.RTDB.EntityFramework.Context
             Database.SetInitializer(
                 new MigrateDatabaseToLatestVersion<RealTimeDbContext, MigrateDataBaseConfig<RealTimeDbContext>>());
 
-            VariableGroupStorage rootGroup = VariableGroupSet.FirstOrDefault(root => root.ParentId == null);
+            VariableGroup rootGroup = VariableGroupSet.FirstOrDefault(root => root.Parent == null);
             if (rootGroup == null)
             {
-                rootGroup = new VariableGroupStorage {Name = VariableGroup.RootGroup.Name, ParentId = null};
+                rootGroup = new VariableGroup { Name = VariableGroup.RootGroup.Name, Parent = null };
                 VariableGroupSet.Add(rootGroup);
                 base.SaveChanges();
             }
@@ -117,6 +116,10 @@ namespace SCADA.RTDB.EntityFramework.Context
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AlarmBase>().Ignore(m=>m.Variable);
+            modelBuilder.Entity<VariableGroup>().Ignore(m => m.ChildVariables);
+            modelBuilder.Entity<TextVariable>().Ignore(m => m.ParentGroup);
+            modelBuilder.Entity<DigitalVariable>().Ignore(m => m.ParentGroup);
+            modelBuilder.Entity<AnalogVariable>().Ignore(m => m.ParentGroup);
             base.OnModelCreating(modelBuilder);
         }
     }

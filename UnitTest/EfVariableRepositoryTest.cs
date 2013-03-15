@@ -111,24 +111,7 @@ namespace UnitTest
             Assert.AreEqual(expected, actual);
             Assert.Inconclusive("验证此测试方法的正确性。");
         }
-
-        /// <summary>
-        ///EditVariable 的测试
-        ///</summary>
-        [TestMethod()]
-        public void EditVariableTest()
-        {
-            RepositoryConfig variableRepositoryConfig = null; // TODO: 初始化为适当的值
-            EfVariableDesignRepository target = new EfVariableDesignRepository(variableRepositoryConfig); // TODO: 初始化为适当的值
-            VariableBase variable = null; // TODO: 初始化为适当的值
-            List<string> variableStrings = null; // TODO: 初始化为适当的值
-            VariableBase expected = null; // TODO: 初始化为适当的值
-            VariableBase actual;
-            actual = target.EditVariable(variable, variableStrings);
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("验证此测试方法的正确性。");
-        }
-
+        
         /// <summary>
         ///EditVariable 的测试
         ///</summary>

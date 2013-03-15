@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Reflection;
@@ -71,6 +70,7 @@ namespace SCADA.RTDB.EntityFramework.ExtendMethod
                 {
                     throw new ArgumentNullException("需要修改的对象属性不存在");
                 }
+                //设置值为空时，需要判断被设置的属性是否允许置空
                 if (propertyValue == null)
                 {
                     if (!dstPd.PropertyType.IsValueType)
@@ -80,17 +80,116 @@ namespace SCADA.RTDB.EntityFramework.ExtendMethod
                     }
                     throw new Exception("需要修改的属性类型不能置null");
                 }
-                if (dstPd.PropertyType != propertyValue.GetType() &&
-                    !propertyValue.GetType().IsSubclassOf(dstPd.PropertyType))
+                //枚举类型
+                if (dstPd.PropertyType.IsEnum && propertyValue.GetType().IsValueType)
+                {
+                    dstPd.SetValue(dstObject, propertyValue);
+                    return;
+                }
+                var value = propertyValue;
+                //如果是值类型，则尝试转换
+                if (dstPd.PropertyType.IsValueType)
+                {
+                    value = Convert.ChangeType(propertyValue, dstPd.PropertyType);
+                }
+                //判断转换后是否类型一致
+                if (!IsType(dstPd.PropertyType, value.GetType()))
                 {
                     throw new Exception("需要修改的属性类型不一致");
                 }
-                dstPd.SetValue(dstObject, propertyValue);
+                dstPd.SetValue(dstObject, value);
             }
             catch (Exception ex)
             {
                 throw ex;
             }
+        }
+
+        /// <summary>
+        /// 类型匹配
+        /// </summary>
+        /// <param name="type">需要匹配的类型</param>
+        /// <param name="valueType">需要匹配的对象类型</param>
+        /// <returns>匹配成功返回true，否则返回false</returns>
+        public static bool IsType(Type type, Type valueType)
+        {
+            if (type.ToString() == valueType.ToString())
+                return true;
+            if (valueType.ToString() == "System.Object")
+                return false;
+
+            return IsType(type, valueType.BaseType);
+        }
+
+        /// <summary>
+        /// 将object转换为指定type类型的值
+        /// </summary>
+        /// <param name="value">需要转换的值</param>
+        /// <param name="type">需要转换的类型</param>
+        /// <returns>转换后的值</returns>
+        public static object ConvertType(object value, Type type)
+        {
+            object obj;
+            try
+            {
+                switch (type.ToString())
+                {
+                    case "System.String":
+                        obj = Convert.ToString(value);
+                        break;
+                    case "System.DateTime":
+                        obj = Convert.ToDateTime(value);
+                        break;
+                    case "System.Double":
+                        obj = Convert.ToDouble(value);
+                        break;
+                    case "System.Decimal":
+                        obj = Convert.ToDecimal(value);
+                        break;
+                    case "System.Boolean":
+                        obj = Convert.ToBoolean(value);
+                        break;
+                    case "System.Byte":
+                        obj = Convert.ToByte(value);
+                        break;
+                    case "System.Char":
+                        obj = Convert.ToChar(value);
+                        break;
+                    case "System.Int16":
+                        obj = Convert.ToInt16(value);
+                        break;
+                    case "System.Int32":
+                        obj = Convert.ToInt32(value);
+                        break;
+                    case "System.Int64":
+                        obj = Convert.ToInt64(value);
+                        break;
+                    case "System.SByte":
+                        obj = Convert.ToSByte(value);
+                        break;
+                    case "System.Single":
+                        obj = Convert.ToSingle(value);
+                        break;
+                    case "System.UInt16":
+                        obj = Convert.ToUInt16(value);
+                        break;
+                    case "System.UInt32":
+                        obj = Convert.ToUInt32(value);
+                        break;
+                    case "System.UInt64":
+                        obj = Convert.ToUInt64(value);
+                        break;
+                    default:
+                        obj = value;
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+           
+            return obj;
         }
 
         /// <summary>
@@ -119,6 +218,7 @@ namespace SCADA.RTDB.EntityFramework.ExtendMethod
                 {
                     throw new ArgumentNullException("需要修改的对象属性不存在");
                 }
+                //设置值为空时，需要判断被设置的属性是否允许置空
                 if (propertyValue == null)
                 {
                     if (!dstObject.GetType().IsValueType)
@@ -128,12 +228,24 @@ namespace SCADA.RTDB.EntityFramework.ExtendMethod
                     }
                     throw new Exception("需要修改的属性类型不能置null");
                 }
-                if (pI.PropertyType != propertyValue.GetType() &&
-                    !propertyValue.GetType().IsSubclassOf(pI.PropertyType))
+                //枚举类型
+                if (pI.PropertyType.IsEnum && propertyValue.GetType().IsValueType)
+                {
+                    pI.SetValue(dstObject, propertyValue, null);
+                    return;
+                }
+                var value = propertyValue;
+                //如果是值类型，则尝试转换
+                if (pI.PropertyType.IsValueType)
+                {
+                    value = Convert.ChangeType(propertyValue, pI.PropertyType);
+                }
+                //判断转换后是否类型一致
+                if (!IsType(pI.PropertyType, value.GetType()))
                 {
                     throw new Exception("需要修改的属性类型不一致");
                 }
-                pI.SetValue(dstObject, propertyValue, null);
+                pI.SetValue(dstObject, value, null);
             }
             catch (Exception ex)
             {
@@ -170,60 +282,6 @@ namespace SCADA.RTDB.EntityFramework.ExtendMethod
             }
         }
 
-        /// <summary>
-        /// 克隆对象
-        /// </summary>
-        /// <param name="srcCtl">需要克隆的对象</param>
-        /// <returns>返回克隆后的新对象</returns>
-        public static object CloneObject(object srcCtl)
-        {
-            try
-            {
-                if (srcCtl == null)
-                {
-                    return null;
-                }
-                Type t = srcCtl.GetType();
-                Object dstCtl = Activator.CreateInstance(t);
-
-                //   clone   properties 
-                PropertyDescriptorCollection srcPdc = TypeDescriptor.GetProperties(srcCtl);
-                PropertyDescriptorCollection dstPdc = TypeDescriptor.GetProperties(dstCtl);
-
-                for (int i = 0; i < srcPdc.Count; i++)
-                {
-
-                    if (srcPdc[i].Attributes.Contains(DesignerSerializationVisibilityAttribute.Content))
-                    {
-
-                        var collectionVal = srcPdc[i].GetValue(srcCtl);
-                        var val = collectionVal as IList<object>;
-                        if (val != null)
-                        {
-                            foreach (var child in val)
-                            {
-                                object newChild = CloneObject(child);
-                                object dstCollectionVal = dstPdc[i].GetValue(dstCtl);
-                                var objects = (IList<object>)dstCollectionVal;
-                                if (objects != null)
-                                    objects.Add(newChild);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        dstPdc[srcPdc[i].Name].SetValue(dstCtl, srcPdc[i].GetValue(srcCtl));
-                    }
-                }
-
-                return dstCtl;
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex.Message);
-                return null;
-            }
-
-        }
+      
     }
 }
